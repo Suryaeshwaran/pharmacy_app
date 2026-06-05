@@ -1,0 +1,48 @@
+name: pharmacy_app
+description: Pharmacy Billing Application — Flutter + SQLite(Drift)
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # SQLite via Drift
+  drift: ^2.22.0
+  drift_flutter: ^0.2.4
+
+  # PDF generation & printing
+  pdf: ^3.11.0
+  printing: ^5.13.0
+  
+  # Open files with system default app (PDF viewer on Mac/Windows)
+  open_filex: ^4.7.0
+
+  # File picking & sharing (backup/restore, PDF share)
+  file_picker: ^8.1.2
+  share_plus: ^10.0.0
+  path_provider: ^2.1.4
+
+  # URL launcher (WhatsApp share)
+  url_launcher: ^6.3.0
+
+  # UI helpers
+  intl: ^0.19.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  drift_dev: ^2.22.0
+  build_runner: ^2.4.0
+
+flutter:
+  uses-material-design: true
+
+platforms:
+  windows:
+  macos:
