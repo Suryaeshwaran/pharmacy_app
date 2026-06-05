@@ -41,6 +41,7 @@ class Bills extends Table {
   TextColumn get customerPhone => text().nullable()();
   RealColumn get subtotal => real()();
   RealColumn get discount => real().withDefault(const Constant(0))();
+  RealColumn get consultationFee => real().withDefault(const Constant(0))();
   RealColumn get totalAmount => real()();
   TextColumn get paymentMode => text().withDefault(const Constant('cash'))(); // cash | card | upi
   TextColumn get notes => text().nullable()();
@@ -64,7 +65,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(bills, bills.consultationFee as GeneratedColumn<Object>);
+      }
+    },
+  );
 
   static QueryExecutor _openDatabase() {
     return driftDatabase(name: 'pharmacy_app');
@@ -189,6 +199,14 @@ class AppDatabase extends _$AppDatabase {
                 b.billedAt.isSmallerOrEqualValue(to))
             ..orderBy([(b) => OrderingTerm.desc(b.billedAt)]))
           .get();
+
+  Stream<List<Bill>> watchBillsByDateRange(DateTime from, DateTime to) =>
+      (select(bills)
+            ..where((b) =>
+                b.billedAt.isBiggerOrEqualValue(from) &
+                b.billedAt.isSmallerOrEqualValue(to))
+            ..orderBy([(b) => OrderingTerm.desc(b.billedAt)]))
+          .watch();
 
   Future<String> generateBillNumber() async {
     final count = await (select(bills)).get();

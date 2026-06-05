@@ -34,7 +34,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFF2F4F7),
         surfaceTintColor: Colors.transparent,
-        title: const Text('Dashboard'),
+        title: Text(
+          'Dashboard', 
+          style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -73,11 +76,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           // ── Stat Tiles Card ────────────────────────────────────
           _WhiteCard(
-            child: FutureBuilder<List<Bill>>(
-              future: DatabaseProvider.instance.db
-                  .getBillsByDateRange(startOfDay, endOfDay),
+            child: StreamBuilder<List<Bill>>(
+              stream: DatabaseProvider.instance.db
+                  .watchBillsByDateRange(startOfDay, endOfDay),
               builder: (context, snap) {
                 final bills = snap.data ?? [];
+                final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
+                final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
                 final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -97,9 +102,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _StatTile(
                       icon: Icons.currency_rupee_outlined,
                       value: snap.hasData
+                          ? '₹${NumberFormat('#,##,###').format(sales)}'
+                          : '—',
+                      label: 'Sales',
+                      iconColor: cs.primary,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 48,
+                      color: cs.outlineVariant,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    _StatTile(
+                      icon: Icons.medical_services_outlined,
+                      value: snap.hasData
+                          ? '₹${NumberFormat('#,##,###').format(fee)}'
+                          : '—',
+                      label: 'Fee',
+                      iconColor: cs.primary,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 48,
+                      color: cs.outlineVariant,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    _StatTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      value: snap.hasData
                           ? '₹${NumberFormat('#,##,###').format(total)}'
                           : '—',
-                      label: 'Total Sales',
+                      label: 'Total',
                       iconColor: cs.primary,
                     ),
                   ]),
@@ -260,19 +293,8 @@ class _StatTile extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            value,
-            style: textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: cs.onSurface,
-            ),
-          ),
-          Text(
-            label,
-            style: textTheme.bodySmall?.copyWith(
-              color: cs.onSurface,
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: cs.onSurface)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: cs.onSurface)),          
         ]),
       ]),
     );

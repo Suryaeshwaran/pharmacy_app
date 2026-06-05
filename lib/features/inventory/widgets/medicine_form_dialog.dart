@@ -141,14 +141,14 @@ class _MedicineFormDialogState extends State<MedicineFormDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 1. Medicine Name
-                _field(_name, 'Medicine Name *', required: true),
+                _field(_name, 'Medicine Name *', required: true, capitalize: true),
                 const SizedBox(height: 16),
 
                 // 2. Generic Name | Manufacturer
                 Row(children: [
-                  Expanded(child: _field(_genericName, 'Generic Name')),
+                  Expanded(child: _field(_genericName, 'Generic Name', capitalize: true)),
                   const SizedBox(width: 12),
-                  Expanded(child: _field(_manufacturer, 'Manufacturer')),
+                  Expanded(child: _field(_manufacturer, 'Manufacturer', capitalize: true)),
                 ]),
                 const SizedBox(height: 16),
 
@@ -242,6 +242,7 @@ class _MedicineFormDialogState extends State<MedicineFormDialog> {
     bool required = false,
     bool number = false,
     bool integer = false,
+    bool capitalize = false,
   }) {
     final cs = Theme.of(context).colorScheme;
     return TextFormField(
@@ -254,10 +255,30 @@ class _MedicineFormDialogState extends State<MedicineFormDialog> {
         border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
       ),
       keyboardType: number ? const TextInputType.numberWithOptions(decimal: true) : null,
-      inputFormatters: integer ? [FilteringTextInputFormatter.digitsOnly] : null,
+      textCapitalization: capitalize ? TextCapitalization.words : TextCapitalization.none,
+      inputFormatters: [
+        if (integer) FilteringTextInputFormatter.digitsOnly,
+        if (capitalize) _FirstLetterUpperCaseFormatter(),
+      ],
       validator: required
           ? (v) => (v == null || v.trim().isEmpty) ? '$label is required' : null
           : null,
+    );
+  }
+}
+
+class _FirstLetterUpperCaseFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty) return newValue;
+    final formatted = text[0].toUpperCase() + text.substring(1);
+    return newValue.copyWith(
+      text: formatted,
+      selection: newValue.selection,
     );
   }
 }

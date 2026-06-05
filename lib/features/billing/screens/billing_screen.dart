@@ -26,6 +26,7 @@ class _BillingScreenState extends State<BillingScreen>
   final _customerName = TextEditingController();
   final _customerPhone = TextEditingController();
   final _discountCtrl = TextEditingController(text: '0');
+  final _consultationFeeCtrl = TextEditingController(text: '0');
   final _medicineSearch = TextEditingController();
   final _searchFocus = FocusNode();
 
@@ -42,6 +43,7 @@ class _BillingScreenState extends State<BillingScreen>
     _customerName.dispose();
     _customerPhone.dispose();
     _discountCtrl.dispose();
+    _consultationFeeCtrl.dispose();
     _medicineSearch.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -82,7 +84,8 @@ class _BillingScreenState extends State<BillingScreen>
 
   double get _subtotal => _cart.fold(0, (s, c) => s + c.total);
   double get _discount => double.tryParse(_discountCtrl.text) ?? 0;
-  double get _total => (_subtotal - _discount).clamp(0, double.infinity);
+  double get _consultationFee => double.tryParse(_consultationFeeCtrl.text) ?? 0;
+  double get _total => (_subtotal - _discount + _consultationFee).clamp(0, double.infinity);
 
   bool get _canBill => _cart.isNotEmpty;
 
@@ -98,6 +101,7 @@ class _BillingScreenState extends State<BillingScreen>
         customerPhone: Value(_customerPhone.text.trim().isEmpty ? null : _customerPhone.text.trim()),
         subtotal: _subtotal,
         discount: Value(_discount),
+        consultationFee: Value(_consultationFee),
         totalAmount: _total,
       ));
 
@@ -137,6 +141,7 @@ class _BillingScreenState extends State<BillingScreen>
     _customerName.clear();
     _customerPhone.clear();
     _discountCtrl.text = '0';
+    _consultationFeeCtrl.text = '0';
     _medicineSearch.clear();
   }
 
@@ -281,6 +286,8 @@ class _BillingScreenState extends State<BillingScreen>
               TextField(
                 controller: _customerName,
                 style: TextStyle(color: cs.onSurface),
+                textCapitalization: TextCapitalization.words,
+                inputFormatters: [_FirstLetterUpperCaseFormatter()],
                 decoration: InputDecoration(
                   labelText: 'Name (optional)',
                   labelStyle: TextStyle(color: cs.onSurface),
@@ -318,6 +325,26 @@ class _BillingScreenState extends State<BillingScreen>
                     textAlign: TextAlign.end,
                     decoration: InputDecoration(
                       isDense: true, 
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                      border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 12),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('Consultation Fee (₹)', style: TextStyle(color: cs.onSurface)),
+                SizedBox(
+                  width: 90,
+                  child: TextField(
+                    controller: _consultationFeeCtrl,
+                    style: TextStyle(color: cs.onSurface),
+                    textAlign: TextAlign.end,
+                    decoration: InputDecoration(
+                      isDense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                       enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
                       border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
@@ -378,5 +405,21 @@ class _BillingScreenState extends State<BillingScreen>
       const Spacer(),
       Text(value, style: style),
     ]);
+  }
+}
+
+class _FirstLetterUpperCaseFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty) return newValue;
+    final formatted = text[0].toUpperCase() + text.substring(1);
+    return newValue.copyWith(
+      text: formatted,
+      selection: newValue.selection,
+    );
   }
 }

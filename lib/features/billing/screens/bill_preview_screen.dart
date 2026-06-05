@@ -111,6 +111,9 @@ class BillPreviewScreen extends StatelessWidget {
                     if (bill.discount > 0)
                       pw.Text(
                           'Discount: -${bill.discount.toStringAsFixed(2)}'),
+                    if (bill.consultationFee > 0)
+                      pw.Text(
+                          'Consultation Fee: ${bill.consultationFee.toStringAsFixed(2)}'),
                     pw.Text(
                         'TOTAL: ${bill.totalAmount.toStringAsFixed(2)}',
                         style: pw.TextStyle(
@@ -195,15 +198,65 @@ class BillPreviewScreen extends StatelessWidget {
         '*Items:*\n$lines\n'
         '━━━━━━━━━━━━━━━━━━\n'
         'Subtotal: ${bill.subtotal.toStringAsFixed(2)}'
-        '${bill.discount > 0 ? '\nDiscount: -${bill.discount.toStringAsFixed(2)}' : ''}\n'
+        '${bill.discount > 0 ? '\nDiscount: -${bill.discount.toStringAsFixed(2)}' : ''}'
+        '${bill.consultationFee > 0 ? '\nConsultation Fee: ${bill.consultationFee.toStringAsFixed(2)}' : ''}\n'
         '*Total: ${bill.totalAmount.toStringAsFixed(2)}*\n'
         '━━━━━━━━━━━━━━━━━━\n'
-        'Thank You!';
+        '*Thank You!*';
   }
 
   Future<void> _shareWhatsApp(BuildContext context) async {
+    String phone = bill.customerPhone?.trim() ?? '';
+
+    // Prompt for phone number if not available
+    if (phone.isEmpty) {
+      final phoneCtrl = TextEditingController();
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) {
+          final cs = Theme.of(ctx).colorScheme;
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            title: Text(
+              'Enter Phone Number',
+              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
+            ),
+            content: TextField(
+              controller: phoneCtrl,
+              autofocus: true,
+              keyboardType: TextInputType.phone,
+              maxLength: 10,
+              style: TextStyle(color: cs.onSurface),
+              decoration: InputDecoration(
+                labelText: 'WhatsApp Number',
+                labelStyle: TextStyle(color: cs.onSurface),
+                hintText: '10-digit mobile number',
+                prefixText: '+91  ',
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Share'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed != true) return;
+      phone = phoneCtrl.text.trim();
+      if (phone.isEmpty) return;
+    }
+
     final msg = _buildWhatsAppMessage();
-    final phone = bill.customerPhone ?? '';
     final encoded = Uri.encodeComponent(msg);
 
     final webUrl = phone.isNotEmpty
@@ -211,7 +264,6 @@ class BillPreviewScreen extends StatelessWidget {
         : Uri.parse('https://wa.me/?text=$encoded');
 
     if (Platform.isAndroid || Platform.isIOS) {
-      // Try WhatsApp app deep link first
       final appUrl = phone.isNotEmpty
           ? Uri.parse('whatsapp://send?phone=91$phone&text=$encoded')
           : Uri.parse('whatsapp://send?text=$encoded');
@@ -295,7 +347,7 @@ class BillPreviewScreen extends StatelessWidget {
                                 color: cs.onSurface)),
                         Text('INVOICE',
                             style: textTheme.bodySmall
-                                ?.copyWith(color: cs.onSurface.withOpacity(0.7))),
+                                ?.copyWith(color: cs.onSurface)),
                         const SizedBox(height: 6),
                         Text('Bill No: ${bill.billNumber}',
                             style: TextStyle(
@@ -307,7 +359,7 @@ class BillPreviewScreen extends StatelessWidget {
                             DateFormat('dd MMM yyyy, hh:mm a')
                                 .format(bill.billedAt),
                             style: textTheme.bodySmall
-                                ?.copyWith(color: cs.onSurface.withOpacity(0.7))),
+                                ?.copyWith(color: cs.onSurface)),
                       ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -417,6 +469,12 @@ class BillPreviewScreen extends StatelessWidget {
                                       style: const TextStyle(
                                           color: Colors.green, fontSize: 13, fontWeight: FontWeight.w500)),
                                 ],
+                                if (bill.consultationFee > 0) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                      'Consultation Fee: ₹${bill.consultationFee.toStringAsFixed(2)}',
+                                      style: TextStyle(color: cs.onSurface, fontSize: 13)),
+                                ],
                                 const SizedBox(height: 8),
                                 Text(
                                     'TOTAL: ₹${bill.totalAmount.toStringAsFixed(2)}',
@@ -432,7 +490,7 @@ class BillPreviewScreen extends StatelessWidget {
                       Center(
                           child: Text('Thank You!',
                               style: TextStyle(
-                                  color: cs.onSurface.withOpacity(0.5),
+                                  color: cs.onSurface,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 13))),
                     ]),

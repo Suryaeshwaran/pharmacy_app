@@ -44,7 +44,7 @@ class $MedicinesTable extends Medicines
       'unit', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: false,
-      defaultValue: const Constant('tablet'));
+      defaultValue: const Constant('piece'));
   static const VerificationMeta _mrpMeta = const VerificationMeta('mrp');
   @override
   late final GeneratedColumn<double> mrp = GeneratedColumn<double>(
@@ -1075,6 +1075,14 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
       type: DriftSqlType.double,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _consultationFeeMeta =
+      const VerificationMeta('consultationFee');
+  @override
+  late final GeneratedColumn<double> consultationFee = GeneratedColumn<double>(
+      'consultation_fee', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _totalAmountMeta =
       const VerificationMeta('totalAmount');
   @override
@@ -1111,6 +1119,7 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
         customerPhone,
         subtotal,
         discount,
+        consultationFee,
         totalAmount,
         paymentMode,
         notes,
@@ -1165,6 +1174,12 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
       context.handle(_discountMeta,
           discount.isAcceptableOrUnknown(data['discount']!, _discountMeta));
     }
+    if (data.containsKey('consultation_fee')) {
+      context.handle(
+          _consultationFeeMeta,
+          consultationFee.isAcceptableOrUnknown(
+              data['consultation_fee']!, _consultationFeeMeta));
+    }
     if (data.containsKey('total_amount')) {
       context.handle(
           _totalAmountMeta,
@@ -1210,6 +1225,8 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
           .read(DriftSqlType.double, data['${effectivePrefix}subtotal'])!,
       discount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}discount'])!,
+      consultationFee: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}consultation_fee'])!,
       totalAmount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}total_amount'])!,
       paymentMode: attachedDatabase.typeMapping
@@ -1235,6 +1252,7 @@ class Bill extends DataClass implements Insertable<Bill> {
   final String? customerPhone;
   final double subtotal;
   final double discount;
+  final double consultationFee;
   final double totalAmount;
   final String paymentMode;
   final String? notes;
@@ -1247,6 +1265,7 @@ class Bill extends DataClass implements Insertable<Bill> {
       this.customerPhone,
       required this.subtotal,
       required this.discount,
+      required this.consultationFee,
       required this.totalAmount,
       required this.paymentMode,
       this.notes,
@@ -1267,6 +1286,7 @@ class Bill extends DataClass implements Insertable<Bill> {
     }
     map['subtotal'] = Variable<double>(subtotal);
     map['discount'] = Variable<double>(discount);
+    map['consultation_fee'] = Variable<double>(consultationFee);
     map['total_amount'] = Variable<double>(totalAmount);
     map['payment_mode'] = Variable<String>(paymentMode);
     if (!nullToAbsent || notes != null) {
@@ -1291,6 +1311,7 @@ class Bill extends DataClass implements Insertable<Bill> {
           : Value(customerPhone),
       subtotal: Value(subtotal),
       discount: Value(discount),
+      consultationFee: Value(consultationFee),
       totalAmount: Value(totalAmount),
       paymentMode: Value(paymentMode),
       notes:
@@ -1310,6 +1331,7 @@ class Bill extends DataClass implements Insertable<Bill> {
       customerPhone: serializer.fromJson<String?>(json['customerPhone']),
       subtotal: serializer.fromJson<double>(json['subtotal']),
       discount: serializer.fromJson<double>(json['discount']),
+      consultationFee: serializer.fromJson<double>(json['consultationFee']),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
       paymentMode: serializer.fromJson<String>(json['paymentMode']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -1327,6 +1349,7 @@ class Bill extends DataClass implements Insertable<Bill> {
       'customerPhone': serializer.toJson<String?>(customerPhone),
       'subtotal': serializer.toJson<double>(subtotal),
       'discount': serializer.toJson<double>(discount),
+      'consultationFee': serializer.toJson<double>(consultationFee),
       'totalAmount': serializer.toJson<double>(totalAmount),
       'paymentMode': serializer.toJson<String>(paymentMode),
       'notes': serializer.toJson<String?>(notes),
@@ -1342,6 +1365,7 @@ class Bill extends DataClass implements Insertable<Bill> {
           Value<String?> customerPhone = const Value.absent(),
           double? subtotal,
           double? discount,
+          double? consultationFee,
           double? totalAmount,
           String? paymentMode,
           Value<String?> notes = const Value.absent(),
@@ -1356,6 +1380,7 @@ class Bill extends DataClass implements Insertable<Bill> {
             customerPhone.present ? customerPhone.value : this.customerPhone,
         subtotal: subtotal ?? this.subtotal,
         discount: discount ?? this.discount,
+        consultationFee: consultationFee ?? this.consultationFee,
         totalAmount: totalAmount ?? this.totalAmount,
         paymentMode: paymentMode ?? this.paymentMode,
         notes: notes.present ? notes.value : this.notes,
@@ -1376,6 +1401,9 @@ class Bill extends DataClass implements Insertable<Bill> {
           : this.customerPhone,
       subtotal: data.subtotal.present ? data.subtotal.value : this.subtotal,
       discount: data.discount.present ? data.discount.value : this.discount,
+      consultationFee: data.consultationFee.present
+          ? data.consultationFee.value
+          : this.consultationFee,
       totalAmount:
           data.totalAmount.present ? data.totalAmount.value : this.totalAmount,
       paymentMode:
@@ -1395,6 +1423,7 @@ class Bill extends DataClass implements Insertable<Bill> {
           ..write('customerPhone: $customerPhone, ')
           ..write('subtotal: $subtotal, ')
           ..write('discount: $discount, ')
+          ..write('consultationFee: $consultationFee, ')
           ..write('totalAmount: $totalAmount, ')
           ..write('paymentMode: $paymentMode, ')
           ..write('notes: $notes, ')
@@ -1412,6 +1441,7 @@ class Bill extends DataClass implements Insertable<Bill> {
       customerPhone,
       subtotal,
       discount,
+      consultationFee,
       totalAmount,
       paymentMode,
       notes,
@@ -1427,6 +1457,7 @@ class Bill extends DataClass implements Insertable<Bill> {
           other.customerPhone == this.customerPhone &&
           other.subtotal == this.subtotal &&
           other.discount == this.discount &&
+          other.consultationFee == this.consultationFee &&
           other.totalAmount == this.totalAmount &&
           other.paymentMode == this.paymentMode &&
           other.notes == this.notes &&
@@ -1441,6 +1472,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
   final Value<String?> customerPhone;
   final Value<double> subtotal;
   final Value<double> discount;
+  final Value<double> consultationFee;
   final Value<double> totalAmount;
   final Value<String> paymentMode;
   final Value<String?> notes;
@@ -1453,6 +1485,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     this.customerPhone = const Value.absent(),
     this.subtotal = const Value.absent(),
     this.discount = const Value.absent(),
+    this.consultationFee = const Value.absent(),
     this.totalAmount = const Value.absent(),
     this.paymentMode = const Value.absent(),
     this.notes = const Value.absent(),
@@ -1466,6 +1499,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     this.customerPhone = const Value.absent(),
     required double subtotal,
     this.discount = const Value.absent(),
+    this.consultationFee = const Value.absent(),
     required double totalAmount,
     this.paymentMode = const Value.absent(),
     this.notes = const Value.absent(),
@@ -1481,6 +1515,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     Expression<String>? customerPhone,
     Expression<double>? subtotal,
     Expression<double>? discount,
+    Expression<double>? consultationFee,
     Expression<double>? totalAmount,
     Expression<String>? paymentMode,
     Expression<String>? notes,
@@ -1494,6 +1529,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       if (customerPhone != null) 'customer_phone': customerPhone,
       if (subtotal != null) 'subtotal': subtotal,
       if (discount != null) 'discount': discount,
+      if (consultationFee != null) 'consultation_fee': consultationFee,
       if (totalAmount != null) 'total_amount': totalAmount,
       if (paymentMode != null) 'payment_mode': paymentMode,
       if (notes != null) 'notes': notes,
@@ -1509,6 +1545,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       Value<String?>? customerPhone,
       Value<double>? subtotal,
       Value<double>? discount,
+      Value<double>? consultationFee,
       Value<double>? totalAmount,
       Value<String>? paymentMode,
       Value<String?>? notes,
@@ -1521,6 +1558,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       customerPhone: customerPhone ?? this.customerPhone,
       subtotal: subtotal ?? this.subtotal,
       discount: discount ?? this.discount,
+      consultationFee: consultationFee ?? this.consultationFee,
       totalAmount: totalAmount ?? this.totalAmount,
       paymentMode: paymentMode ?? this.paymentMode,
       notes: notes ?? this.notes,
@@ -1552,6 +1590,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     if (discount.present) {
       map['discount'] = Variable<double>(discount.value);
     }
+    if (consultationFee.present) {
+      map['consultation_fee'] = Variable<double>(consultationFee.value);
+    }
     if (totalAmount.present) {
       map['total_amount'] = Variable<double>(totalAmount.value);
     }
@@ -1577,6 +1618,7 @@ class BillsCompanion extends UpdateCompanion<Bill> {
           ..write('customerPhone: $customerPhone, ')
           ..write('subtotal: $subtotal, ')
           ..write('discount: $discount, ')
+          ..write('consultationFee: $consultationFee, ')
           ..write('totalAmount: $totalAmount, ')
           ..write('paymentMode: $paymentMode, ')
           ..write('notes: $notes, ')
@@ -2643,6 +2685,7 @@ typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<String?> customerPhone,
   required double subtotal,
   Value<double> discount,
+  Value<double> consultationFee,
   required double totalAmount,
   Value<String> paymentMode,
   Value<String?> notes,
@@ -2656,6 +2699,7 @@ typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
   Value<String?> customerPhone,
   Value<double> subtotal,
   Value<double> discount,
+  Value<double> consultationFee,
   Value<double> totalAmount,
   Value<String> paymentMode,
   Value<String?> notes,
@@ -2720,6 +2764,10 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
 
   ColumnFilters<double> get discount => $composableBuilder(
       column: $table.discount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get consultationFee => $composableBuilder(
+      column: $table.consultationFee,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get totalAmount => $composableBuilder(
       column: $table.totalAmount, builder: (column) => ColumnFilters(column));
@@ -2804,6 +2852,10 @@ class $$BillsTableOrderingComposer
   ColumnOrderings<double> get discount => $composableBuilder(
       column: $table.discount, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get consultationFee => $composableBuilder(
+      column: $table.consultationFee,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get totalAmount => $composableBuilder(
       column: $table.totalAmount, builder: (column) => ColumnOrderings(column));
 
@@ -2863,6 +2915,9 @@ class $$BillsTableAnnotationComposer
 
   GeneratedColumn<double> get discount =>
       $composableBuilder(column: $table.discount, builder: (column) => column);
+
+  GeneratedColumn<double> get consultationFee => $composableBuilder(
+      column: $table.consultationFee, builder: (column) => column);
 
   GeneratedColumn<double> get totalAmount => $composableBuilder(
       column: $table.totalAmount, builder: (column) => column);
@@ -2948,6 +3003,7 @@ class $$BillsTableTableManager extends RootTableManager<
             Value<String?> customerPhone = const Value.absent(),
             Value<double> subtotal = const Value.absent(),
             Value<double> discount = const Value.absent(),
+            Value<double> consultationFee = const Value.absent(),
             Value<double> totalAmount = const Value.absent(),
             Value<String> paymentMode = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -2961,6 +3017,7 @@ class $$BillsTableTableManager extends RootTableManager<
             customerPhone: customerPhone,
             subtotal: subtotal,
             discount: discount,
+            consultationFee: consultationFee,
             totalAmount: totalAmount,
             paymentMode: paymentMode,
             notes: notes,
@@ -2974,6 +3031,7 @@ class $$BillsTableTableManager extends RootTableManager<
             Value<String?> customerPhone = const Value.absent(),
             required double subtotal,
             Value<double> discount = const Value.absent(),
+            Value<double> consultationFee = const Value.absent(),
             required double totalAmount,
             Value<String> paymentMode = const Value.absent(),
             Value<String?> notes = const Value.absent(),
@@ -2987,6 +3045,7 @@ class $$BillsTableTableManager extends RootTableManager<
             customerPhone: customerPhone,
             subtotal: subtotal,
             discount: discount,
+            consultationFee: consultationFee,
             totalAmount: totalAmount,
             paymentMode: paymentMode,
             notes: notes,

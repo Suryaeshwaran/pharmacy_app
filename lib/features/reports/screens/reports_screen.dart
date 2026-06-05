@@ -210,11 +210,13 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           ),
         ]),
       ),
-      Expanded(child: FutureBuilder<List<Bill>>(
-        future: DatabaseProvider.instance.db.getBillsByDateRange(start, end),
+      Expanded(child: StreamBuilder<List<Bill>>(
+        stream: DatabaseProvider.instance.db.watchBillsByDateRange(start, end),
         builder: (ctx, snap) {
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
           final bills = snap.data!;
+          final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
+          final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
           final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
           return Column(children: [
             // Summary cards
@@ -223,7 +225,11 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               child: Row(children: [
                 _SummaryCard(label: 'Total Bills', value: '${bills.length}', icon: Icons.receipt),
                 const SizedBox(width: 12),
-                _SummaryCard(label: 'Total Sales', value: '₹${total.toStringAsFixed(2)}', icon: Icons.currency_rupee),
+                _SummaryCard(label: 'Sales', value: '₹${sales.toStringAsFixed(2)}', icon: Icons.currency_rupee),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Fee', value: '₹${fee.toStringAsFixed(2)}', icon: Icons.medical_services_outlined),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Total', value: '₹${total.toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
               ]),
             ),
             const SizedBox(height: 12),
@@ -260,13 +266,14 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           ),
         ]),
       ),
-      Expanded(child: FutureBuilder<List<Bill>>(
-        future: DatabaseProvider.instance.db.getBillsByDateRange(start, end),
+      Expanded(child: StreamBuilder<List<Bill>>(
+        stream: DatabaseProvider.instance.db.watchBillsByDateRange(start, end),
         builder: (ctx, snap) {
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
           final bills = snap.data!;
+          final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
+          final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
           final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
-          final discount = bills.fold(0.0, (s, b) => s + b.discount);
 
           // Group by day
           final Map<String, List<Bill>> byDay = {};
@@ -281,9 +288,11 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               child: Row(children: [
                 _SummaryCard(label: 'Total Bills', value: '${bills.length}', icon: Icons.receipt),
                 const SizedBox(width: 12),
-                _SummaryCard(label: 'Total Sales', value: '₹${total.toStringAsFixed(2)}', icon: Icons.currency_rupee),
+                _SummaryCard(label: 'Sales', value: '₹${sales.toStringAsFixed(2)}', icon: Icons.currency_rupee),
                 const SizedBox(width: 12),
-                _SummaryCard(label: 'Discounts', value: '₹${discount.toStringAsFixed(2)}', icon: Icons.discount_outlined),
+                _SummaryCard(label: 'Fee', value: '₹${fee.toStringAsFixed(2)}', icon: Icons.medical_services_outlined),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Total', value: '₹${total.toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
               ]),
             ),
             const SizedBox(height: 12),
@@ -329,13 +338,14 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           ),
         ]),
       ),
-      Expanded(child: FutureBuilder<List<Bill>>(
-        future: DatabaseProvider.instance.db.getBillsByDateRange(start, end),
+      Expanded(child: StreamBuilder<List<Bill>>(
+        stream: DatabaseProvider.instance.db.watchBillsByDateRange(start, end),
         builder: (ctx, snap) {
           if (!snap.hasData) return const Center(child: CircularProgressIndicator());
           final bills = snap.data!;
+          final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
+          final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
           final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
-          final discount = bills.fold(0.0, (s, b) => s + b.discount);
 
           // Group by month
           final Map<int, List<Bill>> byMonth = {};
@@ -350,9 +360,11 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               child: Row(children: [
                 _SummaryCard(label: 'Total Bills', value: '${bills.length}', icon: Icons.receipt),
                 const SizedBox(width: 12),
-                _SummaryCard(label: 'Total Sales', value: '₹${total.toStringAsFixed(2)}', icon: Icons.currency_rupee),
+                _SummaryCard(label: 'Sales', value: '₹${sales.toStringAsFixed(2)}', icon: Icons.currency_rupee),
                 const SizedBox(width: 12),
-                _SummaryCard(label: 'Discounts', value: '₹${discount.toStringAsFixed(2)}', icon: Icons.discount_outlined),
+                _SummaryCard(label: 'Fee', value: '₹${fee.toStringAsFixed(2)}', icon: Icons.medical_services_outlined),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Total', value: '₹${total.toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
               ]),
             ),
             const SizedBox(height: 12),
@@ -382,12 +394,16 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F7),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF2F4F7),
         surfaceTintColor: Colors.transparent,
-        title: const Text('Sales Reports'),
+        title: Text(
+          'Sales Reports', 
+          style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
+        ),
         bottom: TabBar(controller: _tabs, tabs: const [
           Tab(icon: Icon(Icons.today), text: 'Daily'),
           Tab(icon: Icon(Icons.calendar_month), text: 'Monthly'),

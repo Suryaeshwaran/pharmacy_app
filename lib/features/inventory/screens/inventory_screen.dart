@@ -156,7 +156,10 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
       appBar: AppBar(
         backgroundColor: const Color(0xFFF2F4F7),
         surfaceTintColor: Colors.transparent,
-        title: const Text('Inventory'),
+        title: Text(
+          'Inventory', 
+          style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
+        ),
         bottom: TabBar(controller: _tabs, tabs: const [
           Tab(icon: Icon(Icons.list), text: 'All'),
           Tab(icon: Icon(Icons.warning_amber), text: 'Low Stock'),
