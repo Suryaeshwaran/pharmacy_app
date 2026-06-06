@@ -278,7 +278,7 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    // final textTheme = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: Row(children: [

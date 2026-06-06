@@ -2,6 +2,7 @@
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
 
@@ -77,7 +78,12 @@ class AppDatabase extends _$AppDatabase {
   );
 
   static QueryExecutor _openDatabase() {
-    return driftDatabase(name: 'pharmacy_app');
+    return driftDatabase(
+      name: 'pharmacy_app',
+      native: DriftNativeOptions(
+        databaseDirectory: getApplicationSupportDirectory,
+      ),
+    );
   }
 
   // ─── Medicine Queries ──────────────────────────────────────────────────────

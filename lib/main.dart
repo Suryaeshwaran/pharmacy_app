@@ -9,7 +9,9 @@ import 'features/inventory/screens/inventory_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
 import 'features/backup/backup_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseProvider.instance.init();
   runApp(const PharmacyApp());
 }
 
@@ -76,27 +78,45 @@ class _AppShellState extends State<AppShell> {
               selectedIcon: Icon(Icons.receipt_long),
               label: Text('Billing'),
             ),
-            // Inventory with low-stock badge
+            // Inventory with low-stock + expiring badge
             NavigationRailDestination(
               icon: StreamBuilder(
                 stream: db.watchLowStockMedicines(),
-                builder: (_, snap) {
-                  final count = snap.data?.length ?? 0;
-                  return Badge(
-                    isLabelVisible: count > 0,
-                    label: Text('$count'),
-                    child: const Icon(Icons.inventory_2_outlined),
+                builder: (_, lowSnap) {
+                  final lowCount = lowSnap.data?.length ?? 0;
+                  return StreamBuilder(
+                    stream: db.watchExpiringMedicines(),
+                    builder: (_, expSnap) {
+                      final expCount = expSnap.data?.length ?? 0;
+                      final total = lowCount + expCount;
+                      final badgeColor = expCount > 0 ? Colors.red : Colors.orange.shade700;
+                      return Badge(
+                        isLabelVisible: total > 0,
+                        label: Text('$total'),
+                        backgroundColor: badgeColor,
+                        child: const Icon(Icons.inventory_2_outlined),
+                      );
+                    },
                   );
                 },
               ),
               selectedIcon: StreamBuilder(
                 stream: db.watchLowStockMedicines(),
-                builder: (_, snap) {
-                  final count = snap.data?.length ?? 0;
-                  return Badge(
-                    isLabelVisible: count > 0,
-                    label: Text('$count'),
-                    child: const Icon(Icons.inventory_2),
+                builder: (_, lowSnap) {
+                  final lowCount = lowSnap.data?.length ?? 0;
+                  return StreamBuilder(
+                    stream: db.watchExpiringMedicines(),
+                    builder: (_, expSnap) {
+                      final expCount = expSnap.data?.length ?? 0;
+                      final total = lowCount + expCount;
+                      final badgeColor = expCount > 0 ? Colors.red : Colors.orange.shade700;
+                      return Badge(
+                        isLabelVisible: total > 0,
+                        label: Text('$total'),
+                        backgroundColor: badgeColor,
+                        child: const Icon(Icons.inventory_2),
+                      );
+                    },
                   );
                 },
               ),

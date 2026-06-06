@@ -160,10 +160,38 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
           'Inventory', 
           style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
         ),
-        bottom: TabBar(controller: _tabs, tabs: const [
-          Tab(icon: Icon(Icons.list), text: 'All'),
-          Tab(icon: Icon(Icons.warning_amber), text: 'Low Stock'),
-          Tab(icon: Icon(Icons.event_busy), text: 'Expiring'),
+        bottom: TabBar(controller: _tabs, tabs: [
+          const Tab(icon: Icon(Icons.list), text: 'All'),
+          Tab(
+            icon: StreamBuilder<List<Medicine>>(
+              stream: db.watchLowStockMedicines(),
+              builder: (context, snap) {
+                final count = snap.data?.length ?? 0;
+                if (count == 0) return const Icon(Icons.warning_amber);
+                return Badge.count(
+                  count: count,
+                  backgroundColor: Colors.orange.shade700,
+                  child: Icon(Icons.warning_amber, color: Colors.orange.shade700),
+                );
+              },
+            ),
+            text: 'Low Stock',
+          ),
+          Tab(
+            icon: StreamBuilder<List<Medicine>>(
+              stream: db.watchExpiringMedicines(),
+              builder: (context, snap) {
+                final count = snap.data?.length ?? 0;
+                if (count == 0) return const Icon(Icons.event_busy);
+                return Badge.count(
+                  count: count,
+                  backgroundColor: Colors.red,
+                  child: const Icon(Icons.event_busy, color: Colors.red),
+                );
+              },
+            ),
+            text: 'Expiring',
+          ),
         ]),
         actions: [
           Padding(
