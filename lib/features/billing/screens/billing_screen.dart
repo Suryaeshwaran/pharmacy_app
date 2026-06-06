@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:drift/drift.dart' show Value;
+import 'package:intl/intl.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/database_provider.dart';
 import '../widgets/bill_item_row.dart';
@@ -237,7 +238,7 @@ class _BillingScreenState extends State<BillingScreen>
                         return ListTile(
                           dense: true,
                           title: Text(m.name, style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w500)),
-                          subtitle: Text('Stock: ${m.stockQty} | ₹${m.salePrice.toStringAsFixed(2)}', style: TextStyle(color: cs.onSurface.withOpacity(0.7))),
+                          subtitle: Text('Stock: ${m.stockQty} | ₹${m.salePrice.toStringAsFixed(2)} | Expiry: ${m.expiryDate != null ? DateFormat('dd-MMM-yyyy').format(m.expiryDate!) : 'N/A'}', style: TextStyle(color: cs.onSurface)),
                           trailing: m.stockQty == 0
                               ? Chip(
                                   label: const Text('Out of stock', style: TextStyle(color: Colors.red, fontSize: 11)),
