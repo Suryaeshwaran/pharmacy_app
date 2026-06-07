@@ -142,6 +142,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 12),
 
+          // ── Payments Received label ────────────────────────────
+          _SectionLabel(label: 'Payments Received'),
+          const SizedBox(height: 8),
+
+          // ── Payments Received Card ─────────────────────────────
+          _WhiteCard(
+            child: StreamBuilder<List<Bill>>(
+              stream: DatabaseProvider.instance.db
+                  .watchBillsByDateRange(startOfDay, endOfDay),
+              builder: (context, snap) {
+                final bills = snap.data ?? [];
+                final cash = bills.fold(0.0, (s, b) => s + b.cashAmount);
+                final online = bills.fold(0.0, (s, b) => s + b.onlineAmount);
+                final total = cash + online;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(children: [
+                    _StatTile(
+                      icon: Icons.payments_outlined,
+                      value: snap.hasData
+                          ? '₹${NumberFormat('#,##,###').format(cash)}'
+                          : '—',
+                      label: 'Cash',
+                      iconColor: Colors.green.shade600,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 48,
+                      color: cs.outlineVariant,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    _StatTile(
+                      icon: Icons.phone_android_outlined,
+                      value: snap.hasData
+                          ? '₹${NumberFormat('#,##,###').format(online)}'
+                          : '—',
+                      label: 'GPay/Online',
+                      iconColor: Colors.blue.shade600,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 48,
+                      color: cs.outlineVariant,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    _StatTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      value: snap.hasData
+                          ? '₹${NumberFormat('#,##,###').format(total)}'
+                          : '—',
+                      label: 'Total',
+                      iconColor: cs.primary,
+                    ),
+                  ]),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // ── Inventory Alerts label ─────────────────────────────
           _SectionLabel(label: 'Inventory Alerts'),
           const SizedBox(height: 8),

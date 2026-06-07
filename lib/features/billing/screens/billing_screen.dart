@@ -28,8 +28,13 @@ class _BillingScreenState extends State<BillingScreen>
   final _customerPhone = TextEditingController();
   final _discountCtrl = TextEditingController(text: '0');
   final _consultationFeeCtrl = TextEditingController(text: '0');
+  final _partialCashCtrl = TextEditingController();
+
   final _medicineSearch = TextEditingController();
   final _searchFocus = FocusNode();
+
+  // Payment collection
+  String _paymentMode = 'cash'; // cash | online | partial
 
   List<_CartItem> _cart = [];
   List<Medicine> _searchResults = [];
@@ -45,6 +50,7 @@ class _BillingScreenState extends State<BillingScreen>
     _customerPhone.dispose();
     _discountCtrl.dispose();
     _consultationFeeCtrl.dispose();
+    _partialCashCtrl.dispose();
     _medicineSearch.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -88,6 +94,18 @@ class _BillingScreenState extends State<BillingScreen>
   double get _consultationFee => double.tryParse(_consultationFeeCtrl.text) ?? 0;
   double get _total => (_subtotal - _discount + _consultationFee).clamp(0, double.infinity);
 
+  double get _cashAmount {
+    if (_paymentMode == 'cash') return _total;
+    if (_paymentMode == 'online') return 0;
+    return double.tryParse(_partialCashCtrl.text) ?? 0;
+  }
+
+  double get _onlineAmount {
+    if (_paymentMode == 'cash') return 0;
+    if (_paymentMode == 'online') return _total;
+    return (_total - _cashAmount).clamp(0, double.infinity);
+  }
+
   bool get _canBill => _cart.isNotEmpty;
 
   Future<void> _saveBill() async {
@@ -104,6 +122,9 @@ class _BillingScreenState extends State<BillingScreen>
         discount: Value(_discount),
         consultationFee: Value(_consultationFee),
         totalAmount: _total,
+        paymentMode: Value(_paymentMode),
+        cashAmount: Value(_cashAmount),
+        onlineAmount: Value(_onlineAmount),
       ));
 
       await db.insertBillItems(_cart.map((c) => BillItemsCompanion.insert(
@@ -143,6 +164,8 @@ class _BillingScreenState extends State<BillingScreen>
     _customerPhone.clear();
     _discountCtrl.text = '0';
     _consultationFeeCtrl.text = '0';
+    _partialCashCtrl.clear();
+    _paymentMode = 'cash';
     _medicineSearch.clear();
   }
 
@@ -282,82 +305,122 @@ class _BillingScreenState extends State<BillingScreen>
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Customer Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _customerName,
-                style: TextStyle(color: cs.onSurface),
-                textCapitalization: TextCapitalization.words,
-                inputFormatters: [_FirstLetterUpperCaseFormatter()],
-                decoration: InputDecoration(
-                  labelText: 'Name (optional)',
-                  labelStyle: TextStyle(color: cs.onSurface),
-                  prefixIcon: Icon(Icons.person_outline, color: cs.onSurface),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                  border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Customer Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _customerName,
+                      style: TextStyle(color: cs.onSurface),
+                      textCapitalization: TextCapitalization.words,
+                      inputFormatters: [_FirstLetterUpperCaseFormatter()],
+                      decoration: InputDecoration(
+                        labelText: 'Name (optional)',
+                        labelStyle: TextStyle(color: cs.onSurface),
+                        prefixIcon: Icon(Icons.person_outline, color: cs.onSurface),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                        border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _customerPhone,
+                      style: TextStyle(color: cs.onSurface),
+                      decoration: InputDecoration(
+                        labelText: 'Phone (optional)',
+                        labelStyle: TextStyle(color: cs.onSurface),
+                        prefixIcon: Icon(Icons.phone_outlined, color: cs.onSurface),
+                        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                        border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                    Divider(height: 32, color: cs.outlineVariant),
+                    Text('Bill Summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+                    const SizedBox(height: 16),
+                    _summaryRow('Subtotal', '₹${_subtotal.toStringAsFixed(2)}', color: cs.onSurface),
+                    const SizedBox(height: 12),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                      Text('Discount (₹)', style: TextStyle(color: cs.onSurface)),
+                      SizedBox(
+                        width: 90,
+                        child: TextField(
+                          controller: _discountCtrl,
+                          style: TextStyle(color: cs.onSurface),
+                          textAlign: TextAlign.end,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                            border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 12),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                      Text('Consultation Fee (₹)', style: TextStyle(color: cs.onSurface)),
+                      SizedBox(
+                        width: 90,
+                        child: TextField(
+                          controller: _consultationFeeCtrl,
+                          style: TextStyle(color: cs.onSurface),
+                          textAlign: TextAlign.end,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                            border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                    ]),
+                    Divider(height: 32, color: cs.outlineVariant),
+                    _summaryRow('Total', '₹${_total.toStringAsFixed(2)}', bold: true, large: true, color: cs.onSurface),
+                    Divider(height: 32, color: cs.outlineVariant),
+                    Text('Payment Collection', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+                    const SizedBox(height: 12),
+                    _paymentOption('Cash', 'cash', Icons.payments_outlined, cs),
+                    _paymentOption('GPay / Online', 'online', Icons.phone_android_outlined, cs),
+                    _paymentOption('Partial Cash', 'partial', Icons.call_split_outlined, cs),
+                    if (_paymentMode == 'partial') ...[
+                      const SizedBox(height: 10),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text('Cash Amount (₹)', style: TextStyle(color: cs.onSurface, fontSize: 13)),
+                        SizedBox(
+                          width: 100,
+                          child: TextField(
+                            controller: _partialCashCtrl,
+                            style: TextStyle(color: cs.onSurface),
+                            textAlign: TextAlign.end,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                              border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: (_) => setState(() {}),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 6),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text('GPay / Online (₹)', style: TextStyle(color: cs.onSurface.withOpacity(0.6), fontSize: 13)),
+                        Text('₹${_onlineAmount.toStringAsFixed(2)}',
+                            style: TextStyle(color: cs.onSurface.withOpacity(0.6), fontSize: 13)),
+                      ]),
+                    ],
+                    const SizedBox(height: 8),
+                  ]),
                 ),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _customerPhone,
-                style: TextStyle(color: cs.onSurface),
-                decoration: InputDecoration(
-                  labelText: 'Phone (optional)',
-                  labelStyle: TextStyle(color: cs.onSurface),
-                  prefixIcon: Icon(Icons.phone_outlined, color: cs.onSurface),
-                  enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                  border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                ),
-                keyboardType: TextInputType.phone,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
-              Divider(height: 32, color: cs.outlineVariant),
-              Text('Bill Summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
-              const SizedBox(height: 16),
-              _summaryRow('Subtotal', '₹${_subtotal.toStringAsFixed(2)}', color: cs.onSurface),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Discount (₹)', style: TextStyle(color: cs.onSurface)),
-                SizedBox(
-                  width: 90,
-                  child: TextField(
-                    controller: _discountCtrl,
-                    style: TextStyle(color: cs.onSurface),
-                    textAlign: TextAlign.end,
-                    decoration: InputDecoration(
-                      isDense: true, 
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                      border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 12),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Consultation Fee (₹)', style: TextStyle(color: cs.onSurface)),
-                SizedBox(
-                  width: 90,
-                  child: TextField(
-                    controller: _consultationFeeCtrl,
-                    style: TextStyle(color: cs.onSurface),
-                    textAlign: TextAlign.end,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                      border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-              ]),
-              Divider(height: 32, color: cs.outlineVariant),
-              _summaryRow('Total', '₹${_total.toStringAsFixed(2)}', bold: true, large: true, color: cs.onSurface),
-              const Spacer(),
               if (_canBill) ...[
                 SizedBox(
                   width: double.infinity,
@@ -392,6 +455,37 @@ class _BillingScreenState extends State<BillingScreen>
           ),
         ),
       ]),
+    );
+  }
+
+  Widget _paymentOption(String label, String value, IconData icon, ColorScheme cs) {
+    final selected = _paymentMode == value;
+    return InkWell(
+      onTap: () => setState(() { _paymentMode = value; _partialCashCtrl.clear(); }),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected ? cs.primary.withOpacity(0.08) : Colors.transparent,
+          border: Border.all(color: selected ? cs.primary : cs.outlineVariant),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(children: [
+          Icon(icon, size: 18, color: selected ? cs.primary : cs.onSurface.withOpacity(0.6)),
+          const SizedBox(width: 10),
+          Text(label, style: TextStyle(
+            color: selected ? cs.primary : cs.onSurface,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+            fontSize: 14,
+          )),
+          const Spacer(),
+          if (selected && _paymentMode != 'partial')
+            Text('₹${(value == 'cash' ? _cashAmount : _onlineAmount).toStringAsFixed(2)}',
+                style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600, fontSize: 13)),
+          if (selected) Icon(Icons.check_circle, size: 18, color: cs.primary),
+        ]),
+      ),
     );
   }
 

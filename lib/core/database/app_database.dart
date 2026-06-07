@@ -44,7 +44,9 @@ class Bills extends Table {
   RealColumn get discount => real().withDefault(const Constant(0))();
   RealColumn get consultationFee => real().withDefault(const Constant(0))();
   RealColumn get totalAmount => real()();
-  TextColumn get paymentMode => text().withDefault(const Constant('cash'))(); // cash | card | upi
+  TextColumn get paymentMode => text().withDefault(const Constant('cash'))(); // cash | online | partial
+  RealColumn get cashAmount => real().withDefault(const Constant(0))();
+  RealColumn get onlineAmount => real().withDefault(const Constant(0))();
   TextColumn get notes => text().nullable()();
   DateTimeColumn get billedAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -66,13 +68,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.addColumn(bills, bills.consultationFee as GeneratedColumn<Object>);
+      }
+      if (from < 3) {
+        await m.addColumn(bills, bills.cashAmount as GeneratedColumn<Object>);
+        await m.addColumn(bills, bills.onlineAmount as GeneratedColumn<Object>);
       }
     },
   );

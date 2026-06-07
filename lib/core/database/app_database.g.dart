@@ -1097,6 +1097,22 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('cash'));
+  static const VerificationMeta _cashAmountMeta =
+      const VerificationMeta('cashAmount');
+  @override
+  late final GeneratedColumn<double> cashAmount = GeneratedColumn<double>(
+      'cash_amount', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _onlineAmountMeta =
+      const VerificationMeta('onlineAmount');
+  @override
+  late final GeneratedColumn<double> onlineAmount = GeneratedColumn<double>(
+      'online_amount', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -1122,6 +1138,8 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
         consultationFee,
         totalAmount,
         paymentMode,
+        cashAmount,
+        onlineAmount,
         notes,
         billedAt
       ];
@@ -1194,6 +1212,18 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
           paymentMode.isAcceptableOrUnknown(
               data['payment_mode']!, _paymentModeMeta));
     }
+    if (data.containsKey('cash_amount')) {
+      context.handle(
+          _cashAmountMeta,
+          cashAmount.isAcceptableOrUnknown(
+              data['cash_amount']!, _cashAmountMeta));
+    }
+    if (data.containsKey('online_amount')) {
+      context.handle(
+          _onlineAmountMeta,
+          onlineAmount.isAcceptableOrUnknown(
+              data['online_amount']!, _onlineAmountMeta));
+    }
     if (data.containsKey('notes')) {
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
@@ -1231,6 +1261,10 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
           .read(DriftSqlType.double, data['${effectivePrefix}total_amount'])!,
       paymentMode: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}payment_mode'])!,
+      cashAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}cash_amount'])!,
+      onlineAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}online_amount'])!,
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
       billedAt: attachedDatabase.typeMapping
@@ -1255,6 +1289,8 @@ class Bill extends DataClass implements Insertable<Bill> {
   final double consultationFee;
   final double totalAmount;
   final String paymentMode;
+  final double cashAmount;
+  final double onlineAmount;
   final String? notes;
   final DateTime billedAt;
   const Bill(
@@ -1268,6 +1304,8 @@ class Bill extends DataClass implements Insertable<Bill> {
       required this.consultationFee,
       required this.totalAmount,
       required this.paymentMode,
+      required this.cashAmount,
+      required this.onlineAmount,
       this.notes,
       required this.billedAt});
   @override
@@ -1289,6 +1327,8 @@ class Bill extends DataClass implements Insertable<Bill> {
     map['consultation_fee'] = Variable<double>(consultationFee);
     map['total_amount'] = Variable<double>(totalAmount);
     map['payment_mode'] = Variable<String>(paymentMode);
+    map['cash_amount'] = Variable<double>(cashAmount);
+    map['online_amount'] = Variable<double>(onlineAmount);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -1314,6 +1354,8 @@ class Bill extends DataClass implements Insertable<Bill> {
       consultationFee: Value(consultationFee),
       totalAmount: Value(totalAmount),
       paymentMode: Value(paymentMode),
+      cashAmount: Value(cashAmount),
+      onlineAmount: Value(onlineAmount),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       billedAt: Value(billedAt),
@@ -1334,6 +1376,8 @@ class Bill extends DataClass implements Insertable<Bill> {
       consultationFee: serializer.fromJson<double>(json['consultationFee']),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
       paymentMode: serializer.fromJson<String>(json['paymentMode']),
+      cashAmount: serializer.fromJson<double>(json['cashAmount']),
+      onlineAmount: serializer.fromJson<double>(json['onlineAmount']),
       notes: serializer.fromJson<String?>(json['notes']),
       billedAt: serializer.fromJson<DateTime>(json['billedAt']),
     );
@@ -1352,6 +1396,8 @@ class Bill extends DataClass implements Insertable<Bill> {
       'consultationFee': serializer.toJson<double>(consultationFee),
       'totalAmount': serializer.toJson<double>(totalAmount),
       'paymentMode': serializer.toJson<String>(paymentMode),
+      'cashAmount': serializer.toJson<double>(cashAmount),
+      'onlineAmount': serializer.toJson<double>(onlineAmount),
       'notes': serializer.toJson<String?>(notes),
       'billedAt': serializer.toJson<DateTime>(billedAt),
     };
@@ -1368,6 +1414,8 @@ class Bill extends DataClass implements Insertable<Bill> {
           double? consultationFee,
           double? totalAmount,
           String? paymentMode,
+          double? cashAmount,
+          double? onlineAmount,
           Value<String?> notes = const Value.absent(),
           DateTime? billedAt}) =>
       Bill(
@@ -1383,6 +1431,8 @@ class Bill extends DataClass implements Insertable<Bill> {
         consultationFee: consultationFee ?? this.consultationFee,
         totalAmount: totalAmount ?? this.totalAmount,
         paymentMode: paymentMode ?? this.paymentMode,
+        cashAmount: cashAmount ?? this.cashAmount,
+        onlineAmount: onlineAmount ?? this.onlineAmount,
         notes: notes.present ? notes.value : this.notes,
         billedAt: billedAt ?? this.billedAt,
       );
@@ -1408,6 +1458,11 @@ class Bill extends DataClass implements Insertable<Bill> {
           data.totalAmount.present ? data.totalAmount.value : this.totalAmount,
       paymentMode:
           data.paymentMode.present ? data.paymentMode.value : this.paymentMode,
+      cashAmount:
+          data.cashAmount.present ? data.cashAmount.value : this.cashAmount,
+      onlineAmount: data.onlineAmount.present
+          ? data.onlineAmount.value
+          : this.onlineAmount,
       notes: data.notes.present ? data.notes.value : this.notes,
       billedAt: data.billedAt.present ? data.billedAt.value : this.billedAt,
     );
@@ -1426,6 +1481,8 @@ class Bill extends DataClass implements Insertable<Bill> {
           ..write('consultationFee: $consultationFee, ')
           ..write('totalAmount: $totalAmount, ')
           ..write('paymentMode: $paymentMode, ')
+          ..write('cashAmount: $cashAmount, ')
+          ..write('onlineAmount: $onlineAmount, ')
           ..write('notes: $notes, ')
           ..write('billedAt: $billedAt')
           ..write(')'))
@@ -1444,6 +1501,8 @@ class Bill extends DataClass implements Insertable<Bill> {
       consultationFee,
       totalAmount,
       paymentMode,
+      cashAmount,
+      onlineAmount,
       notes,
       billedAt);
   @override
@@ -1460,6 +1519,8 @@ class Bill extends DataClass implements Insertable<Bill> {
           other.consultationFee == this.consultationFee &&
           other.totalAmount == this.totalAmount &&
           other.paymentMode == this.paymentMode &&
+          other.cashAmount == this.cashAmount &&
+          other.onlineAmount == this.onlineAmount &&
           other.notes == this.notes &&
           other.billedAt == this.billedAt);
 }
@@ -1475,6 +1536,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
   final Value<double> consultationFee;
   final Value<double> totalAmount;
   final Value<String> paymentMode;
+  final Value<double> cashAmount;
+  final Value<double> onlineAmount;
   final Value<String?> notes;
   final Value<DateTime> billedAt;
   const BillsCompanion({
@@ -1488,6 +1551,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     this.consultationFee = const Value.absent(),
     this.totalAmount = const Value.absent(),
     this.paymentMode = const Value.absent(),
+    this.cashAmount = const Value.absent(),
+    this.onlineAmount = const Value.absent(),
     this.notes = const Value.absent(),
     this.billedAt = const Value.absent(),
   });
@@ -1502,6 +1567,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     this.consultationFee = const Value.absent(),
     required double totalAmount,
     this.paymentMode = const Value.absent(),
+    this.cashAmount = const Value.absent(),
+    this.onlineAmount = const Value.absent(),
     this.notes = const Value.absent(),
     this.billedAt = const Value.absent(),
   })  : billNumber = Value(billNumber),
@@ -1518,6 +1585,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     Expression<double>? consultationFee,
     Expression<double>? totalAmount,
     Expression<String>? paymentMode,
+    Expression<double>? cashAmount,
+    Expression<double>? onlineAmount,
     Expression<String>? notes,
     Expression<DateTime>? billedAt,
   }) {
@@ -1532,6 +1601,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       if (consultationFee != null) 'consultation_fee': consultationFee,
       if (totalAmount != null) 'total_amount': totalAmount,
       if (paymentMode != null) 'payment_mode': paymentMode,
+      if (cashAmount != null) 'cash_amount': cashAmount,
+      if (onlineAmount != null) 'online_amount': onlineAmount,
       if (notes != null) 'notes': notes,
       if (billedAt != null) 'billed_at': billedAt,
     });
@@ -1548,6 +1619,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       Value<double>? consultationFee,
       Value<double>? totalAmount,
       Value<String>? paymentMode,
+      Value<double>? cashAmount,
+      Value<double>? onlineAmount,
       Value<String?>? notes,
       Value<DateTime>? billedAt}) {
     return BillsCompanion(
@@ -1561,6 +1634,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       consultationFee: consultationFee ?? this.consultationFee,
       totalAmount: totalAmount ?? this.totalAmount,
       paymentMode: paymentMode ?? this.paymentMode,
+      cashAmount: cashAmount ?? this.cashAmount,
+      onlineAmount: onlineAmount ?? this.onlineAmount,
       notes: notes ?? this.notes,
       billedAt: billedAt ?? this.billedAt,
     );
@@ -1599,6 +1674,12 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     if (paymentMode.present) {
       map['payment_mode'] = Variable<String>(paymentMode.value);
     }
+    if (cashAmount.present) {
+      map['cash_amount'] = Variable<double>(cashAmount.value);
+    }
+    if (onlineAmount.present) {
+      map['online_amount'] = Variable<double>(onlineAmount.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -1621,6 +1702,8 @@ class BillsCompanion extends UpdateCompanion<Bill> {
           ..write('consultationFee: $consultationFee, ')
           ..write('totalAmount: $totalAmount, ')
           ..write('paymentMode: $paymentMode, ')
+          ..write('cashAmount: $cashAmount, ')
+          ..write('onlineAmount: $onlineAmount, ')
           ..write('notes: $notes, ')
           ..write('billedAt: $billedAt')
           ..write(')'))
@@ -2688,6 +2771,8 @@ typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<double> consultationFee,
   required double totalAmount,
   Value<String> paymentMode,
+  Value<double> cashAmount,
+  Value<double> onlineAmount,
   Value<String?> notes,
   Value<DateTime> billedAt,
 });
@@ -2702,6 +2787,8 @@ typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
   Value<double> consultationFee,
   Value<double> totalAmount,
   Value<String> paymentMode,
+  Value<double> cashAmount,
+  Value<double> onlineAmount,
   Value<String?> notes,
   Value<DateTime> billedAt,
 });
@@ -2774,6 +2861,12 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
 
   ColumnFilters<String> get paymentMode => $composableBuilder(
       column: $table.paymentMode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get cashAmount => $composableBuilder(
+      column: $table.cashAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get onlineAmount => $composableBuilder(
+      column: $table.onlineAmount, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
@@ -2862,6 +2955,13 @@ class $$BillsTableOrderingComposer
   ColumnOrderings<String> get paymentMode => $composableBuilder(
       column: $table.paymentMode, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<double> get cashAmount => $composableBuilder(
+      column: $table.cashAmount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get onlineAmount => $composableBuilder(
+      column: $table.onlineAmount,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
@@ -2924,6 +3024,12 @@ class $$BillsTableAnnotationComposer
 
   GeneratedColumn<String> get paymentMode => $composableBuilder(
       column: $table.paymentMode, builder: (column) => column);
+
+  GeneratedColumn<double> get cashAmount => $composableBuilder(
+      column: $table.cashAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get onlineAmount => $composableBuilder(
+      column: $table.onlineAmount, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -3006,6 +3112,8 @@ class $$BillsTableTableManager extends RootTableManager<
             Value<double> consultationFee = const Value.absent(),
             Value<double> totalAmount = const Value.absent(),
             Value<String> paymentMode = const Value.absent(),
+            Value<double> cashAmount = const Value.absent(),
+            Value<double> onlineAmount = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<DateTime> billedAt = const Value.absent(),
           }) =>
@@ -3020,6 +3128,8 @@ class $$BillsTableTableManager extends RootTableManager<
             consultationFee: consultationFee,
             totalAmount: totalAmount,
             paymentMode: paymentMode,
+            cashAmount: cashAmount,
+            onlineAmount: onlineAmount,
             notes: notes,
             billedAt: billedAt,
           ),
@@ -3034,6 +3144,8 @@ class $$BillsTableTableManager extends RootTableManager<
             Value<double> consultationFee = const Value.absent(),
             required double totalAmount,
             Value<String> paymentMode = const Value.absent(),
+            Value<double> cashAmount = const Value.absent(),
+            Value<double> onlineAmount = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<DateTime> billedAt = const Value.absent(),
           }) =>
@@ -3048,6 +3160,8 @@ class $$BillsTableTableManager extends RootTableManager<
             consultationFee: consultationFee,
             totalAmount: totalAmount,
             paymentMode: paymentMode,
+            cashAmount: cashAmount,
+            onlineAmount: onlineAmount,
             notes: notes,
             billedAt: billedAt,
           ),

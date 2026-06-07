@@ -119,6 +119,16 @@ class BillPreviewScreen extends StatelessWidget {
                         style: pw.TextStyle(
                             fontSize: 14,
                             fontWeight: pw.FontWeight.bold)),
+                    if (bill.paymentMode == 'partial') ...[
+                      pw.Text('Cash: ${bill.cashAmount.toStringAsFixed(2)}',
+                          style: const pw.TextStyle(fontSize: 9)),
+                      pw.Text('GPay/Online: ${bill.onlineAmount.toStringAsFixed(2)}',
+                          style: const pw.TextStyle(fontSize: 9)),
+                    ] else
+                      pw.Text(
+                        bill.paymentMode == 'online' ? 'Paid via GPay/Online' : 'Paid via Cash',
+                        style: const pw.TextStyle(fontSize: 9),
+                      ),
                   ]),
             ],
           ),
@@ -482,6 +492,17 @@ class BillPreviewScreen extends StatelessWidget {
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: cs.onSurface)),
+                                const SizedBox(height: 8),
+                                if (bill.paymentMode == 'partial') ...[
+                                  Text('Cash: ₹${bill.cashAmount.toStringAsFixed(2)}',
+                                      style: TextStyle(color: cs.onSurface.withOpacity(0.7), fontSize: 12)),
+                                  Text('GPay/Online: ₹${bill.onlineAmount.toStringAsFixed(2)}',
+                                      style: TextStyle(color: cs.onSurface.withOpacity(0.7), fontSize: 12)),
+                                ] else
+                                  Text(
+                                    bill.paymentMode == 'online' ? 'Paid via GPay/Online' : 'Paid via Cash',
+                                    style: TextStyle(color: cs.onSurface.withOpacity(0.7), fontSize: 12),
+                                  ),
                               ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),

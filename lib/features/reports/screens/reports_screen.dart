@@ -218,8 +218,10 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
           final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
           final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
-          return Column(children: [
-            // Summary cards
+          final cash = bills.fold(0.0, (s, b) => s + b.cashAmount);
+          final online = bills.fold(0.0, (s, b) => s + b.onlineAmount);
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _SectionLabel(label: 'Summary'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
@@ -230,6 +232,18 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
                 _SummaryCard(label: 'Fee', value: '₹${fee.toStringAsFixed(2)}', icon: Icons.medical_services_outlined),
                 const SizedBox(width: 12),
                 _SummaryCard(label: 'Total', value: '₹${total.toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
+              ]),
+            ),
+            const SizedBox(height: 8),
+            _SectionLabel(label: 'Payment Details'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(children: [
+                _SummaryCard(label: 'Cash', value: '₹${cash.toStringAsFixed(2)}', icon: Icons.payments_outlined, iconColor: Colors.green.shade600),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'GPay/Online', value: '₹${online.toStringAsFixed(2)}', icon: Icons.phone_android_outlined, iconColor: Colors.blue.shade600),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Received', value: '₹${(cash + online).toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
               ]),
             ),
             const SizedBox(height: 12),
@@ -274,6 +288,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
           final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
           final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
+          final cash = bills.fold(0.0, (s, b) => s + b.cashAmount);
+          final online = bills.fold(0.0, (s, b) => s + b.onlineAmount);
 
           // Group by day
           final Map<String, List<Bill>> byDay = {};
@@ -282,7 +298,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
             byDay.putIfAbsent(key, () => []).add(b);
           }
 
-          return Column(children: [
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _SectionLabel(label: 'Summary'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
@@ -293,6 +310,18 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
                 _SummaryCard(label: 'Fee', value: '₹${fee.toStringAsFixed(2)}', icon: Icons.medical_services_outlined),
                 const SizedBox(width: 12),
                 _SummaryCard(label: 'Total', value: '₹${total.toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
+              ]),
+            ),
+            const SizedBox(height: 8),
+            _SectionLabel(label: 'Payment Details'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(children: [
+                _SummaryCard(label: 'Cash', value: '₹${cash.toStringAsFixed(2)}', icon: Icons.payments_outlined, iconColor: Colors.green.shade600),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'GPay/Online', value: '₹${online.toStringAsFixed(2)}', icon: Icons.phone_android_outlined, iconColor: Colors.blue.shade600),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Received', value: '₹${(cash + online).toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
               ]),
             ),
             const SizedBox(height: 12),
@@ -346,6 +375,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           final sales = bills.fold(0.0, (s, b) => s + b.subtotal - b.discount);
           final fee = bills.fold(0.0, (s, b) => s + b.consultationFee);
           final total = bills.fold(0.0, (s, b) => s + b.totalAmount);
+          final cash = bills.fold(0.0, (s, b) => s + b.cashAmount);
+          final online = bills.fold(0.0, (s, b) => s + b.onlineAmount);
 
           // Group by month
           final Map<int, List<Bill>> byMonth = {};
@@ -354,7 +385,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           }
           final sortedMonths = byMonth.keys.toList()..sort((a, b) => b.compareTo(a));
 
-          return Column(children: [
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            _SectionLabel(label: 'Summary'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
@@ -365,6 +397,18 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
                 _SummaryCard(label: 'Fee', value: '₹${fee.toStringAsFixed(2)}', icon: Icons.medical_services_outlined),
                 const SizedBox(width: 12),
                 _SummaryCard(label: 'Total', value: '₹${total.toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
+              ]),
+            ),
+            const SizedBox(height: 8),
+            _SectionLabel(label: 'Payment Details'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(children: [
+                _SummaryCard(label: 'Cash', value: '₹${cash.toStringAsFixed(2)}', icon: Icons.payments_outlined, iconColor: Colors.green.shade600),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'GPay/Online', value: '₹${online.toStringAsFixed(2)}', icon: Icons.phone_android_outlined, iconColor: Colors.blue.shade600),
+                const SizedBox(width: 12),
+                _SummaryCard(label: 'Received', value: '₹${(cash + online).toStringAsFixed(2)}', icon: Icons.account_balance_wallet_outlined),
               ]),
             ),
             const SizedBox(height: 12),
@@ -419,11 +463,32 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
   }
 }
 
+class _SectionLabel extends StatelessWidget {
+  final String label;
+  const _SectionLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 6, bottom: 6),
+      child: Text(
+        label.toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              letterSpacing: 1.1,
+              fontWeight: FontWeight.w600,
+            ),
+      ),
+    );
+  }
+}
+
 class _SummaryCard extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
-  const _SummaryCard({required this.label, required this.value, required this.icon});
+  final Color? iconColor;
+  const _SummaryCard({required this.label, required this.value, required this.icon, this.iconColor});
 
   @override
   Widget build(BuildContext context) {
@@ -443,7 +508,7 @@ class _SummaryCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
+          Icon(icon, color: iconColor ?? Theme.of(context).colorScheme.primary),
           const SizedBox(width: 12),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(label, style: TextStyle(fontSize: 12, color: cs.onSurface)),
