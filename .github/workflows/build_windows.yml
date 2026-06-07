@@ -50,9 +50,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pharmacy-app-windows
-          path: pharmacy_app_windows.zip
-          retention-days: 30
-          compression-level: 0
+          path: build\windows\x64\runner\Release\
+          retention-days: 30          
 
       - name: Attach to GitHub Release
         if: github.event_name == 'release'
