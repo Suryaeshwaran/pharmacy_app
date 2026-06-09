@@ -10,7 +10,12 @@ import '../widgets/bill_item_row.dart';
 import 'bill_preview_screen.dart';
 
 class BillingScreen extends StatefulWidget {
-  const BillingScreen({super.key});
+  /// When [editBill] and [editItems] are provided the screen opens in edit mode.
+  final Bill? editBill;
+  final List<BillItem>? editItems;
+
+  const BillingScreen({super.key, this.editBill, this.editItems});
+
   @override
   State<BillingScreen> createState() => _BillingScreenState();
 }
@@ -41,8 +46,61 @@ class _BillingScreenState extends State<BillingScreen>
   bool _searching = false;
   bool _saving = false;
 
+  bool get _isEditMode => widget.editBill != null;
+
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditMode) {
+      _prefillFromBill();
+    }
+  }
+
+  /// Pre-populate all fields from the existing bill being edited.
+  Future<void> _prefillFromBill() async {
+    final bill = widget.editBill!;
+    final billItems = widget.editItems!;
+
+    _customerName.text = bill.customerName ?? '';
+    _customerPhone.text = bill.customerPhone ?? '';
+    _discountCtrl.text = bill.discount.toStringAsFixed(2);
+    _consultationFeeCtrl.text = bill.consultationFee.toStringAsFixed(2);
+    _paymentMode = bill.paymentMode;
+    if (bill.paymentMode == 'partial') {
+      _partialCashCtrl.text = bill.cashAmount.toStringAsFixed(2);
+    }
+
+    // Load each medicine from DB to build cart items
+    final db = DatabaseProvider.instance.db;
+    final List<_CartItem> cartItems = [];
+    for (final item in billItems) {
+      final medicine = await db.getMedicineById(item.medicineId);
+      if (medicine != null) {
+        cartItems.add(_CartItem(medicine: medicine, qty: item.quantity));
+      } else {
+        // Medicine was soft-deleted — create a minimal placeholder so the
+        // bill can still be saved with the original snapshot values.
+        final placeholder = Medicine(
+          id: item.medicineId,
+          name: item.medicineName,
+          unit: 'piece',
+          mrp: item.salePrice,
+          salePrice: item.salePrice,
+          stockQty: item.quantity, // treat as available for edit purposes
+          lowStockThreshold: 0,
+          isActive: false,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        cartItems.add(_CartItem(medicine: placeholder, qty: item.quantity));
+      }
+    }
+
+    if (mounted) setState(() => _cart = cartItems);
+  }
 
   @override
   void dispose() {
@@ -108,6 +166,8 @@ class _BillingScreenState extends State<BillingScreen>
 
   bool get _canBill => _cart.isNotEmpty;
 
+  // ─── Save (new bill) ───────────────────────────────────────────────────────
+
   Future<void> _saveBill() async {
     if (!_canBill) return;
     setState(() => _saving = true);
@@ -152,6 +212,77 @@ class _BillingScreenState extends State<BillingScreen>
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error saving bill: $e'), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  // ─── Update (edit existing bill) ──────────────────────────────────────────
+
+  Future<void> _updateBill() async {
+    if (!_canBill) return;
+    setState(() => _saving = true);
+    final db = DatabaseProvider.instance.db;
+    final originalBill = widget.editBill!;
+    final originalItems = widget.editItems!;
+
+    try {
+      // 1. Restore stock from the original bill items
+      for (final item in originalItems) {
+        await db.addStock(item.medicineId, item.quantity);
+      }
+
+      // 2. Update the bill header (keep original billNumber and billedAt)
+      await db.updateBill(BillsCompanion(
+        id: Value(originalBill.id),
+        billNumber: Value(originalBill.billNumber),
+        billedAt: Value(originalBill.billedAt),
+        customerName: Value(_customerName.text.trim().isEmpty ? null : _customerName.text.trim()),
+        customerPhone: Value(_customerPhone.text.trim().isEmpty ? null : _customerPhone.text.trim()),
+        subtotal: Value(_subtotal),
+        discount: Value(_discount),
+        consultationFee: Value(_consultationFee),
+        totalAmount: Value(_total),
+        paymentMode: Value(_paymentMode),
+        cashAmount: Value(_cashAmount),
+        onlineAmount: Value(_onlineAmount),
+      ));
+
+      // 3. Replace bill items
+      await db.replaceBillItems(
+        originalBill.id,
+        _cart.map((c) => BillItemsCompanion.insert(
+          billId: originalBill.id,
+          medicineId: c.medicine.id,
+          medicineName: c.medicine.name,
+          salePrice: c.medicine.salePrice,
+          quantity: c.qty,
+          totalPrice: c.total,
+        )).toList(),
+      );
+
+      // 4. Deduct stock for the new cart
+      for (final item in _cart) {
+        await db.deductStock(item.medicine.id, item.qty);
+      }
+
+      final updatedBill = await db.getBillById(originalBill.id);
+      final updatedItems = await db.getBillItems(originalBill.id);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bill updated successfully'), backgroundColor: Colors.green),
+        );
+        // Pop the edit screen then push the updated preview
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(
+          builder: (_) => BillPreviewScreen(bill: updatedBill!, items: updatedItems),
+        ));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating bill: $e'), backgroundColor: Colors.red),
       );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -204,7 +335,12 @@ class _BillingScreenState extends State<BillingScreen>
       appBar: AppBar(
         backgroundColor: const Color(0xFFF2F4F7),
         surfaceTintColor: Colors.transparent,
-        title: Text('New Bill', style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold)),
+        title: Text(
+          _isEditMode
+              ? 'Edit Bill — ${widget.editBill!.billNumber}'
+              : 'New Bill',
+          style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Row(children: [
         // ── Left: Medicine search + cart ──────────────────────────────────
@@ -363,7 +499,7 @@ class _BillingScreenState extends State<BillingScreen>
                     ]),
                     const SizedBox(height: 12),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      Text('Consultation Fee (₹)', style: TextStyle(color: cs.onSurface)),
+                      Text('Fee (₹)', style: TextStyle(color: cs.onSurface)),
                       SizedBox(
                         width: 90,
                         child: TextField(
@@ -421,7 +557,8 @@ class _BillingScreenState extends State<BillingScreen>
                   ]),
                 ),
               ),
-              if (_canBill) ...[
+              // ── Bottom action buttons ────────────────────────────────────
+              if (_canBill && !_isEditMode) ...[
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -440,11 +577,16 @@ class _BillingScreenState extends State<BillingScreen>
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: (_canBill && !_saving) ? _saveBill : null,
+                  onPressed: (_canBill && !_saving)
+                      ? (_isEditMode ? _updateBill : _saveBill)
+                      : null,
                   icon: _saving
                       ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.receipt_long),
-                  label: const Text('Generate Bill', style: TextStyle(fontWeight: FontWeight.w600)),
+                      : Icon(_isEditMode ? Icons.save_outlined : Icons.receipt_long),
+                  label: Text(
+                    _isEditMode ? 'Save Changes' : 'Generate Bill',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

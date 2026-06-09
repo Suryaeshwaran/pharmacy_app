@@ -113,7 +113,7 @@ class BillPreviewScreen extends StatelessWidget {
                           'Discount: -${bill.discount.toStringAsFixed(2)}'),
                     if (bill.consultationFee > 0)
                       pw.Text(
-                          'Consultation Fee: ${bill.consultationFee.toStringAsFixed(2)}'),
+                          'Fee: ${bill.consultationFee.toStringAsFixed(2)}'),
                     pw.Text(
                         'TOTAL: ${bill.totalAmount.toStringAsFixed(2)}',
                         style: pw.TextStyle(
@@ -209,7 +209,7 @@ class BillPreviewScreen extends StatelessWidget {
         '━━━━━━━━━━━━━━━━━━\n'
         'Subtotal: ${bill.subtotal.toStringAsFixed(2)}'
         '${bill.discount > 0 ? '\nDiscount: -${bill.discount.toStringAsFixed(2)}' : ''}'
-        '${bill.consultationFee > 0 ? '\nConsultation Fee: ${bill.consultationFee.toStringAsFixed(2)}' : ''}\n'
+        '${bill.consultationFee > 0 ? '\nFee: ${bill.consultationFee.toStringAsFixed(2)}' : ''}\n'
         '*Total: ${bill.totalAmount.toStringAsFixed(2)}*\n'
         '━━━━━━━━━━━━━━━━━━\n'
         '*Thank You!*';
@@ -482,7 +482,7 @@ class BillPreviewScreen extends StatelessWidget {
                                 if (bill.consultationFee > 0) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                      'Consultation Fee: ₹${bill.consultationFee.toStringAsFixed(2)}',
+                                      'Fee: ₹${bill.consultationFee.toStringAsFixed(2)}',
                                       style: TextStyle(color: cs.onSurface, fontSize: 13)),
                                 ],
                                 const SizedBox(height: 8),

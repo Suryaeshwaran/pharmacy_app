@@ -152,14 +152,14 @@ class AppDatabase extends _$AppDatabase {
       (select(medicines)..where((m) => m.id.equals(id))).getSingleOrNull();
 
   Future<void> deleteMedicine(int id) async {
-  // soft delete — preserves bill history
-  await (update(medicines)..where((m) => m.id.equals(id)))
-      .write(
-        const MedicinesCompanion(
-          isActive: Value(false),
-        ),
-      );
-}    
+    // soft delete — preserves bill history
+    await (update(medicines)..where((m) => m.id.equals(id)))
+        .write(
+          const MedicinesCompanion(
+            isActive: Value(false),
+          ),
+        );
+  }
 
   // ─── Customer Queries ──────────────────────────────────────────────────────
 
@@ -193,6 +193,44 @@ class AppDatabase extends _$AppDatabase {
 
   Future<Bill?> getBillById(int id) =>
       (select(bills)..where((b) => b.id.equals(id))).getSingleOrNull();
+
+  // ─── Edit Bill ─────────────────────────────────────────────────────────────
+
+  /// Updates the bill header row (preserves billNumber and billedAt).
+  Future<void> updateBill(BillsCompanion bill) async {
+    await (update(bills)..where((b) => b.id.equals(bill.id.value)))
+        .write(bill);
+  }
+
+  /// Deletes all existing BillItems for [billId] and inserts the new list.
+  Future<void> replaceBillItems(
+      int billId, List<BillItemsCompanion> newItems) async {
+    await transaction(() async {
+      await (delete(billItems)..where((i) => i.billId.equals(billId))).go();
+      await batch((b) => b.insertAll(billItems, newItems));
+    });
+  }
+
+  // ─── Delete Bill ───────────────────────────────────────────────────────────
+
+  /// Deletes a bill and its items, then restores stock for all deleted items.
+  Future<void> deleteBill(int billId) async {
+    await transaction(() async {
+      // 1. Fetch items before deleting so we can restore stock
+      final items = await getBillItems(billId);
+
+      // 2. Delete bill items first (FK constraint)
+      await (delete(billItems)..where((i) => i.billId.equals(billId))).go();
+
+      // 3. Delete the bill
+      await (delete(bills)..where((b) => b.id.equals(billId))).go();
+
+      // 4. Restore stock for each item
+      for (final item in items) {
+        await addStock(item.medicineId, item.quantity);
+      }
+    });
+  }
 
   // ─── Report Queries ────────────────────────────────────────────────────────
 

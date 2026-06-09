@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/database_provider.dart';
 import '../../billing/screens/bill_preview_screen.dart';
+import '../../billing/screens/billing_screen.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -445,7 +446,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         backgroundColor: const Color(0xFFF2F4F7),
         surfaceTintColor: Colors.transparent,
         title: Text(
-          'Sales Reports', 
+          'Sales Reports',
           style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold),
         ),
         bottom: TabBar(controller: _tabs, tabs: const [
@@ -462,6 +463,8 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     );
   }
 }
+
+// ─── Supporting widgets ────────────────────────────────────────────────────────
 
 class _SectionLabel extends StatelessWidget {
   final String label;
@@ -520,6 +523,8 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
+// ─── Bill Row with Edit + Delete ──────────────────────────────────────────────
+
 class _BillRow extends StatelessWidget {
   final Bill bill;
   const _BillRow({required this.bill});
@@ -543,9 +548,84 @@ class _BillRow extends StatelessWidget {
       }
     } catch (_) {
       if (context.mounted) {
-        Navigator.pop(context); // dismiss loader
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to load bill details')),
+        );
+      }
+    }
+  }
+
+  Future<void> _editBill(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    try {
+      final items = await DatabaseProvider.instance.db.getBillItems(bill.id);
+      if (context.mounted) {
+        Navigator.pop(context); // dismiss loader
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BillingScreen(editBill: bill, editItems: items),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to load bill for editing')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteBill(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        title: Text('Delete Bill?', style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold)),
+        content: Text(
+          'This will permanently delete ${bill.billNumber} and restore stock for all its items. This cannot be undone.',
+          style: TextStyle(color: cs.onSurface),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await DatabaseProvider.instance.db.deleteBill(bill.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${bill.billNumber} deleted and stock restored'),
+            backgroundColor: Colors.red.shade700,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete bill: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -558,9 +638,30 @@ class _BillRow extends StatelessWidget {
       dense: true,
       leading: const Icon(Icons.receipt_outlined),
       title: Text(bill.billNumber, style: TextStyle(color: cs.onSurface)),
-      subtitle: Text(bill.customerName ?? 'Walk-in customer', style: TextStyle(color: cs.onSurface)),
-      trailing: Text('₹${bill.totalAmount.toStringAsFixed(2)}',
-        style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface)),
+      subtitle: Text(
+        '${bill.customerName ?? 'Walk-in customer'} • ${DateFormat('hh:mm a').format(bill.billedAt)}',
+        style: TextStyle(color: cs.onSurface.withOpacity(0.7)),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '₹${bill.totalAmount.toStringAsFixed(2)}',
+            style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: Icon(Icons.edit_outlined, size: 18, color: cs.primary),
+            tooltip: 'Edit bill',
+            onPressed: () => _editBill(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+            tooltip: 'Delete bill',
+            onPressed: () => _deleteBill(context),
+          ),
+        ],
+      ),
       onTap: () => _openBillPreview(context),
     );
   }
