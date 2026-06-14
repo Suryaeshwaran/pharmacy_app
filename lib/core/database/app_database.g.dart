@@ -1113,6 +1113,30 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
       type: DriftSqlType.double,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _feePaymentModeMeta =
+      const VerificationMeta('feePaymentMode');
+  @override
+  late final GeneratedColumn<String> feePaymentMode = GeneratedColumn<String>(
+      'fee_payment_mode', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('cash'));
+  static const VerificationMeta _feeCashAmountMeta =
+      const VerificationMeta('feeCashAmount');
+  @override
+  late final GeneratedColumn<double> feeCashAmount = GeneratedColumn<double>(
+      'fee_cash_amount', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _feeOnlineAmountMeta =
+      const VerificationMeta('feeOnlineAmount');
+  @override
+  late final GeneratedColumn<double> feeOnlineAmount = GeneratedColumn<double>(
+      'fee_online_amount', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -1140,6 +1164,9 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
         paymentMode,
         cashAmount,
         onlineAmount,
+        feePaymentMode,
+        feeCashAmount,
+        feeOnlineAmount,
         notes,
         billedAt
       ];
@@ -1224,6 +1251,24 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
           onlineAmount.isAcceptableOrUnknown(
               data['online_amount']!, _onlineAmountMeta));
     }
+    if (data.containsKey('fee_payment_mode')) {
+      context.handle(
+          _feePaymentModeMeta,
+          feePaymentMode.isAcceptableOrUnknown(
+              data['fee_payment_mode']!, _feePaymentModeMeta));
+    }
+    if (data.containsKey('fee_cash_amount')) {
+      context.handle(
+          _feeCashAmountMeta,
+          feeCashAmount.isAcceptableOrUnknown(
+              data['fee_cash_amount']!, _feeCashAmountMeta));
+    }
+    if (data.containsKey('fee_online_amount')) {
+      context.handle(
+          _feeOnlineAmountMeta,
+          feeOnlineAmount.isAcceptableOrUnknown(
+              data['fee_online_amount']!, _feeOnlineAmountMeta));
+    }
     if (data.containsKey('notes')) {
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
@@ -1265,6 +1310,12 @@ class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
           .read(DriftSqlType.double, data['${effectivePrefix}cash_amount'])!,
       onlineAmount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}online_amount'])!,
+      feePaymentMode: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}fee_payment_mode'])!,
+      feeCashAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}fee_cash_amount'])!,
+      feeOnlineAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}fee_online_amount'])!,
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
       billedAt: attachedDatabase.typeMapping
@@ -1291,6 +1342,9 @@ class Bill extends DataClass implements Insertable<Bill> {
   final String paymentMode;
   final double cashAmount;
   final double onlineAmount;
+  final String feePaymentMode;
+  final double feeCashAmount;
+  final double feeOnlineAmount;
   final String? notes;
   final DateTime billedAt;
   const Bill(
@@ -1306,6 +1360,9 @@ class Bill extends DataClass implements Insertable<Bill> {
       required this.paymentMode,
       required this.cashAmount,
       required this.onlineAmount,
+      required this.feePaymentMode,
+      required this.feeCashAmount,
+      required this.feeOnlineAmount,
       this.notes,
       required this.billedAt});
   @override
@@ -1329,6 +1386,9 @@ class Bill extends DataClass implements Insertable<Bill> {
     map['payment_mode'] = Variable<String>(paymentMode);
     map['cash_amount'] = Variable<double>(cashAmount);
     map['online_amount'] = Variable<double>(onlineAmount);
+    map['fee_payment_mode'] = Variable<String>(feePaymentMode);
+    map['fee_cash_amount'] = Variable<double>(feeCashAmount);
+    map['fee_online_amount'] = Variable<double>(feeOnlineAmount);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -1356,6 +1416,9 @@ class Bill extends DataClass implements Insertable<Bill> {
       paymentMode: Value(paymentMode),
       cashAmount: Value(cashAmount),
       onlineAmount: Value(onlineAmount),
+      feePaymentMode: Value(feePaymentMode),
+      feeCashAmount: Value(feeCashAmount),
+      feeOnlineAmount: Value(feeOnlineAmount),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       billedAt: Value(billedAt),
@@ -1378,6 +1441,9 @@ class Bill extends DataClass implements Insertable<Bill> {
       paymentMode: serializer.fromJson<String>(json['paymentMode']),
       cashAmount: serializer.fromJson<double>(json['cashAmount']),
       onlineAmount: serializer.fromJson<double>(json['onlineAmount']),
+      feePaymentMode: serializer.fromJson<String>(json['feePaymentMode']),
+      feeCashAmount: serializer.fromJson<double>(json['feeCashAmount']),
+      feeOnlineAmount: serializer.fromJson<double>(json['feeOnlineAmount']),
       notes: serializer.fromJson<String?>(json['notes']),
       billedAt: serializer.fromJson<DateTime>(json['billedAt']),
     );
@@ -1398,6 +1464,9 @@ class Bill extends DataClass implements Insertable<Bill> {
       'paymentMode': serializer.toJson<String>(paymentMode),
       'cashAmount': serializer.toJson<double>(cashAmount),
       'onlineAmount': serializer.toJson<double>(onlineAmount),
+      'feePaymentMode': serializer.toJson<String>(feePaymentMode),
+      'feeCashAmount': serializer.toJson<double>(feeCashAmount),
+      'feeOnlineAmount': serializer.toJson<double>(feeOnlineAmount),
       'notes': serializer.toJson<String?>(notes),
       'billedAt': serializer.toJson<DateTime>(billedAt),
     };
@@ -1416,6 +1485,9 @@ class Bill extends DataClass implements Insertable<Bill> {
           String? paymentMode,
           double? cashAmount,
           double? onlineAmount,
+          String? feePaymentMode,
+          double? feeCashAmount,
+          double? feeOnlineAmount,
           Value<String?> notes = const Value.absent(),
           DateTime? billedAt}) =>
       Bill(
@@ -1433,6 +1505,9 @@ class Bill extends DataClass implements Insertable<Bill> {
         paymentMode: paymentMode ?? this.paymentMode,
         cashAmount: cashAmount ?? this.cashAmount,
         onlineAmount: onlineAmount ?? this.onlineAmount,
+        feePaymentMode: feePaymentMode ?? this.feePaymentMode,
+        feeCashAmount: feeCashAmount ?? this.feeCashAmount,
+        feeOnlineAmount: feeOnlineAmount ?? this.feeOnlineAmount,
         notes: notes.present ? notes.value : this.notes,
         billedAt: billedAt ?? this.billedAt,
       );
@@ -1463,6 +1538,15 @@ class Bill extends DataClass implements Insertable<Bill> {
       onlineAmount: data.onlineAmount.present
           ? data.onlineAmount.value
           : this.onlineAmount,
+      feePaymentMode: data.feePaymentMode.present
+          ? data.feePaymentMode.value
+          : this.feePaymentMode,
+      feeCashAmount: data.feeCashAmount.present
+          ? data.feeCashAmount.value
+          : this.feeCashAmount,
+      feeOnlineAmount: data.feeOnlineAmount.present
+          ? data.feeOnlineAmount.value
+          : this.feeOnlineAmount,
       notes: data.notes.present ? data.notes.value : this.notes,
       billedAt: data.billedAt.present ? data.billedAt.value : this.billedAt,
     );
@@ -1483,6 +1567,9 @@ class Bill extends DataClass implements Insertable<Bill> {
           ..write('paymentMode: $paymentMode, ')
           ..write('cashAmount: $cashAmount, ')
           ..write('onlineAmount: $onlineAmount, ')
+          ..write('feePaymentMode: $feePaymentMode, ')
+          ..write('feeCashAmount: $feeCashAmount, ')
+          ..write('feeOnlineAmount: $feeOnlineAmount, ')
           ..write('notes: $notes, ')
           ..write('billedAt: $billedAt')
           ..write(')'))
@@ -1503,6 +1590,9 @@ class Bill extends DataClass implements Insertable<Bill> {
       paymentMode,
       cashAmount,
       onlineAmount,
+      feePaymentMode,
+      feeCashAmount,
+      feeOnlineAmount,
       notes,
       billedAt);
   @override
@@ -1521,6 +1611,9 @@ class Bill extends DataClass implements Insertable<Bill> {
           other.paymentMode == this.paymentMode &&
           other.cashAmount == this.cashAmount &&
           other.onlineAmount == this.onlineAmount &&
+          other.feePaymentMode == this.feePaymentMode &&
+          other.feeCashAmount == this.feeCashAmount &&
+          other.feeOnlineAmount == this.feeOnlineAmount &&
           other.notes == this.notes &&
           other.billedAt == this.billedAt);
 }
@@ -1538,6 +1631,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
   final Value<String> paymentMode;
   final Value<double> cashAmount;
   final Value<double> onlineAmount;
+  final Value<String> feePaymentMode;
+  final Value<double> feeCashAmount;
+  final Value<double> feeOnlineAmount;
   final Value<String?> notes;
   final Value<DateTime> billedAt;
   const BillsCompanion({
@@ -1553,6 +1649,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     this.paymentMode = const Value.absent(),
     this.cashAmount = const Value.absent(),
     this.onlineAmount = const Value.absent(),
+    this.feePaymentMode = const Value.absent(),
+    this.feeCashAmount = const Value.absent(),
+    this.feeOnlineAmount = const Value.absent(),
     this.notes = const Value.absent(),
     this.billedAt = const Value.absent(),
   });
@@ -1569,6 +1668,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     this.paymentMode = const Value.absent(),
     this.cashAmount = const Value.absent(),
     this.onlineAmount = const Value.absent(),
+    this.feePaymentMode = const Value.absent(),
+    this.feeCashAmount = const Value.absent(),
+    this.feeOnlineAmount = const Value.absent(),
     this.notes = const Value.absent(),
     this.billedAt = const Value.absent(),
   })  : billNumber = Value(billNumber),
@@ -1587,6 +1689,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     Expression<String>? paymentMode,
     Expression<double>? cashAmount,
     Expression<double>? onlineAmount,
+    Expression<String>? feePaymentMode,
+    Expression<double>? feeCashAmount,
+    Expression<double>? feeOnlineAmount,
     Expression<String>? notes,
     Expression<DateTime>? billedAt,
   }) {
@@ -1603,6 +1708,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       if (paymentMode != null) 'payment_mode': paymentMode,
       if (cashAmount != null) 'cash_amount': cashAmount,
       if (onlineAmount != null) 'online_amount': onlineAmount,
+      if (feePaymentMode != null) 'fee_payment_mode': feePaymentMode,
+      if (feeCashAmount != null) 'fee_cash_amount': feeCashAmount,
+      if (feeOnlineAmount != null) 'fee_online_amount': feeOnlineAmount,
       if (notes != null) 'notes': notes,
       if (billedAt != null) 'billed_at': billedAt,
     });
@@ -1621,6 +1729,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       Value<String>? paymentMode,
       Value<double>? cashAmount,
       Value<double>? onlineAmount,
+      Value<String>? feePaymentMode,
+      Value<double>? feeCashAmount,
+      Value<double>? feeOnlineAmount,
       Value<String?>? notes,
       Value<DateTime>? billedAt}) {
     return BillsCompanion(
@@ -1636,6 +1747,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
       paymentMode: paymentMode ?? this.paymentMode,
       cashAmount: cashAmount ?? this.cashAmount,
       onlineAmount: onlineAmount ?? this.onlineAmount,
+      feePaymentMode: feePaymentMode ?? this.feePaymentMode,
+      feeCashAmount: feeCashAmount ?? this.feeCashAmount,
+      feeOnlineAmount: feeOnlineAmount ?? this.feeOnlineAmount,
       notes: notes ?? this.notes,
       billedAt: billedAt ?? this.billedAt,
     );
@@ -1680,6 +1794,15 @@ class BillsCompanion extends UpdateCompanion<Bill> {
     if (onlineAmount.present) {
       map['online_amount'] = Variable<double>(onlineAmount.value);
     }
+    if (feePaymentMode.present) {
+      map['fee_payment_mode'] = Variable<String>(feePaymentMode.value);
+    }
+    if (feeCashAmount.present) {
+      map['fee_cash_amount'] = Variable<double>(feeCashAmount.value);
+    }
+    if (feeOnlineAmount.present) {
+      map['fee_online_amount'] = Variable<double>(feeOnlineAmount.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -1704,6 +1827,9 @@ class BillsCompanion extends UpdateCompanion<Bill> {
           ..write('paymentMode: $paymentMode, ')
           ..write('cashAmount: $cashAmount, ')
           ..write('onlineAmount: $onlineAmount, ')
+          ..write('feePaymentMode: $feePaymentMode, ')
+          ..write('feeCashAmount: $feeCashAmount, ')
+          ..write('feeOnlineAmount: $feeOnlineAmount, ')
           ..write('notes: $notes, ')
           ..write('billedAt: $billedAt')
           ..write(')'))
@@ -2773,6 +2899,9 @@ typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<String> paymentMode,
   Value<double> cashAmount,
   Value<double> onlineAmount,
+  Value<String> feePaymentMode,
+  Value<double> feeCashAmount,
+  Value<double> feeOnlineAmount,
   Value<String?> notes,
   Value<DateTime> billedAt,
 });
@@ -2789,6 +2918,9 @@ typedef $$BillsTableUpdateCompanionBuilder = BillsCompanion Function({
   Value<String> paymentMode,
   Value<double> cashAmount,
   Value<double> onlineAmount,
+  Value<String> feePaymentMode,
+  Value<double> feeCashAmount,
+  Value<double> feeOnlineAmount,
   Value<String?> notes,
   Value<DateTime> billedAt,
 });
@@ -2867,6 +2999,17 @@ class $$BillsTableFilterComposer extends Composer<_$AppDatabase, $BillsTable> {
 
   ColumnFilters<double> get onlineAmount => $composableBuilder(
       column: $table.onlineAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get feePaymentMode => $composableBuilder(
+      column: $table.feePaymentMode,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get feeCashAmount => $composableBuilder(
+      column: $table.feeCashAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get feeOnlineAmount => $composableBuilder(
+      column: $table.feeOnlineAmount,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
@@ -2962,6 +3105,18 @@ class $$BillsTableOrderingComposer
       column: $table.onlineAmount,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get feePaymentMode => $composableBuilder(
+      column: $table.feePaymentMode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get feeCashAmount => $composableBuilder(
+      column: $table.feeCashAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get feeOnlineAmount => $composableBuilder(
+      column: $table.feeOnlineAmount,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
@@ -3030,6 +3185,15 @@ class $$BillsTableAnnotationComposer
 
   GeneratedColumn<double> get onlineAmount => $composableBuilder(
       column: $table.onlineAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get feePaymentMode => $composableBuilder(
+      column: $table.feePaymentMode, builder: (column) => column);
+
+  GeneratedColumn<double> get feeCashAmount => $composableBuilder(
+      column: $table.feeCashAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get feeOnlineAmount => $composableBuilder(
+      column: $table.feeOnlineAmount, builder: (column) => column);
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -3114,6 +3278,9 @@ class $$BillsTableTableManager extends RootTableManager<
             Value<String> paymentMode = const Value.absent(),
             Value<double> cashAmount = const Value.absent(),
             Value<double> onlineAmount = const Value.absent(),
+            Value<String> feePaymentMode = const Value.absent(),
+            Value<double> feeCashAmount = const Value.absent(),
+            Value<double> feeOnlineAmount = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<DateTime> billedAt = const Value.absent(),
           }) =>
@@ -3130,6 +3297,9 @@ class $$BillsTableTableManager extends RootTableManager<
             paymentMode: paymentMode,
             cashAmount: cashAmount,
             onlineAmount: onlineAmount,
+            feePaymentMode: feePaymentMode,
+            feeCashAmount: feeCashAmount,
+            feeOnlineAmount: feeOnlineAmount,
             notes: notes,
             billedAt: billedAt,
           ),
@@ -3146,6 +3316,9 @@ class $$BillsTableTableManager extends RootTableManager<
             Value<String> paymentMode = const Value.absent(),
             Value<double> cashAmount = const Value.absent(),
             Value<double> onlineAmount = const Value.absent(),
+            Value<String> feePaymentMode = const Value.absent(),
+            Value<double> feeCashAmount = const Value.absent(),
+            Value<double> feeOnlineAmount = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<DateTime> billedAt = const Value.absent(),
           }) =>
@@ -3162,6 +3335,9 @@ class $$BillsTableTableManager extends RootTableManager<
             paymentMode: paymentMode,
             cashAmount: cashAmount,
             onlineAmount: onlineAmount,
+            feePaymentMode: feePaymentMode,
+            feeCashAmount: feeCashAmount,
+            feeOnlineAmount: feeOnlineAmount,
             notes: notes,
             billedAt: billedAt,
           ),

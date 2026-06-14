@@ -134,7 +134,7 @@ class BillPreviewScreen extends StatelessWidget {
           ),
           pw.Divider(),
           pw.Center(
-              child: pw.Text('Thank You!',
+              child: pw.Text('Medicines once sold are non-returnable. \n Thank you for your understanding.',
                   style: const pw.TextStyle(fontSize: 10))),
         ],
       ),
@@ -212,7 +212,8 @@ class BillPreviewScreen extends StatelessWidget {
         '${bill.consultationFee > 0 ? '\nFee: ${bill.consultationFee.toStringAsFixed(2)}' : ''}\n'
         '*Total: ${bill.totalAmount.toStringAsFixed(2)}*\n'
         '━━━━━━━━━━━━━━━━━━\n'
-        '*Thank You!*';
+        '*Medicines once sold are non-returnable.*\n'
+        '*Thank you for your understanding.*';
   }
 
   Future<void> _shareWhatsApp(BuildContext context) async {
@@ -338,7 +339,7 @@ class BillPreviewScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha:0.06),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -373,7 +374,7 @@ class BillPreviewScreen extends StatelessWidget {
                       ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Divider(color: cs.outlineVariant.withOpacity(0.6), height: 1),
+                        child: Divider(color: cs.outlineVariant.withValues(alpha:0.6), height: 1),
                       ),
                       if (bill.customerName != null) ...[
                         Text('Customer: ${bill.customerName}',
@@ -385,7 +386,7 @@ class BillPreviewScreen extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text('Phone: ${bill.customerPhone}',
                               style: textTheme.bodySmall
-                                  ?.copyWith(color: cs.onSurface.withOpacity(0.7))),
+                                  ?.copyWith(color: cs.onSurface.withValues(alpha:0.7))),
                         ],
                         const SizedBox(height: 16),
                       ],
@@ -493,23 +494,49 @@ class BillPreviewScreen extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                         color: cs.onSurface)),
                                 const SizedBox(height: 8),
-                                if (bill.paymentMode == 'partial') ...[
-                                  Text('Cash: ₹${bill.cashAmount.toStringAsFixed(2)}',
-                                      style: TextStyle(color: cs.onSurface.withOpacity(0.7), fontSize: 12)),
-                                  Text('GPay/Online: ₹${bill.onlineAmount.toStringAsFixed(2)}',
-                                      style: TextStyle(color: cs.onSurface.withOpacity(0.7), fontSize: 12)),
-                                ] else
-                                  Text(
-                                    bill.paymentMode == 'online' ? 'Paid via GPay/Online' : 'Paid via Cash',
-                                    style: TextStyle(color: cs.onSurface.withOpacity(0.7), fontSize: 12),
+                                // Fee payment line (only if fee > 0)
+                                if (bill.consultationFee > 0) ...[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text('Fee: ',
+                                          style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12)),
+                                      Text(
+                                        bill.feePaymentMode == 'partial'
+                                            ? 'Cash ₹${bill.feeCashAmount.toStringAsFixed(2)} / GPay ₹${bill.feeOnlineAmount.toStringAsFixed(2)}'
+                                            : bill.feePaymentMode == 'online'
+                                                ? 'GPay/Online'
+                                                : 'Cash',
+                                        style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                ],
+                                // Pharmacy payment line (only if pharmacy net > 0)
+                                if ((bill.subtotal - bill.discount) > 0)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text('Pharmacy: ',
+                                          style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12)),
+                                      Text(
+                                        bill.paymentMode == 'partial'
+                                            ? 'Cash ₹${bill.cashAmount.toStringAsFixed(2)} / GPay ₹${bill.onlineAmount.toStringAsFixed(2)}'
+                                            : bill.paymentMode == 'online'
+                                                ? 'GPay/Online'
+                                                : 'Cash',
+                                        style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12),
+                                      ),
+                                    ],
                                   ),
                               ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Divider(color: cs.outlineVariant.withOpacity(0.6), height: 1),
+                        child: Divider(color: cs.outlineVariant.withValues(alpha:0.6), height: 1),
                       ),
                       Center(
-                          child: Text('Thank You!',
+                          child: Text('Medicines once sold are non-returnable.\n Thank you for your understanding.',
                               style: TextStyle(
                                   color: cs.onSurface,
                                   fontWeight: FontWeight.w500,

@@ -33,13 +33,17 @@ class _BillingScreenState extends State<BillingScreen>
   final _customerPhone = TextEditingController();
   final _discountCtrl = TextEditingController(text: '0');
   final _consultationFeeCtrl = TextEditingController(text: '0');
+
+  // Pharmacy payment
+  String _paymentMode = 'cash'; // cash | online | partial
   final _partialCashCtrl = TextEditingController();
+
+  // Fee payment
+  String _feePaymentMode = 'cash'; // cash | online | partial
+  final _feePartialCashCtrl = TextEditingController();
 
   final _medicineSearch = TextEditingController();
   final _searchFocus = FocusNode();
-
-  // Payment collection
-  String _paymentMode = 'cash'; // cash | online | partial
 
   List<_CartItem> _cart = [];
   List<Medicine> _searchResults = [];
@@ -68,9 +72,17 @@ class _BillingScreenState extends State<BillingScreen>
     _customerPhone.text = bill.customerPhone ?? '';
     _discountCtrl.text = bill.discount.toStringAsFixed(2);
     _consultationFeeCtrl.text = bill.consultationFee.toStringAsFixed(2);
+
+    // Pharmacy payment
     _paymentMode = bill.paymentMode;
     if (bill.paymentMode == 'partial') {
       _partialCashCtrl.text = bill.cashAmount.toStringAsFixed(2);
+    }
+
+    // Fee payment
+    _feePaymentMode = bill.feePaymentMode;
+    if (bill.feePaymentMode == 'partial') {
+      _feePartialCashCtrl.text = bill.feeCashAmount.toStringAsFixed(2);
     }
 
     // Load each medicine from DB to build cart items
@@ -109,6 +121,7 @@ class _BillingScreenState extends State<BillingScreen>
     _discountCtrl.dispose();
     _consultationFeeCtrl.dispose();
     _partialCashCtrl.dispose();
+    _feePartialCashCtrl.dispose();
     _medicineSearch.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -147,24 +160,41 @@ class _BillingScreenState extends State<BillingScreen>
     }
   }
 
+  // ─── Computed totals ───────────────────────────────────────────────────────
+
   double get _subtotal => _cart.fold(0, (s, c) => s + c.total);
   double get _discount => double.tryParse(_discountCtrl.text) ?? 0;
   double get _consultationFee => double.tryParse(_consultationFeeCtrl.text) ?? 0;
-  double get _total => (_subtotal - _discount + _consultationFee).clamp(0, double.infinity);
+  double get _pharmacyNet => (_subtotal - _discount).clamp(0, double.infinity);
+  double get _total => (_pharmacyNet + _consultationFee).clamp(0, double.infinity);
 
+  // Pharmacy payment amounts
   double get _cashAmount {
-    if (_paymentMode == 'cash') return _total;
+    if (_paymentMode == 'cash') return _pharmacyNet;
     if (_paymentMode == 'online') return 0;
     return double.tryParse(_partialCashCtrl.text) ?? 0;
   }
 
   double get _onlineAmount {
     if (_paymentMode == 'cash') return 0;
-    if (_paymentMode == 'online') return _total;
-    return (_total - _cashAmount).clamp(0, double.infinity);
+    if (_paymentMode == 'online') return _pharmacyNet;
+    return (_pharmacyNet - _cashAmount).clamp(0, double.infinity);
   }
 
-  bool get _canBill => _cart.isNotEmpty;
+  // Fee payment amounts
+  double get _feeCashAmount {
+    if (_feePaymentMode == 'cash') return _consultationFee;
+    if (_feePaymentMode == 'online') return 0;
+    return double.tryParse(_feePartialCashCtrl.text) ?? 0;
+  }
+
+  double get _feeOnlineAmount {
+    if (_feePaymentMode == 'cash') return 0;
+    if (_feePaymentMode == 'online') return _consultationFee;
+    return (_consultationFee - _feeCashAmount).clamp(0, double.infinity);
+  }
+
+  bool get _canBill => _cart.isNotEmpty || _consultationFee > 0;
 
   // ─── Save (new bill) ───────────────────────────────────────────────────────
 
@@ -185,6 +215,9 @@ class _BillingScreenState extends State<BillingScreen>
         paymentMode: Value(_paymentMode),
         cashAmount: Value(_cashAmount),
         onlineAmount: Value(_onlineAmount),
+        feePaymentMode: Value(_feePaymentMode),
+        feeCashAmount: Value(_feeCashAmount),
+        feeOnlineAmount: Value(_feeOnlineAmount),
       ));
 
       await db.insertBillItems(_cart.map((c) => BillItemsCompanion.insert(
@@ -247,6 +280,9 @@ class _BillingScreenState extends State<BillingScreen>
         paymentMode: Value(_paymentMode),
         cashAmount: Value(_cashAmount),
         onlineAmount: Value(_onlineAmount),
+        feePaymentMode: Value(_feePaymentMode),
+        feeCashAmount: Value(_feeCashAmount),
+        feeOnlineAmount: Value(_feeOnlineAmount),
       ));
 
       // 3. Replace bill items
@@ -296,7 +332,9 @@ class _BillingScreenState extends State<BillingScreen>
     _discountCtrl.text = '0';
     _consultationFeeCtrl.text = '0';
     _partialCashCtrl.clear();
+    _feePartialCashCtrl.clear();
     _paymentMode = 'cash';
+    _feePaymentMode = 'cash';
     _medicineSearch.clear();
   }
 
@@ -444,7 +482,9 @@ class _BillingScreenState extends State<BillingScreen>
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Customer Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+
+                    // ── Patient Details ──────────────────────────────────
+                    Text('Patient Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _customerName,
@@ -473,11 +513,16 @@ class _BillingScreenState extends State<BillingScreen>
                       keyboardType: TextInputType.phone,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
+
                     Divider(height: 32, color: cs.outlineVariant),
-                    Text('Bill Summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
-                    const SizedBox(height: 16),
+
+                    // ── Bill Summary ─────────────────────────────────────
+                    // Text('Bill Summary', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+                    // const SizedBox(height: 16),
                     _summaryRow('Subtotal', '₹${_subtotal.toStringAsFixed(2)}', color: cs.onSurface),
                     const SizedBox(height: 12),
+
+                    // Discount
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                       Text('Discount (₹)', style: TextStyle(color: cs.onSurface)),
                       SizedBox(
@@ -497,34 +542,39 @@ class _BillingScreenState extends State<BillingScreen>
                         ),
                       ),
                     ]),
-                    const SizedBox(height: 12),
-                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                      Text('Fee (₹)', style: TextStyle(color: cs.onSurface)),
-                      SizedBox(
-                        width: 90,
-                        child: TextField(
-                          controller: _consultationFeeCtrl,
-                          style: TextStyle(color: cs.onSurface),
-                          textAlign: TextAlign.end,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                            border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
-                          ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                      ),
-                    ]),
+
                     Divider(height: 32, color: cs.outlineVariant),
-                    _summaryRow('Total', '₹${_total.toStringAsFixed(2)}', bold: true, large: true, color: cs.onSurface),
-                    Divider(height: 32, color: cs.outlineVariant),
-                    Text('Payment Collection', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
-                    const SizedBox(height: 12),
-                    _paymentOption('Cash', 'cash', Icons.payments_outlined, cs),
-                    _paymentOption('GPay / Online', 'online', Icons.phone_android_outlined, cs),
-                    _paymentOption('Partial Cash', 'partial', Icons.call_split_outlined, cs),
+
+                    // ── Pharmacy Payment ─────────────────────────────────
+                    Text('Pharmacy Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: cs.onSurface)),
+                    const SizedBox(height: 10),
+                    _paymentOption(
+                      label: 'Cash',
+                      value: 'cash',
+                      icon: Icons.payments_outlined,
+                      cs: cs,
+                      mode: _paymentMode,
+                      amount: _cashAmount,
+                      onTap: () => setState(() { _paymentMode = 'cash'; _partialCashCtrl.clear(); }),
+                    ),
+                    _paymentOption(
+                      label: 'GPay / Online',
+                      value: 'online',
+                      icon: Icons.phone_android_outlined,
+                      cs: cs,
+                      mode: _paymentMode,
+                      amount: _onlineAmount,
+                      onTap: () => setState(() { _paymentMode = 'online'; _partialCashCtrl.clear(); }),
+                    ),
+                    _paymentOption(
+                      label: 'Partial Cash',
+                      value: 'partial',
+                      icon: Icons.call_split_outlined,
+                      cs: cs,
+                      mode: _paymentMode,
+                      amount: null, // partial shows breakdown below
+                      onTap: () => setState(() { _paymentMode = 'partial'; _partialCashCtrl.clear(); }),
+                    ),
                     if (_paymentMode == 'partial') ...[
                       const SizedBox(height: 10),
                       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -553,7 +603,96 @@ class _BillingScreenState extends State<BillingScreen>
                             style: TextStyle(color: cs.onSurface.withOpacity(0.6), fontSize: 13)),
                       ]),
                     ],
+
+                    Divider(height: 32, color: cs.outlineVariant),
+
+                    // ── Consultation Fee ─────────────────────────────────
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                      Text('Fee (₹)', style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.w500, fontSize: 15)),
+                      SizedBox(
+                        width: 90,
+                        child: TextField(
+                          controller: _consultationFeeCtrl,
+                          style: TextStyle(color: cs.onSurface),
+                          textAlign: TextAlign.end,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                            border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                    ]),
+
+                    // ── Fee Payment ──────────────────────────────────────
+                    const SizedBox(height: 14),
+                    Text('Fee Payment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: cs.onSurface)),
+                    const SizedBox(height: 10),
+                    _paymentOption(
+                      label: 'Cash',
+                      value: 'cash',
+                      icon: Icons.payments_outlined,
+                      cs: cs,
+                      mode: _feePaymentMode,
+                      amount: _feePaymentMode == 'cash' ? _feeCashAmount : null,
+                      onTap: () => setState(() { _feePaymentMode = 'cash'; _feePartialCashCtrl.clear(); }),
+                    ),
+                    _paymentOption(
+                      label: 'GPay / Online',
+                      value: 'online',
+                      icon: Icons.phone_android_outlined,
+                      cs: cs,
+                      mode: _feePaymentMode,
+                      amount: _feePaymentMode == 'online' ? _feeOnlineAmount : null,
+                      onTap: () => setState(() { _feePaymentMode = 'online'; _feePartialCashCtrl.clear(); }),
+                    ),
+                    _paymentOption(
+                      label: 'Partial Cash',
+                      value: 'partial',
+                      icon: Icons.call_split_outlined,
+                      cs: cs,
+                      mode: _feePaymentMode,
+                      amount: null,
+                      onTap: () => setState(() { _feePaymentMode = 'partial'; _feePartialCashCtrl.clear(); }),
+                    ),
+                    if (_feePaymentMode == 'partial' && _consultationFee > 0) ...[
+                      const SizedBox(height: 10),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text('Cash Amount (₹)', style: TextStyle(color: cs.onSurface, fontSize: 13)),
+                        SizedBox(
+                          width: 100,
+                          child: TextField(
+                            controller: _feePartialCashCtrl,
+                            style: TextStyle(color: cs.onSurface),
+                            textAlign: TextAlign.end,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                              border: OutlineInputBorder(borderSide: BorderSide(color: cs.outlineVariant)),
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: (_) => setState(() {}),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 6),
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text('GPay / Online (₹)', style: TextStyle(color: cs.onSurface.withOpacity(0.6), fontSize: 13)),
+                        Text('₹${_feeOnlineAmount.toStringAsFixed(2)}',
+                            style: TextStyle(color: cs.onSurface.withOpacity(0.6), fontSize: 13)),
+                      ]),
+                    ],
+
+                    Divider(height: 32, color: cs.outlineVariant),
+
+                    // ── Total ────────────────────────────────────────────
+                    _summaryRow('Total', '₹${_total.toStringAsFixed(2)}', bold: true, large: true, color: cs.onSurface),
                     const SizedBox(height: 8),
+
                   ]),
                 ),
               ),
@@ -600,10 +739,18 @@ class _BillingScreenState extends State<BillingScreen>
     );
   }
 
-  Widget _paymentOption(String label, String value, IconData icon, ColorScheme cs) {
-    final selected = _paymentMode == value;
+  Widget _paymentOption({
+    required String label,
+    required String value,
+    required IconData icon,
+    required ColorScheme cs,
+    required String mode,
+    required double? amount, // null = don't show amount (partial mode)
+    required VoidCallback onTap,
+  }) {
+    final selected = mode == value;
     return InkWell(
-      onTap: () => setState(() { _paymentMode = value; _partialCashCtrl.clear(); }),
+      onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         margin: const EdgeInsets.only(bottom: 6),
@@ -622,8 +769,8 @@ class _BillingScreenState extends State<BillingScreen>
             fontSize: 14,
           )),
           const Spacer(),
-          if (selected && _paymentMode != 'partial')
-            Text('₹${(value == 'cash' ? _cashAmount : _onlineAmount).toStringAsFixed(2)}',
+          if (selected && amount != null)
+            Text('₹${amount.toStringAsFixed(2)}',
                 style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600, fontSize: 13)),
           if (selected) Icon(Icons.check_circle, size: 18, color: cs.primary),
         ]),
