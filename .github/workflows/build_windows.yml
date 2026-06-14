@@ -36,14 +36,21 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Install Visual Studio Build Tools
+      - name: Find cmake path
         run: |
-          choco install visualstudio2022buildtools `
-            --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended" `
-            -y --no-progress
+          $cmakePath = (Get-Command cmake).Source
+          echo "CMAKE_PATH=$cmakePath"
+          cmake --version
 
       - name: Build Windows EXE
-        run: flutter build windows --release
+        run: |
+          $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" `
+            -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+            -property installationPath
+          Write-Host "VS Path: $vsPath"
+          $env:CMAKE_GENERATOR = "Visual Studio 17 2022"
+          $env:CMAKE_GENERATOR_PLATFORM = "x64"
+          flutter build windows --release
 
       - name: Package as ZIP
         run: |
