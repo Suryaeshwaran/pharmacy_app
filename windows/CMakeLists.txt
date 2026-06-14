@@ -1,10 +1,5 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
-
-# Force Visual Studio 2022 (v143 toolset) to avoid CMake picking VS 2019.
-set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
-set(CMAKE_VS_PLATFORM_TOOLSET "v143" CACHE STRING "" FORCE)
-
 project(pharmacy_app LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
