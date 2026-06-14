@@ -36,20 +36,12 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Find cmake path
+      - name: Setup MSVC environment and build
+        shell: cmd
         run: |
-          $cmakePath = (Get-Command cmake).Source
-          echo "CMAKE_PATH=$cmakePath"
-          cmake --version
-
-      - name: Build Windows EXE
-        run: |
-          $vsPath = & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" `
-            -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-            -property installationPath
-          Write-Host "VS Path: $vsPath"
-          $env:CMAKE_GENERATOR = "Visual Studio 17 2022"
-          $env:CMAKE_GENERATOR_PLATFORM = "x64"
+          call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          set CMAKE_GENERATOR=Ninja
+          set CMAKE_GENERATOR_PLATFORM=
           flutter build windows --release
 
       - name: Package as ZIP
