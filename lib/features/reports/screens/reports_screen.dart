@@ -224,7 +224,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           final feeCash = bills.fold(0.0, (s, b) => s + b.feeCashAmount);
           final feeOnline = bills.fold(0.0, (s, b) => s + b.feeOnlineAmount);
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            _SectionLabel(label: 'Summary'),
+            const _SectionLabel(label: 'Summary'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
@@ -238,7 +238,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               ]),
             ),
             const SizedBox(height: 8),
-            _SectionLabel(label: 'Payment Details'),
+            const _SectionLabel(label: 'Payment Details'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _PaymentDetailsTable(
@@ -303,7 +303,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           }
 
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            _SectionLabel(label: 'Summary'),
+            const _SectionLabel(label: 'Summary'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
@@ -317,7 +317,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               ]),
             ),
             const SizedBox(height: 8),
-            _SectionLabel(label: 'Payment Details'),
+            const _SectionLabel(label: 'Payment Details'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _PaymentDetailsTable(
@@ -391,7 +391,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
           final sortedMonths = byMonth.keys.toList()..sort((a, b) => b.compareTo(a));
 
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            _SectionLabel(label: 'Summary'),
+            const _SectionLabel(label: 'Summary'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(children: [
@@ -405,7 +405,7 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               ]),
             ),
             const SizedBox(height: 8),
-            _SectionLabel(label: 'Payment Details'),
+            const _SectionLabel(label: 'Payment Details'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _PaymentDetailsTable(
