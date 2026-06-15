@@ -119,7 +119,7 @@ class BillPreviewScreen extends StatelessWidget {
                         style: pw.TextStyle(
                             fontSize: 14,
                             fontWeight: pw.FontWeight.bold)),
-                    if (bill.paymentMode == 'partial') ...[
+                    /*if (bill.paymentMode == 'partial') ...[
                       pw.Text('Cash: ${bill.cashAmount.toStringAsFixed(2)}',
                           style: const pw.TextStyle(fontSize: 9)),
                       pw.Text('GPay/Online: ${bill.onlineAmount.toStringAsFixed(2)}',
@@ -128,7 +128,7 @@ class BillPreviewScreen extends StatelessWidget {
                       pw.Text(
                         bill.paymentMode == 'online' ? 'Paid via GPay/Online' : 'Paid via Cash',
                         style: const pw.TextStyle(fontSize: 9),
-                      ),
+                      ),*/
                   ]),
             ],
           ),
