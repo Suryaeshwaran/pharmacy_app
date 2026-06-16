@@ -4,8 +4,6 @@ PODS:
   - FlutterMacOS (1.0.0)
   - printing (1.0.0):
     - FlutterMacOS
-  - share_plus (0.0.1):
-    - FlutterMacOS
   - sqlite3 (3.52.0):
     - sqlite3/common (= 3.52.0)
   - sqlite3/common (3.52.0)
@@ -38,7 +36,6 @@ DEPENDENCIES:
   - file_picker (from `Flutter/ephemeral/.symlinks/plugins/file_picker/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - printing (from `Flutter/ephemeral/.symlinks/plugins/printing/macos`)
-  - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
 
@@ -53,8 +50,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   printing:
     :path: Flutter/ephemeral/.symlinks/plugins/printing/macos
-  share_plus:
-    :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   sqlite3_flutter_libs:
     :path: Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin
   url_launcher_macos:
@@ -64,7 +59,6 @@ SPEC CHECKSUMS:
   file_picker: e716a70a9fe5fd9e09ebc922d7541464289443af
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   printing: 1dd6a1fce2209ec240698e2439a4adbb9b427637
-  share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   sqlite3: a51c07cf16e023d6c48abd5e5791a61a47354921
   sqlite3_flutter_libs: f9114e4bbe1f2e03dd543373c53d23245982ca13
   url_launcher_macos: 175a54c831f4375a6cf895875f716ee5af3888ce

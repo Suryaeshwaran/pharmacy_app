@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 
@@ -33,35 +32,39 @@ class _BackupScreenState extends State<BackupScreen> {
     return candidates[0];
   }
 
-  Future<void> _backup() async {
-    setState(() { _loading = true; _statusMessage = null; });
-    try {
-      final dbPath = await _getDbPath();
-      final dbFile = File(dbPath);
-      if (!await dbFile.exists()) {
-        setState(() => _statusMessage = '⚠️ Database file not found at $dbPath');
-        return;
-      }
-
-      final now = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final backupName = 'pharmacy_backup_$now.sqlite';
-      final tempDir = await getTemporaryDirectory();
-      final backupFile = File('${tempDir.path}/$backupName');
-      await dbFile.copy(backupFile.path);
-
-      // share_plus v10 API
-      await Share.shareXFiles(
-        [XFile(backupFile.path)],
-        text: 'Pharmacy App Backup — $now',
-      );
-
-      setState(() => _statusMessage = '✅ Backup created: $backupName');
-    } catch (e) {
-      setState(() => _statusMessage = '❌ Backup failed: $e');
-    } finally {
-      setState(() => _loading = false);
+ Future<void> _backup() async {
+  setState(() { _loading = true; _statusMessage = null; });
+  try {
+    final dbPath = await _getDbPath();
+    final dbFile = File(dbPath);
+    if (!await dbFile.exists()) {
+      setState(() => _statusMessage = '⚠️ Database file not found at $dbPath');
+      return;
     }
+
+    final now = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final backupName = 'pharmacy_backup_$now.sqlite';
+
+    final savePath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Save Backup',
+      fileName: backupName,
+      allowedExtensions: ['sqlite'],
+      type: FileType.custom,
+    );
+
+    if (savePath == null) {
+      setState(() => _statusMessage = 'Backup cancelled.');
+      return;
+    }
+
+    await dbFile.copy(savePath);
+    setState(() => _statusMessage = '✅ Backup saved to $savePath');
+  } catch (e) {
+    setState(() => _statusMessage = '❌ Backup failed: $e');
+  } finally {
+    setState(() => _loading = false);
   }
+}
 
   Future<void> _restore() async {
     final cs = Theme.of(context).colorScheme;
