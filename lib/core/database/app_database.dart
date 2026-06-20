@@ -296,7 +296,7 @@ Future<List<Map<String, dynamic>>> getCleanupMonths() async {
     GROUP BY yr, mo
     ORDER BY yr DESC, mo DESC
     ''',
-    variables: [Variable<int>(cutoff.millisecondsSinceEpoch)],
+    variables: [Variable<int>(cutoff.millisecondsSinceEpoch ~/ 1000)],
     readsFrom: {bills},
   ).get();
 
