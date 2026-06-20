@@ -280,31 +280,30 @@ class AppDatabase extends _$AppDatabase {
 /// Returns distinct (year, month) pairs older than 3 complete months,
 /// along with the bill count for each, ordered newest-first.
 Future<List<Map<String, dynamic>>> getCleanupMonths() async {
-  final cutoff = DateTime(
-    DateTime.now().year,
-    DateTime.now().month - 3,   // Dart handles year rollover correctly
-  );
-  // We need year & month from billedAt — use raw SQL for grouping
+  final now = DateTime.now();
+  final cutoff = DateTime(now.year, now.month - 3, 1);
+  final cutoffSeconds = cutoff.millisecondsSinceEpoch ~/ 1000;
+
   final rows = await customSelect(
     '''
     SELECT
-      CAST(strftime('%Y', datetime(billed_at / 1000, 'unixepoch', 'localtime')) AS INTEGER) AS yr,
-      CAST(strftime('%m', datetime(billed_at / 1000, 'unixepoch', 'localtime')) AS INTEGER) AS mo,
+      strftime('%Y', datetime(billed_at, 'unixepoch', 'localtime')) AS yr,
+      strftime('%m', datetime(billed_at, 'unixepoch', 'localtime')) AS mo,
       COUNT(*) AS bill_count
     FROM bills
     WHERE billed_at < ?
     GROUP BY yr, mo
     ORDER BY yr DESC, mo DESC
     ''',
-    variables: [Variable<int>(cutoff.millisecondsSinceEpoch ~/ 1000)],
+    variables: [Variable<int>(cutoffSeconds)],
     readsFrom: {bills},
   ).get();
 
   return rows.map((r) => {
-  'year': int.parse(r.read<String>('yr')),
-  'month': int.parse(r.read<String>('mo')),
-  'count': r.read<int>('bill_count'),
-}).toList();
+    'year': int.parse(r.read<String>('yr')),   // ← read as String, parse to int
+    'month': int.parse(r.read<String>('mo')),  // ← same
+    'count': r.read<int>('bill_count'),
+  }).toList();
 }
 
 /// Deletes bill_items then bills for the given month, then runs VACUUM.
