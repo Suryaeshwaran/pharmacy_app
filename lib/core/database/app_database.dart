@@ -275,4 +275,71 @@ class AppDatabase extends _$AppDatabase {
     final now = DateTime.now();
     return 'BILL-${now.year}${now.month.toString().padLeft(2,'0')}-$num';
   }
+  // ─── Maintenance / Data Cleanup ────────────────────────────────────────────
+
+/// Returns distinct (year, month) pairs older than 3 complete months,
+/// along with the bill count for each, ordered newest-first.
+Future<List<Map<String, dynamic>>> getCleanupMonths() async {
+  final cutoff = DateTime(
+    DateTime.now().year,
+    DateTime.now().month - 3,   // Dart handles year rollover correctly
+  );
+  // We need year & month from billedAt — use raw SQL for grouping
+  final rows = await customSelect(
+    '''
+    SELECT
+      CAST(strftime('%Y', datetime(billed_at / 1000, 'unixepoch', 'localtime')) AS INTEGER) AS yr,
+      CAST(strftime('%m', datetime(billed_at / 1000, 'unixepoch', 'localtime')) AS INTEGER) AS mo,
+      COUNT(*) AS bill_count
+    FROM bills
+    WHERE billed_at < ?
+    GROUP BY yr, mo
+    ORDER BY yr DESC, mo DESC
+    ''',
+    variables: [Variable<int>(cutoff.millisecondsSinceEpoch)],
+    readsFrom: {bills},
+  ).get();
+
+  return rows.map((r) => {
+    'year': r.read<int>('yr'),
+    'month': r.read<int>('mo'),
+    'count': r.read<int>('bill_count'),
+  }).toList();
+}
+
+/// Deletes bill_items then bills for the given month, then runs VACUUM.
+/// No stock restoration — archival delete.
+Future<int> deleteMonthData(int year, int month) async {
+  final from = DateTime(year, month);
+  final to   = DateTime(year, month + 1); // Dart handles Dec→Jan rollover
+
+  int deleted = 0;
+  await transaction(() async {
+    // 1. Collect bill IDs in this month
+    final monthBills = await (select(bills)
+          ..where((b) =>
+              b.billedAt.isBiggerOrEqualValue(from) &
+              b.billedAt.isSmallerThanValue(to)))
+        .get();
+
+    if (monthBills.isEmpty) return;
+    deleted = monthBills.length;
+    final ids = monthBills.map((b) => b.id).toList();
+
+    // 2. Delete bill_items first (FK-safe)
+    for (final id in ids) {
+      await (delete(billItems)..where((i) => i.billId.equals(id))).go();
+    }
+
+    // 3. Delete bills
+    await (delete(bills)
+          ..where((b) => b.billedAt.isBiggerOrEqualValue(from) &
+              b.billedAt.isSmallerThanValue(to)))
+        .go();
+  });
+
+  // 4. VACUUM outside the transaction (SQLite requirement)
+  await customStatement('VACUUM');
+  return deleted;
+}
 }

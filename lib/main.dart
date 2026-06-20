@@ -7,7 +7,7 @@ import 'features/dashboard/screens/dashboard_screen.dart';
 import 'features/billing/screens/billing_screen.dart';
 import 'features/inventory/screens/inventory_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
-import 'features/backup/backup_screen.dart';
+import 'features/maintenance/maintenance_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +45,7 @@ class _AppShellState extends State<AppShell> {
     BillingScreen(),
     InventoryScreen(),
     ReportsScreen(),
-    BackupScreen(),
+    MaintenanceScreen(),
   ];
 
   @override
@@ -128,9 +128,9 @@ class _AppShellState extends State<AppShell> {
               label: Text('Reports'),
             ),
             const NavigationRailDestination(
-              icon: Icon(Icons.backup_outlined),
-              selectedIcon: Icon(Icons.backup),
-              label: Text('Backup'),
+              icon: Icon(Icons.build_outlined),
+              selectedIcon: Icon(Icons.build),
+              label: Text('Maintenance'),
             ),
           ],
         ),
