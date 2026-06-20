@@ -536,7 +536,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Select months older than 3 months to permanently delete their bills and bill items. '
+                      'Select bills older than 3 months to permanently delete. '
                       'Recent 3 months are protected and cannot be deleted.',
                       style: TextStyle(
                           color: cs.onSurface.withValues(alpha:0.8),
