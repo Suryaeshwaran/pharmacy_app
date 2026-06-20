@@ -301,10 +301,10 @@ Future<List<Map<String, dynamic>>> getCleanupMonths() async {
   ).get();
 
   return rows.map((r) => {
-    'year': r.read<int>('yr'),
-    'month': r.read<int>('mo'),
-    'count': r.read<int>('bill_count'),
-  }).toList();
+  'year': int.parse(r.read<String>('yr')),
+  'month': int.parse(r.read<String>('mo')),
+  'count': r.read<int>('bill_count'),
+}).toList();
 }
 
 /// Deletes bill_items then bills for the given month, then runs VACUUM.
