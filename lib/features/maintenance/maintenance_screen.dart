@@ -275,7 +275,7 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
                             _restoreStep('3',
                                 'Replace the existing .sqlite file with your backup file.'),
                             _restoreStep('4',
-                                'Rename the backup file to match the original filename.'),
+                                'Rename the backup file to match the original filename(pharmacy_app.sqlite).'),
                             _restoreStep('5', 'Reopen the application.'),
                           ],
                         ),
