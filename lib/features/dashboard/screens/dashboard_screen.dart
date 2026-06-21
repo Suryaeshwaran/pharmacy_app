@@ -267,6 +267,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Expanded(child: Text('₹${(bills.fold(0.0, (s, b) => s + b.cashAmount) + bills.fold(0.0, (s, b) => s + b.onlineAmount)).toStringAsFixed(2)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: cs.onSurface))),
                                   ]),
                                 ),
+                                Divider(height: 1, color: cs.outlineVariant),
+                                // Total row
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  child: Row(children: [
+                                    SizedBox(
+                                      width: 90,
+                                      child: Row(children: [
+                                        Icon(Icons.account_balance_wallet_outlined, size: 14, color: cs.primary),
+                                        const SizedBox(width: 6),
+                                        Text('Total', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.primary)),
+                                      ]),
+                                    ),
+                                    Expanded(child: Text('₹${(bills.fold(0.0, (s, b) => s + b.feeCashAmount) + bills.fold(0.0, (s, b) => s + b.cashAmount)).toStringAsFixed(2)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.primary))),
+                                    Expanded(child: Text('₹${(bills.fold(0.0, (s, b) => s + b.feeOnlineAmount) + bills.fold(0.0, (s, b) => s + b.onlineAmount)).toStringAsFixed(2)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.primary))),
+                                    Expanded(child: Text('₹${(bills.fold(0.0, (s, b) => s + b.feeCashAmount) + bills.fold(0.0, (s, b) => s + b.cashAmount) + bills.fold(0.0, (s, b) => s + b.feeOnlineAmount) + bills.fold(0.0, (s, b) => s + b.onlineAmount)).toStringAsFixed(2)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.primary))),
+                                  ]),
+                                ),
                               ],
                             ),
                           ),
