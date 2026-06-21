@@ -47,7 +47,7 @@ class BillPreviewScreen extends StatelessWidget {
           ),
           pw.Divider(),
           if (bill.customerName != null) ...[
-            pw.Text('Customer: ${bill.customerName}',
+            pw.Text('Name: ${bill.customerName}',
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             if (bill.customerPhone != null)
               pw.Text('Phone: ${bill.customerPhone}'),
@@ -56,7 +56,7 @@ class BillPreviewScreen extends StatelessWidget {
           pw.Row(children: [
             pw.Expanded(
                 flex: 4,
-                child: pw.Text('Medicine',
+                child: pw.Text('Medicines',
                     style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold, fontSize: 10))),
             pw.Expanded(
@@ -202,10 +202,10 @@ class BillPreviewScreen extends StatelessWidget {
         '━━━━━━━━━━━━━━━━━━\n'
         'Bill No: ${bill.billNumber}\n'
         'Date: ${DateFormat('dd MMM yyyy, hh:mm a').format(bill.billedAt)}\n'
-        '${bill.customerName != null ? 'Customer: ${bill.customerName}\n' : ''}'
+        '${bill.customerName != null ? 'Name: ${bill.customerName}\n' : ''}'
         '${bill.customerPhone != null ? 'Phone: ${bill.customerPhone}\n' : ''}'
         '━━━━━━━━━━━━━━━━━━\n'
-        '*Items:*\n$lines\n'
+        '*Medicines:*\n$lines\n'
         '━━━━━━━━━━━━━━━━━━\n'
         'Subtotal: ${bill.subtotal.toStringAsFixed(2)}'
         '${bill.discount > 0 ? '\nDiscount: -${bill.discount.toStringAsFixed(2)}' : ''}'
@@ -377,7 +377,7 @@ class BillPreviewScreen extends StatelessWidget {
                         child: Divider(color: cs.outlineVariant.withValues(alpha:0.6), height: 1),
                       ),
                       if (bill.customerName != null) ...[
-                        Text('Customer: ${bill.customerName}',
+                        Text('Name: ${bill.customerName}',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 color: cs.onSurface,
@@ -393,7 +393,7 @@ class BillPreviewScreen extends StatelessWidget {
                       Row(children: [
                         Expanded(
                             flex: 4,
-                            child: Text('Medicine',
+                            child: Text('Medicines',
                                 style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
