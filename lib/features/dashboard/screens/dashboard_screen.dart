@@ -161,45 +161,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           // Today's Summary
                           const _SectionLabel(label: "Today's Summary"),
                           const SizedBox(height: 8),
-                          _WhiteCard(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              child: Row(children: [
-                                _StatTile(
-                                  icon: Icons.receipt_long_outlined,
-                                  value: '${bills.length}',
-                                  label: 'Bills Today',
-                                  iconColor: cs.primary,
-                                ),
-                                Container(width: 1, height: 48, color: cs.outlineVariant, margin: const EdgeInsets.symmetric(horizontal: 16)),
-                                _StatTile(
-                                  icon: Icons.currency_rupee_outlined,
-                                  value: snap.hasData ? '₹${NumberFormat('#,##,###').format(bills.fold(0.0, (s, b) => s + b.subtotal - b.discount))}' : '—',
-                                  label: 'Sales',
-                                  iconColor: cs.primary,
-                                ),
-                                Container(width: 1, height: 48, color: cs.outlineVariant, margin: const EdgeInsets.symmetric(horizontal: 16)),
-                                _StatTile(
-                                  icon: Icons.medical_services_outlined,
-                                  value: snap.hasData ? '₹${NumberFormat('#,##,###').format(bills.fold(0.0, (s, b) => s + b.consultationFee))}' : '—',
-                                  label: 'Fee',
-                                  iconColor: cs.primary,
-                                ),
-                                Container(width: 1, height: 48, color: cs.outlineVariant, margin: const EdgeInsets.symmetric(horizontal: 16)),
-                                _StatTile(
-                                  icon: Icons.account_balance_wallet_outlined,
-                                  value: snap.hasData ? '₹${NumberFormat('#,##,###').format(bills.fold(0.0, (s, b) => s + b.totalAmount))}' : '—',
-                                  label: 'Total',
-                                  iconColor: cs.primary,
-                                ),
-                              ]),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
 
-                          // Payment Details
-                          const _SectionLabel(label: 'Payment Details'),
-                          const SizedBox(height: 8),
+                          // Payment Details card now sits directly below
+                          // the "Today's Summary" label (its own label removed).
                           _WhiteCard(
                             child: Column(
                               children: [
@@ -426,48 +390,6 @@ class _SectionLabel extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
       ),
-    );
-  }
-}
-
-// ── Stat Tile ────────────────────────────────────────────────────────────────
-
-class _StatTile extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color iconColor;
-
-  const _StatTile({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // final textTheme = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Row(children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha:0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: iconColor, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Flexible(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: TextStyle(fontSize: 12, color: cs.onSurface), overflow: TextOverflow.ellipsis),
-            Text(value, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: cs.onSurface), overflow: TextOverflow.ellipsis),
-          ]),
-        ),
-      ]),
     );
   }
 }

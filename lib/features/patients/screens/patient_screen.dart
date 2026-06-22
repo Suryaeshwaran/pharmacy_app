@@ -1,9 +1,22 @@
 // lib/features/patients/screens/patient_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:drift/drift.dart' hide Column;
 import '../../../core/database/app_database.dart';
 import '../../../core/database/database_provider.dart';
+
+/// Forces all typed input to uppercase as the user types.
+class _UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
 
 class PatientScreen extends StatefulWidget {
   const PatientScreen({super.key});
@@ -144,6 +157,18 @@ class _PatientScreenState extends State<PatientScreen> {
 
     try {
       if (_isEditing) {
+        final oldPid = _selectedPatient!.pid;
+        final pidChanged = oldPid != pid;
+
+        if (pidChanged) {
+          // Make sure the new PID isn't already used by a different patient.
+          final existing = await _db.getPatientByPid(pid);
+          if (existing != null && existing.id != _selectedPatient!.id) {
+            setState(() { _pidError = 'Patient ID "$pid" already exists.'; _saving = false; });
+            return;
+          }
+        }
+
         await _db.updatePatient(PatientMasterCompanion(
           id: Value(_selectedPatient!.id),
           pid: Value(pid),
@@ -151,6 +176,20 @@ class _PatientScreenState extends State<PatientScreen> {
           ph1: Value(ph1),
           ph2: Value(ph2),
         ));
+
+        if (pidChanged) {
+          // Keep today's visit queue in sync if this patient is currently queued.
+          final wasQueued = await _db.isInVisitQueue(oldPid);
+          if (wasQueued) {
+            await _db.removeFromVisitQueueByPid(oldPid);
+            await _db.addToVisitQueue(VisitQueueCompanion(
+              pid: Value(pid),
+              patientName: Value(name),
+              patientPhone: Value(ph1),
+            ));
+          }
+        }
+
         // Refresh selected patient
         final updated = await _db.getPatientByPid(pid);
         setState(() {
@@ -170,6 +209,11 @@ class _PatientScreenState extends State<PatientScreen> {
           ph1: Value(ph1),
           ph2: Value(ph2),
         ));
+        // New patients are automatically queued for today's visit.
+        final created = await _db.getPatientByPid(pid);
+        if (created != null) {
+          await _addToVisitQueue(created);
+        }
         setState(() => _showForm = false);
       }
     } catch (e) {
@@ -288,7 +332,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   Widget _buildSearchCard(ColorScheme cs) {
     return Card(
-      color: cs.surface,
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
@@ -337,6 +381,8 @@ class _PatientScreenState extends State<PatientScreen> {
                 Expanded(
                   child: TextField(
                     controller: _nameSearchCtrl,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [_UpperCaseTextFormatter()],
                     decoration: InputDecoration(
                       labelText: 'Name',
                       labelStyle: TextStyle(color: cs.onSurface),
@@ -415,7 +461,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   Widget _buildResultsList(ColorScheme cs) {
     return Card(
-      color: cs.surface,
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListView.separated(
@@ -463,7 +509,7 @@ class _PatientScreenState extends State<PatientScreen> {
         ),
         const SizedBox(height: 4),
         Card(
-          color: cs.surface,
+          color: Colors.white,
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
@@ -579,7 +625,7 @@ class _PatientScreenState extends State<PatientScreen> {
         ),
         const SizedBox(height: 4),
         Card(
-          color: cs.surface,
+          color: Colors.white,
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
@@ -601,13 +647,11 @@ class _PatientScreenState extends State<PatientScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _pidCtrl,
-                    readOnly: _isEditing, // PID should not change on edit
+                    readOnly: false, // PID is now editable, including on edit
                     decoration: InputDecoration(
                       labelText: 'Patient ID *',
                       labelStyle: TextStyle(color: cs.onSurface),
                       errorText: _pidError,
-                      filled: _isEditing,
-                      fillColor: _isEditing ? cs.surfaceContainerHighest : null,
                     ),
                     validator: (v) =>
                         v == null || v.trim().isEmpty ? 'Patient ID is required' : null,
@@ -615,6 +659,8 @@ class _PatientScreenState extends State<PatientScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _nameCtrl,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [_UpperCaseTextFormatter()],
                     decoration: InputDecoration(
                       labelText: 'Name *',
                       labelStyle: TextStyle(color: cs.onSurface),
@@ -673,7 +719,7 @@ class _PatientScreenState extends State<PatientScreen> {
 
   Widget _buildVisitQueuePanel(ColorScheme cs) {
     return Card(
-      color: cs.surface,
+      color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Column(
