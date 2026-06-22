@@ -310,6 +310,8 @@ class _PatientScreenState extends State<PatientScreen> {
               flex: 3,
               child: Column(
                 children: [
+                  _buildTotalPatientsChip(cs),
+                  const SizedBox(height: 12),
                   _buildSearchCard(cs),
                   const SizedBox(height: 12),
                   Expanded(child: _buildLeftContent(cs)),
@@ -321,6 +323,69 @@ class _PatientScreenState extends State<PatientScreen> {
             Expanded(
               flex: 2,
               child: _buildVisitQueuePanel(cs),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Total Patients chip ─────────────────────────────────────────────────────
+  // Two-tone "pill": dark-green half shows the label, white half shows the
+  // live count from the DB. Wrapped in a StreamBuilder so it updates
+  // automatically as patients are added/removed.
+
+  Widget _buildTotalPatientsChip(ColorScheme cs) {
+    const darkGreen = Color(0xFF1B5E20);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Label half — dark green background, white bold text
+            Container(
+              color: darkGreen,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              child: const Text(
+                'TOTAL PATIENTS',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ),
+            // Count half — white background, dark green bold text
+            StreamBuilder<int>(
+              stream: _db.watchPatientCount(),
+              builder: (context, snap) {
+                final count = snap.data ?? 0;
+                return Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      color: darkGreen,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

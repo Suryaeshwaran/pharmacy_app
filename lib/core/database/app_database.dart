@@ -242,6 +242,11 @@ class AppDatabase extends _$AppDatabase {
     return rows.length;
   }
 
+  /// Live count of patients — updates automatically as patients are
+  /// added, edited, or deleted (used by the "Total Patients" chip).
+  Stream<int> watchPatientCount() =>
+      select(patientMaster).watch().map((rows) => rows.length);
+
   // ─── Visit Queue Queries ───────────────────────────────────────────────────
 
   /// Watch all entries in today's visit queue, ordered by time added.
