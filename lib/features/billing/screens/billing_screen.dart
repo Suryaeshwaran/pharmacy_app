@@ -617,32 +617,30 @@ class _BillingScreenState extends State<BillingScreen>
                     const SizedBox(height: 16),
 
                     // ── Patient ID (visit queue picker) ──────────────────
-                    GestureDetector(
+                    TextField(
+                      key: _pidFieldKey,
+                      controller: _pidCtrl,
+                      readOnly: true,
+                      style: TextStyle(color: cs.onSurface),
                       onTap: () {
+                        if (_selectedPid != null) return; // already selected, × clears
                         _loadVisitQueue().then((_) => _showPidOverlay());
                       },
-                      child: AbsorbPointer(
-                        child: TextField(
-                          key: _pidFieldKey,
-                          controller: _pidCtrl,
-                          style: TextStyle(color: cs.onSurface),
-                          decoration: InputDecoration(
-                            labelText: 'Patient ID (from queue)',
-                            labelStyle: TextStyle(color: cs.onSurface),
-                            prefixIcon: Icon(Icons.badge_outlined, color: cs.onSurface),
-                            suffixIcon: _selectedPid != null
-                                ? IconButton(
-                                    icon: Icon(Icons.clear, color: cs.onSurface),
-                                    onPressed: _clearPatientSelection,
-                                    tooltip: 'Clear selection',
-                                  )
-                                : Icon(Icons.arrow_drop_down, color: cs.onSurface),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: cs.outlineVariant)),
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(color: cs.outlineVariant)),
-                          ),
-                        ),
+                      decoration: InputDecoration(
+                        labelText: 'Patient ID (from queue)',
+                        labelStyle: TextStyle(color: cs.onSurface),
+                        prefixIcon: Icon(Icons.badge_outlined, color: cs.onSurface),
+                        suffixIcon: _selectedPid != null
+                            ? IconButton(
+                                icon: Icon(Icons.clear, color: cs.onSurface),
+                                onPressed: _clearPatientSelection,
+                                tooltip: 'Clear selection',
+                              )
+                            : Icon(Icons.arrow_drop_down, color: cs.onSurface),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outlineVariant)),
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: cs.outlineVariant)),
                       ),
                     ),
                     if (_visitQueue.isEmpty && !_isEditMode) ...[
