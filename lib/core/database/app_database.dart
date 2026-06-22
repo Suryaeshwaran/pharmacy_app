@@ -34,6 +34,15 @@ class Customers extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+class PatientMaster extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get pid => text().unique()(); // External patient ID from Carestream
+  TextColumn get name => text().withLength(min: 1, max: 255)();
+  TextColumn get ph1 => text().nullable()(); // Stored as text to preserve formatting
+  TextColumn get ph2 => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 class Bills extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get billNumber => text()(); // e.g. BILL-2024-001
@@ -69,12 +78,12 @@ class BillItems extends Table {
 
 // ─── DATABASE ─────────────────────────────────────────────────────────────────
 
-@DriftDatabase(tables: [Medicines, Customers, Bills, BillItems])
+@DriftDatabase(tables: [Medicines, Customers, PatientMaster, Bills, BillItems])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -90,6 +99,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(bills, bills.feePaymentMode as GeneratedColumn<Object>);
         await m.addColumn(bills, bills.feeCashAmount as GeneratedColumn<Object>);
         await m.addColumn(bills, bills.feeOnlineAmount as GeneratedColumn<Object>);
+      }
+      if (from < 5) {
+        await m.createTable(patientMaster);
       }
     },
   );
@@ -184,6 +196,33 @@ class AppDatabase extends _$AppDatabase {
   Future<int> insertCustomer(CustomersCompanion customer) =>
       into(customers).insert(customer);
 
+  // ─── Patient Queries ───────────────────────────────────────────────────────
+
+  Future<List<PatientMasterData>> searchPatients(String query) =>
+      (select(patientMaster)
+            ..where((p) =>
+                p.name.contains(query) |
+                p.pid.contains(query) |
+                p.ph1.contains(query))
+            ..orderBy([(p) => OrderingTerm.asc(p.name)])
+            ..limit(20))
+          .get();
+
+  Future<PatientMasterData?> getPatientByPid(String pid) =>
+      (select(patientMaster)..where((p) => p.pid.equals(pid)))
+          .getSingleOrNull();
+
+  Future<int> insertPatient(PatientMasterCompanion patient) =>
+      into(patientMaster).insert(patient);
+
+  Future<bool> updatePatient(PatientMasterCompanion patient) =>
+      update(patientMaster).replace(patient);
+
+  Future<int> getTotalPatientCount() async {
+    final rows = await select(patientMaster).get();
+    return rows.length;
+  }
+
   // ─── Bill Queries ──────────────────────────────────────────────────────────
 
   Future<int> insertBill(BillsCompanion bill) =>
@@ -275,70 +314,71 @@ class AppDatabase extends _$AppDatabase {
     final now = DateTime.now();
     return 'BILL-${now.year}${now.month.toString().padLeft(2,'0')}-$num';
   }
+
   // ─── Maintenance / Data Cleanup ────────────────────────────────────────────
 
-/// Returns distinct (year, month) pairs older than 3 complete months,
-/// along with the bill count for each, ordered newest-first.
-Future<List<Map<String, dynamic>>> getCleanupMonths() async {
-  final now = DateTime.now();
-  final cutoff = DateTime(now.year, now.month - 3, 1);
-  final cutoffSeconds = cutoff.millisecondsSinceEpoch ~/ 1000;
+  /// Returns distinct (year, month) pairs older than 3 complete months,
+  /// along with the bill count for each, ordered newest-first.
+  Future<List<Map<String, dynamic>>> getCleanupMonths() async {
+    final now = DateTime.now();
+    final cutoff = DateTime(now.year, now.month - 3, 1);
+    final cutoffSeconds = cutoff.millisecondsSinceEpoch ~/ 1000;
 
-  final rows = await customSelect(
-    '''
-    SELECT
-      strftime('%Y', datetime(billed_at, 'unixepoch', 'localtime')) AS yr,
-      strftime('%m', datetime(billed_at, 'unixepoch', 'localtime')) AS mo,
-      COUNT(*) AS bill_count
-    FROM bills
-    WHERE billed_at < ?
-    GROUP BY yr, mo
-    ORDER BY yr DESC, mo DESC
-    ''',
-    variables: [Variable<int>(cutoffSeconds)],
-    readsFrom: {bills},
-  ).get();
+    final rows = await customSelect(
+      '''
+      SELECT
+        strftime('%Y', datetime(billed_at, 'unixepoch', 'localtime')) AS yr,
+        strftime('%m', datetime(billed_at, 'unixepoch', 'localtime')) AS mo,
+        COUNT(*) AS bill_count
+      FROM bills
+      WHERE billed_at < ?
+      GROUP BY yr, mo
+      ORDER BY yr DESC, mo DESC
+      ''',
+      variables: [Variable<int>(cutoffSeconds)],
+      readsFrom: {bills},
+    ).get();
 
-  return rows.map((r) => {
-    'year': int.parse(r.read<String>('yr')),   // ← read as String, parse to int
-    'month': int.parse(r.read<String>('mo')),  // ← same
-    'count': r.read<int>('bill_count'),
-  }).toList();
-}
+    return rows.map((r) => {
+      'year': int.parse(r.read<String>('yr')),   // ← read as String, parse to int
+      'month': int.parse(r.read<String>('mo')),  // ← same
+      'count': r.read<int>('bill_count'),
+    }).toList();
+  }
 
-/// Deletes bill_items then bills for the given month, then runs VACUUM.
-/// No stock restoration — archival delete.
-Future<int> deleteMonthData(int year, int month) async {
-  final from = DateTime(year, month);
-  final to   = DateTime(year, month + 1); // Dart handles Dec→Jan rollover
+  /// Deletes bill_items then bills for the given month, then runs VACUUM.
+  /// No stock restoration — archival delete.
+  Future<int> deleteMonthData(int year, int month) async {
+    final from = DateTime(year, month);
+    final to   = DateTime(year, month + 1); // Dart handles Dec→Jan rollover
 
-  int deleted = 0;
-  await transaction(() async {
-    // 1. Collect bill IDs in this month
-    final monthBills = await (select(bills)
-          ..where((b) =>
-              b.billedAt.isBiggerOrEqualValue(from) &
-              b.billedAt.isSmallerThanValue(to)))
-        .get();
+    int deleted = 0;
+    await transaction(() async {
+      // 1. Collect bill IDs in this month
+      final monthBills = await (select(bills)
+            ..where((b) =>
+                b.billedAt.isBiggerOrEqualValue(from) &
+                b.billedAt.isSmallerThanValue(to)))
+          .get();
 
-    if (monthBills.isEmpty) return;
-    deleted = monthBills.length;
-    final ids = monthBills.map((b) => b.id).toList();
+      if (monthBills.isEmpty) return;
+      deleted = monthBills.length;
+      final ids = monthBills.map((b) => b.id).toList();
 
-    // 2. Delete bill_items first (FK-safe)
-    for (final id in ids) {
-      await (delete(billItems)..where((i) => i.billId.equals(id))).go();
-    }
+      // 2. Delete bill_items first (FK-safe)
+      for (final id in ids) {
+        await (delete(billItems)..where((i) => i.billId.equals(id))).go();
+      }
 
-    // 3. Delete bills
-    await (delete(bills)
-          ..where((b) => b.billedAt.isBiggerOrEqualValue(from) &
-              b.billedAt.isSmallerThanValue(to)))
-        .go();
-  });
+      // 3. Delete bills
+      await (delete(bills)
+            ..where((b) => b.billedAt.isBiggerOrEqualValue(from) &
+                b.billedAt.isSmallerThanValue(to)))
+          .go();
+    });
 
-  // 4. VACUUM outside the transaction (SQLite requirement)
-  await customStatement('VACUUM');
-  return deleted;
-}
+    // 4. VACUUM outside the transaction (SQLite requirement)
+    await customStatement('VACUUM');
+    return deleted;
+  }
 }

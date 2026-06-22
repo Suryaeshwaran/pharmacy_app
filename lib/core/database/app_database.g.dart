@@ -1020,6 +1020,340 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
   }
 }
 
+class $PatientMasterTable extends PatientMaster
+    with TableInfo<$PatientMasterTable, PatientMasterData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PatientMasterTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _pidMeta = const VerificationMeta('pid');
+  @override
+  late final GeneratedColumn<String> pid = GeneratedColumn<String>(
+      'pid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _ph1Meta = const VerificationMeta('ph1');
+  @override
+  late final GeneratedColumn<String> ph1 = GeneratedColumn<String>(
+      'ph1', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ph2Meta = const VerificationMeta('ph2');
+  @override
+  late final GeneratedColumn<String> ph2 = GeneratedColumn<String>(
+      'ph2', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, pid, name, ph1, ph2, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'patient_master';
+  @override
+  VerificationContext validateIntegrity(Insertable<PatientMasterData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('pid')) {
+      context.handle(
+          _pidMeta, pid.isAcceptableOrUnknown(data['pid']!, _pidMeta));
+    } else if (isInserting) {
+      context.missing(_pidMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('ph1')) {
+      context.handle(
+          _ph1Meta, ph1.isAcceptableOrUnknown(data['ph1']!, _ph1Meta));
+    }
+    if (data.containsKey('ph2')) {
+      context.handle(
+          _ph2Meta, ph2.isAcceptableOrUnknown(data['ph2']!, _ph2Meta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PatientMasterData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PatientMasterData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      pid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}pid'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      ph1: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}ph1']),
+      ph2: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}ph2']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $PatientMasterTable createAlias(String alias) {
+    return $PatientMasterTable(attachedDatabase, alias);
+  }
+}
+
+class PatientMasterData extends DataClass
+    implements Insertable<PatientMasterData> {
+  final int id;
+  final String pid;
+  final String name;
+  final String? ph1;
+  final String? ph2;
+  final DateTime createdAt;
+  const PatientMasterData(
+      {required this.id,
+      required this.pid,
+      required this.name,
+      this.ph1,
+      this.ph2,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['pid'] = Variable<String>(pid);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || ph1 != null) {
+      map['ph1'] = Variable<String>(ph1);
+    }
+    if (!nullToAbsent || ph2 != null) {
+      map['ph2'] = Variable<String>(ph2);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PatientMasterCompanion toCompanion(bool nullToAbsent) {
+    return PatientMasterCompanion(
+      id: Value(id),
+      pid: Value(pid),
+      name: Value(name),
+      ph1: ph1 == null && nullToAbsent ? const Value.absent() : Value(ph1),
+      ph2: ph2 == null && nullToAbsent ? const Value.absent() : Value(ph2),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PatientMasterData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PatientMasterData(
+      id: serializer.fromJson<int>(json['id']),
+      pid: serializer.fromJson<String>(json['pid']),
+      name: serializer.fromJson<String>(json['name']),
+      ph1: serializer.fromJson<String?>(json['ph1']),
+      ph2: serializer.fromJson<String?>(json['ph2']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'pid': serializer.toJson<String>(pid),
+      'name': serializer.toJson<String>(name),
+      'ph1': serializer.toJson<String?>(ph1),
+      'ph2': serializer.toJson<String?>(ph2),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PatientMasterData copyWith(
+          {int? id,
+          String? pid,
+          String? name,
+          Value<String?> ph1 = const Value.absent(),
+          Value<String?> ph2 = const Value.absent(),
+          DateTime? createdAt}) =>
+      PatientMasterData(
+        id: id ?? this.id,
+        pid: pid ?? this.pid,
+        name: name ?? this.name,
+        ph1: ph1.present ? ph1.value : this.ph1,
+        ph2: ph2.present ? ph2.value : this.ph2,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  PatientMasterData copyWithCompanion(PatientMasterCompanion data) {
+    return PatientMasterData(
+      id: data.id.present ? data.id.value : this.id,
+      pid: data.pid.present ? data.pid.value : this.pid,
+      name: data.name.present ? data.name.value : this.name,
+      ph1: data.ph1.present ? data.ph1.value : this.ph1,
+      ph2: data.ph2.present ? data.ph2.value : this.ph2,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PatientMasterData(')
+          ..write('id: $id, ')
+          ..write('pid: $pid, ')
+          ..write('name: $name, ')
+          ..write('ph1: $ph1, ')
+          ..write('ph2: $ph2, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, pid, name, ph1, ph2, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PatientMasterData &&
+          other.id == this.id &&
+          other.pid == this.pid &&
+          other.name == this.name &&
+          other.ph1 == this.ph1 &&
+          other.ph2 == this.ph2 &&
+          other.createdAt == this.createdAt);
+}
+
+class PatientMasterCompanion extends UpdateCompanion<PatientMasterData> {
+  final Value<int> id;
+  final Value<String> pid;
+  final Value<String> name;
+  final Value<String?> ph1;
+  final Value<String?> ph2;
+  final Value<DateTime> createdAt;
+  const PatientMasterCompanion({
+    this.id = const Value.absent(),
+    this.pid = const Value.absent(),
+    this.name = const Value.absent(),
+    this.ph1 = const Value.absent(),
+    this.ph2 = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  PatientMasterCompanion.insert({
+    this.id = const Value.absent(),
+    required String pid,
+    required String name,
+    this.ph1 = const Value.absent(),
+    this.ph2 = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  })  : pid = Value(pid),
+        name = Value(name);
+  static Insertable<PatientMasterData> custom({
+    Expression<int>? id,
+    Expression<String>? pid,
+    Expression<String>? name,
+    Expression<String>? ph1,
+    Expression<String>? ph2,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (pid != null) 'pid': pid,
+      if (name != null) 'name': name,
+      if (ph1 != null) 'ph1': ph1,
+      if (ph2 != null) 'ph2': ph2,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  PatientMasterCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? pid,
+      Value<String>? name,
+      Value<String?>? ph1,
+      Value<String?>? ph2,
+      Value<DateTime>? createdAt}) {
+    return PatientMasterCompanion(
+      id: id ?? this.id,
+      pid: pid ?? this.pid,
+      name: name ?? this.name,
+      ph1: ph1 ?? this.ph1,
+      ph2: ph2 ?? this.ph2,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (pid.present) {
+      map['pid'] = Variable<String>(pid.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (ph1.present) {
+      map['ph1'] = Variable<String>(ph1.value);
+    }
+    if (ph2.present) {
+      map['ph2'] = Variable<String>(ph2.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PatientMasterCompanion(')
+          ..write('id: $id, ')
+          ..write('pid: $pid, ')
+          ..write('name: $name, ')
+          ..write('ph1: $ph1, ')
+          ..write('ph2: $ph2, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2231,6 +2565,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $MedicinesTable medicines = $MedicinesTable(this);
   late final $CustomersTable customers = $CustomersTable(this);
+  late final $PatientMasterTable patientMaster = $PatientMasterTable(this);
   late final $BillsTable bills = $BillsTable(this);
   late final $BillItemsTable billItems = $BillItemsTable(this);
   @override
@@ -2238,7 +2573,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [medicines, customers, bills, billItems];
+      [medicines, customers, patientMaster, bills, billItems];
 }
 
 typedef $$MedicinesTableCreateCompanionBuilder = MedicinesCompanion Function({
@@ -2886,6 +3221,188 @@ typedef $$CustomersTableProcessedTableManager = ProcessedTableManager<
     (Customer, $$CustomersTableReferences),
     Customer,
     PrefetchHooks Function({bool billsRefs})>;
+typedef $$PatientMasterTableCreateCompanionBuilder = PatientMasterCompanion
+    Function({
+  Value<int> id,
+  required String pid,
+  required String name,
+  Value<String?> ph1,
+  Value<String?> ph2,
+  Value<DateTime> createdAt,
+});
+typedef $$PatientMasterTableUpdateCompanionBuilder = PatientMasterCompanion
+    Function({
+  Value<int> id,
+  Value<String> pid,
+  Value<String> name,
+  Value<String?> ph1,
+  Value<String?> ph2,
+  Value<DateTime> createdAt,
+});
+
+class $$PatientMasterTableFilterComposer
+    extends Composer<_$AppDatabase, $PatientMasterTable> {
+  $$PatientMasterTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pid => $composableBuilder(
+      column: $table.pid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ph1 => $composableBuilder(
+      column: $table.ph1, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ph2 => $composableBuilder(
+      column: $table.ph2, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$PatientMasterTableOrderingComposer
+    extends Composer<_$AppDatabase, $PatientMasterTable> {
+  $$PatientMasterTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pid => $composableBuilder(
+      column: $table.pid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ph1 => $composableBuilder(
+      column: $table.ph1, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ph2 => $composableBuilder(
+      column: $table.ph2, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PatientMasterTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PatientMasterTable> {
+  $$PatientMasterTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get pid =>
+      $composableBuilder(column: $table.pid, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get ph1 =>
+      $composableBuilder(column: $table.ph1, builder: (column) => column);
+
+  GeneratedColumn<String> get ph2 =>
+      $composableBuilder(column: $table.ph2, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$PatientMasterTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PatientMasterTable,
+    PatientMasterData,
+    $$PatientMasterTableFilterComposer,
+    $$PatientMasterTableOrderingComposer,
+    $$PatientMasterTableAnnotationComposer,
+    $$PatientMasterTableCreateCompanionBuilder,
+    $$PatientMasterTableUpdateCompanionBuilder,
+    (
+      PatientMasterData,
+      BaseReferences<_$AppDatabase, $PatientMasterTable, PatientMasterData>
+    ),
+    PatientMasterData,
+    PrefetchHooks Function()> {
+  $$PatientMasterTableTableManager(_$AppDatabase db, $PatientMasterTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PatientMasterTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PatientMasterTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PatientMasterTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> pid = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> ph1 = const Value.absent(),
+            Value<String?> ph2 = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              PatientMasterCompanion(
+            id: id,
+            pid: pid,
+            name: name,
+            ph1: ph1,
+            ph2: ph2,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String pid,
+            required String name,
+            Value<String?> ph1 = const Value.absent(),
+            Value<String?> ph2 = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              PatientMasterCompanion.insert(
+            id: id,
+            pid: pid,
+            name: name,
+            ph1: ph1,
+            ph2: ph2,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PatientMasterTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PatientMasterTable,
+    PatientMasterData,
+    $$PatientMasterTableFilterComposer,
+    $$PatientMasterTableOrderingComposer,
+    $$PatientMasterTableAnnotationComposer,
+    $$PatientMasterTableCreateCompanionBuilder,
+    $$PatientMasterTableUpdateCompanionBuilder,
+    (
+      PatientMasterData,
+      BaseReferences<_$AppDatabase, $PatientMasterTable, PatientMasterData>
+    ),
+    PatientMasterData,
+    PrefetchHooks Function()>;
 typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
   required String billNumber,
@@ -3788,6 +4305,8 @@ class $AppDatabaseManager {
       $$MedicinesTableTableManager(_db, _db.medicines);
   $$CustomersTableTableManager get customers =>
       $$CustomersTableTableManager(_db, _db.customers);
+  $$PatientMasterTableTableManager get patientMaster =>
+      $$PatientMasterTableTableManager(_db, _db.patientMaster);
   $$BillsTableTableManager get bills =>
       $$BillsTableTableManager(_db, _db.bills);
   $$BillItemsTableTableManager get billItems =>
