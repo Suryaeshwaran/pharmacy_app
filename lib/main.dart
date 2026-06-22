@@ -8,6 +8,7 @@ import 'features/billing/screens/billing_screen.dart';
 import 'features/inventory/screens/inventory_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
 import 'features/maintenance/maintenance_screen.dart';
+import 'features/patients/screens/patient_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,7 @@ class _AppShellState extends State<AppShell> {
   // Screens are kept constant so IndexedStack never rebuilds them
   static const _screens = [
     DashboardScreen(),
+    PatientScreen(),
     BillingScreen(),
     InventoryScreen(),
     ReportsScreen(),
@@ -72,6 +74,11 @@ class _AppShellState extends State<AppShell> {
               icon: Icon(Icons.dashboard_outlined),
               selectedIcon: Icon(Icons.dashboard),
               label: Text('Dashboard'),
+            ),
+            const NavigationRailDestination(
+              icon: Icon(Icons.people_outline),
+              selectedIcon: Icon(Icons.people),
+              label: Text('Patients'),
             ),
             const NavigationRailDestination(
               icon: Icon(Icons.receipt_long_outlined),

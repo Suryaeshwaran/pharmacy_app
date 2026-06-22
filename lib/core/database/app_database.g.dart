@@ -1354,6 +1354,312 @@ class PatientMasterCompanion extends UpdateCompanion<PatientMasterData> {
   }
 }
 
+class $VisitQueueTable extends VisitQueue
+    with TableInfo<$VisitQueueTable, VisitQueueData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VisitQueueTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _pidMeta = const VerificationMeta('pid');
+  @override
+  late final GeneratedColumn<String> pid = GeneratedColumn<String>(
+      'pid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _patientNameMeta =
+      const VerificationMeta('patientName');
+  @override
+  late final GeneratedColumn<String> patientName = GeneratedColumn<String>(
+      'patient_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _patientPhoneMeta =
+      const VerificationMeta('patientPhone');
+  @override
+  late final GeneratedColumn<String> patientPhone = GeneratedColumn<String>(
+      'patient_phone', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _addedAtMeta =
+      const VerificationMeta('addedAt');
+  @override
+  late final GeneratedColumn<DateTime> addedAt = GeneratedColumn<DateTime>(
+      'added_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, pid, patientName, patientPhone, addedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'visit_queue';
+  @override
+  VerificationContext validateIntegrity(Insertable<VisitQueueData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('pid')) {
+      context.handle(
+          _pidMeta, pid.isAcceptableOrUnknown(data['pid']!, _pidMeta));
+    } else if (isInserting) {
+      context.missing(_pidMeta);
+    }
+    if (data.containsKey('patient_name')) {
+      context.handle(
+          _patientNameMeta,
+          patientName.isAcceptableOrUnknown(
+              data['patient_name']!, _patientNameMeta));
+    } else if (isInserting) {
+      context.missing(_patientNameMeta);
+    }
+    if (data.containsKey('patient_phone')) {
+      context.handle(
+          _patientPhoneMeta,
+          patientPhone.isAcceptableOrUnknown(
+              data['patient_phone']!, _patientPhoneMeta));
+    }
+    if (data.containsKey('added_at')) {
+      context.handle(_addedAtMeta,
+          addedAt.isAcceptableOrUnknown(data['added_at']!, _addedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VisitQueueData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VisitQueueData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      pid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}pid'])!,
+      patientName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}patient_name'])!,
+      patientPhone: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}patient_phone']),
+      addedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}added_at'])!,
+    );
+  }
+
+  @override
+  $VisitQueueTable createAlias(String alias) {
+    return $VisitQueueTable(attachedDatabase, alias);
+  }
+}
+
+class VisitQueueData extends DataClass implements Insertable<VisitQueueData> {
+  final int id;
+  final String pid;
+  final String patientName;
+  final String? patientPhone;
+  final DateTime addedAt;
+  const VisitQueueData(
+      {required this.id,
+      required this.pid,
+      required this.patientName,
+      this.patientPhone,
+      required this.addedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['pid'] = Variable<String>(pid);
+    map['patient_name'] = Variable<String>(patientName);
+    if (!nullToAbsent || patientPhone != null) {
+      map['patient_phone'] = Variable<String>(patientPhone);
+    }
+    map['added_at'] = Variable<DateTime>(addedAt);
+    return map;
+  }
+
+  VisitQueueCompanion toCompanion(bool nullToAbsent) {
+    return VisitQueueCompanion(
+      id: Value(id),
+      pid: Value(pid),
+      patientName: Value(patientName),
+      patientPhone: patientPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(patientPhone),
+      addedAt: Value(addedAt),
+    );
+  }
+
+  factory VisitQueueData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VisitQueueData(
+      id: serializer.fromJson<int>(json['id']),
+      pid: serializer.fromJson<String>(json['pid']),
+      patientName: serializer.fromJson<String>(json['patientName']),
+      patientPhone: serializer.fromJson<String?>(json['patientPhone']),
+      addedAt: serializer.fromJson<DateTime>(json['addedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'pid': serializer.toJson<String>(pid),
+      'patientName': serializer.toJson<String>(patientName),
+      'patientPhone': serializer.toJson<String?>(patientPhone),
+      'addedAt': serializer.toJson<DateTime>(addedAt),
+    };
+  }
+
+  VisitQueueData copyWith(
+          {int? id,
+          String? pid,
+          String? patientName,
+          Value<String?> patientPhone = const Value.absent(),
+          DateTime? addedAt}) =>
+      VisitQueueData(
+        id: id ?? this.id,
+        pid: pid ?? this.pid,
+        patientName: patientName ?? this.patientName,
+        patientPhone:
+            patientPhone.present ? patientPhone.value : this.patientPhone,
+        addedAt: addedAt ?? this.addedAt,
+      );
+  VisitQueueData copyWithCompanion(VisitQueueCompanion data) {
+    return VisitQueueData(
+      id: data.id.present ? data.id.value : this.id,
+      pid: data.pid.present ? data.pid.value : this.pid,
+      patientName:
+          data.patientName.present ? data.patientName.value : this.patientName,
+      patientPhone: data.patientPhone.present
+          ? data.patientPhone.value
+          : this.patientPhone,
+      addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VisitQueueData(')
+          ..write('id: $id, ')
+          ..write('pid: $pid, ')
+          ..write('patientName: $patientName, ')
+          ..write('patientPhone: $patientPhone, ')
+          ..write('addedAt: $addedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, pid, patientName, patientPhone, addedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VisitQueueData &&
+          other.id == this.id &&
+          other.pid == this.pid &&
+          other.patientName == this.patientName &&
+          other.patientPhone == this.patientPhone &&
+          other.addedAt == this.addedAt);
+}
+
+class VisitQueueCompanion extends UpdateCompanion<VisitQueueData> {
+  final Value<int> id;
+  final Value<String> pid;
+  final Value<String> patientName;
+  final Value<String?> patientPhone;
+  final Value<DateTime> addedAt;
+  const VisitQueueCompanion({
+    this.id = const Value.absent(),
+    this.pid = const Value.absent(),
+    this.patientName = const Value.absent(),
+    this.patientPhone = const Value.absent(),
+    this.addedAt = const Value.absent(),
+  });
+  VisitQueueCompanion.insert({
+    this.id = const Value.absent(),
+    required String pid,
+    required String patientName,
+    this.patientPhone = const Value.absent(),
+    this.addedAt = const Value.absent(),
+  })  : pid = Value(pid),
+        patientName = Value(patientName);
+  static Insertable<VisitQueueData> custom({
+    Expression<int>? id,
+    Expression<String>? pid,
+    Expression<String>? patientName,
+    Expression<String>? patientPhone,
+    Expression<DateTime>? addedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (pid != null) 'pid': pid,
+      if (patientName != null) 'patient_name': patientName,
+      if (patientPhone != null) 'patient_phone': patientPhone,
+      if (addedAt != null) 'added_at': addedAt,
+    });
+  }
+
+  VisitQueueCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? pid,
+      Value<String>? patientName,
+      Value<String?>? patientPhone,
+      Value<DateTime>? addedAt}) {
+    return VisitQueueCompanion(
+      id: id ?? this.id,
+      pid: pid ?? this.pid,
+      patientName: patientName ?? this.patientName,
+      patientPhone: patientPhone ?? this.patientPhone,
+      addedAt: addedAt ?? this.addedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (pid.present) {
+      map['pid'] = Variable<String>(pid.value);
+    }
+    if (patientName.present) {
+      map['patient_name'] = Variable<String>(patientName.value);
+    }
+    if (patientPhone.present) {
+      map['patient_phone'] = Variable<String>(patientPhone.value);
+    }
+    if (addedAt.present) {
+      map['added_at'] = Variable<DateTime>(addedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VisitQueueCompanion(')
+          ..write('id: $id, ')
+          ..write('pid: $pid, ')
+          ..write('patientName: $patientName, ')
+          ..write('patientPhone: $patientPhone, ')
+          ..write('addedAt: $addedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2566,6 +2872,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MedicinesTable medicines = $MedicinesTable(this);
   late final $CustomersTable customers = $CustomersTable(this);
   late final $PatientMasterTable patientMaster = $PatientMasterTable(this);
+  late final $VisitQueueTable visitQueue = $VisitQueueTable(this);
   late final $BillsTable bills = $BillsTable(this);
   late final $BillItemsTable billItems = $BillItemsTable(this);
   @override
@@ -2573,7 +2880,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [medicines, customers, patientMaster, bills, billItems];
+      [medicines, customers, patientMaster, visitQueue, bills, billItems];
 }
 
 typedef $$MedicinesTableCreateCompanionBuilder = MedicinesCompanion Function({
@@ -3402,6 +3709,172 @@ typedef $$PatientMasterTableProcessedTableManager = ProcessedTableManager<
       BaseReferences<_$AppDatabase, $PatientMasterTable, PatientMasterData>
     ),
     PatientMasterData,
+    PrefetchHooks Function()>;
+typedef $$VisitQueueTableCreateCompanionBuilder = VisitQueueCompanion Function({
+  Value<int> id,
+  required String pid,
+  required String patientName,
+  Value<String?> patientPhone,
+  Value<DateTime> addedAt,
+});
+typedef $$VisitQueueTableUpdateCompanionBuilder = VisitQueueCompanion Function({
+  Value<int> id,
+  Value<String> pid,
+  Value<String> patientName,
+  Value<String?> patientPhone,
+  Value<DateTime> addedAt,
+});
+
+class $$VisitQueueTableFilterComposer
+    extends Composer<_$AppDatabase, $VisitQueueTable> {
+  $$VisitQueueTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pid => $composableBuilder(
+      column: $table.pid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get patientName => $composableBuilder(
+      column: $table.patientName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get patientPhone => $composableBuilder(
+      column: $table.patientPhone, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$VisitQueueTableOrderingComposer
+    extends Composer<_$AppDatabase, $VisitQueueTable> {
+  $$VisitQueueTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pid => $composableBuilder(
+      column: $table.pid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get patientName => $composableBuilder(
+      column: $table.patientName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get patientPhone => $composableBuilder(
+      column: $table.patientPhone,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$VisitQueueTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VisitQueueTable> {
+  $$VisitQueueTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get pid =>
+      $composableBuilder(column: $table.pid, builder: (column) => column);
+
+  GeneratedColumn<String> get patientName => $composableBuilder(
+      column: $table.patientName, builder: (column) => column);
+
+  GeneratedColumn<String> get patientPhone => $composableBuilder(
+      column: $table.patientPhone, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get addedAt =>
+      $composableBuilder(column: $table.addedAt, builder: (column) => column);
+}
+
+class $$VisitQueueTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $VisitQueueTable,
+    VisitQueueData,
+    $$VisitQueueTableFilterComposer,
+    $$VisitQueueTableOrderingComposer,
+    $$VisitQueueTableAnnotationComposer,
+    $$VisitQueueTableCreateCompanionBuilder,
+    $$VisitQueueTableUpdateCompanionBuilder,
+    (
+      VisitQueueData,
+      BaseReferences<_$AppDatabase, $VisitQueueTable, VisitQueueData>
+    ),
+    VisitQueueData,
+    PrefetchHooks Function()> {
+  $$VisitQueueTableTableManager(_$AppDatabase db, $VisitQueueTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VisitQueueTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VisitQueueTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VisitQueueTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> pid = const Value.absent(),
+            Value<String> patientName = const Value.absent(),
+            Value<String?> patientPhone = const Value.absent(),
+            Value<DateTime> addedAt = const Value.absent(),
+          }) =>
+              VisitQueueCompanion(
+            id: id,
+            pid: pid,
+            patientName: patientName,
+            patientPhone: patientPhone,
+            addedAt: addedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String pid,
+            required String patientName,
+            Value<String?> patientPhone = const Value.absent(),
+            Value<DateTime> addedAt = const Value.absent(),
+          }) =>
+              VisitQueueCompanion.insert(
+            id: id,
+            pid: pid,
+            patientName: patientName,
+            patientPhone: patientPhone,
+            addedAt: addedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$VisitQueueTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $VisitQueueTable,
+    VisitQueueData,
+    $$VisitQueueTableFilterComposer,
+    $$VisitQueueTableOrderingComposer,
+    $$VisitQueueTableAnnotationComposer,
+    $$VisitQueueTableCreateCompanionBuilder,
+    $$VisitQueueTableUpdateCompanionBuilder,
+    (
+      VisitQueueData,
+      BaseReferences<_$AppDatabase, $VisitQueueTable, VisitQueueData>
+    ),
+    VisitQueueData,
     PrefetchHooks Function()>;
 typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
@@ -4307,6 +4780,8 @@ class $AppDatabaseManager {
       $$CustomersTableTableManager(_db, _db.customers);
   $$PatientMasterTableTableManager get patientMaster =>
       $$PatientMasterTableTableManager(_db, _db.patientMaster);
+  $$VisitQueueTableTableManager get visitQueue =>
+      $$VisitQueueTableTableManager(_db, _db.visitQueue);
   $$BillsTableTableManager get bills =>
       $$BillsTableTableManager(_db, _db.bills);
   $$BillItemsTableTableManager get billItems =>
