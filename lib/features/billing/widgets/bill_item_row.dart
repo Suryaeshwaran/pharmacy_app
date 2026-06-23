@@ -53,7 +53,7 @@ class _BillItemRowState extends State<BillItemRow> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -83,7 +83,7 @@ class _BillItemRowState extends State<BillItemRow> {
                     children: [
                       Text(
                         'Rate: ₹${widget.medicine.salePrice.toStringAsFixed(2)}', 
-                        style: TextStyle(fontSize: 11, color: cs.onSurface.withOpacity(0.8)),
+                        style: TextStyle(fontSize: 11, color: cs.onSurface.withValues(alpha:0.8)),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

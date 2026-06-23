@@ -1,11 +1,14 @@
 // lib/features/maintenance/maintenance_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
+import '../../core/database/app_database.dart';
 import '../../core/database/database_provider.dart';
+import 'package:drift/drift.dart' show Value;
 
 class MaintenanceScreen extends StatefulWidget {
   const MaintenanceScreen({super.key});
@@ -20,7 +23,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -52,6 +55,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
           tabs: const [
             Tab(text: 'Backup & Restore'),
             Tab(text: 'Data Cleanup'),
+            Tab(text: 'Settings'),
           ],
         ),
       ),
@@ -60,6 +64,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
         children: const [
           _BackupRestoreTab(),
           _DataCleanupTab(),
+          _SettingsTab(),
         ],
       ),
     );
@@ -152,7 +157,7 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha:0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -175,7 +180,7 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
                   Text(
                     'Export the database file to save all your medicines, bills, and customer data.',
                     style: TextStyle(
-                        color: cs.onSurface.withValues(alpha:0.8),
+                        color: cs.onSurface.withValues(alpha: 0.8),
                         fontSize: 13,
                         height: 1.4),
                   ),
@@ -198,7 +203,7 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Divider(
-                        color: cs.outlineVariant.withValues(alpha:0.6), height: 1),
+                        color: cs.outlineVariant.withValues(alpha: 0.6), height: 1),
                   ),
 
                   // ── Restore Section ──
@@ -213,7 +218,7 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
                   Text(
                     'To restore a backup, follow the steps below while the application is closed.',
                     style: TextStyle(
-                        color: cs.onSurface.withValues(alpha:0.8),
+                        color: cs.onSurface.withValues(alpha: 0.8),
                         fontSize: 13,
                         height: 1.4),
                   ),
@@ -227,7 +232,7 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha:0.06),
+                          color: Colors.orange.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                               color: Colors.orange.shade300, width: 0.6),
@@ -291,8 +296,8 @@ class _BackupRestoreTabState extends State<_BackupRestoreTab> {
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: _statusMessage!.startsWith('✅')
-                            ? Colors.green.withValues(alpha:0.08)
-                            : Colors.red.withValues(alpha:0.08),
+                            ? Colors.green.withValues(alpha: 0.08)
+                            : Colors.red.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: _statusMessage!.startsWith('✅')
@@ -445,7 +450,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha:0.06),
+                  color: Colors.red.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(8),
                   border:
                       Border.all(color: Colors.red.shade200, width: 0.8),
@@ -518,7 +523,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -539,7 +544,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                       'Select bills older than 3 months to permanently delete.\n'
                       'Recent 3 months are protected and cannot be deleted.',
                       style: TextStyle(
-                          color: cs.onSurface.withValues(alpha:0.8),
+                          color: cs.onSurface.withValues(alpha: 0.8),
                           fontSize: 13,
                           height: 1.5),
                     ),
@@ -565,7 +570,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -588,7 +593,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                         'No bills older than 3 months found.',
                         style: TextStyle(
                             fontSize: 13,
-                            color: cs.onSurface.withValues(alpha:0.7)),
+                            color: cs.onSurface.withValues(alpha: 0.7)),
                       ),
                     ],
                   ),
@@ -654,7 +659,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                               color: Colors.transparent, width: 1.5),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha:0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -684,7 +689,7 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                       subtitle: Text(
                         '$count bill${count == 1 ? '' : 's'}',
                         style: TextStyle(
-                            fontSize: 12, color: cs.onSurface.withValues(alpha:0.7)),
+                            fontSize: 12, color: cs.onSurface.withValues(alpha: 0.7)),
                       ),
                       secondary: Container(
                         padding: const EdgeInsets.symmetric(
@@ -748,8 +753,8 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: _statusMessage!.startsWith('✅')
-                        ? Colors.green.withValues(alpha:0.08)
-                        : Colors.red.withValues(alpha:0.08),
+                        ? Colors.green.withValues(alpha: 0.08)
+                        : Colors.red.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _statusMessage!.startsWith('✅')
@@ -776,6 +781,411 @@ class _DataCleanupTabState extends State<_DataCleanupTab> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ─── TAB 3: Settings ──────────────────────────────────────────────────────────
+
+class _SettingsTab extends StatefulWidget {
+  const _SettingsTab();
+  @override
+  State<_SettingsTab> createState() => _SettingsTabState();
+}
+
+class _SettingsTabState extends State<_SettingsTab> {
+  static const _darkGreen = Color(0xFF1B5E20); // Colors.green.shade900
+
+  bool _loading = true;
+  bool _editing = false;
+  bool _saving = false;
+  PharmacyInfoData? _info;
+
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _addressCtrl;
+  late final TextEditingController _cityCtrl;
+  late final TextEditingController _phoneCtrl;
+  late final TextEditingController _gstnCtrl;
+  late final TextEditingController _regnCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController();
+    _addressCtrl = TextEditingController();
+    _cityCtrl = TextEditingController();
+    _phoneCtrl = TextEditingController();
+    _gstnCtrl = TextEditingController();
+    _regnCtrl = TextEditingController();
+    _loadInfo();
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _addressCtrl.dispose();
+    _cityCtrl.dispose();
+    _phoneCtrl.dispose();
+    _gstnCtrl.dispose();
+    _regnCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadInfo() async {
+    setState(() => _loading = true);
+    try {
+      final db = DatabaseProvider.instance.db;
+      final info = await db.getPharmacyInfo();
+      setState(() {
+        _info = info;
+        if (info != null) {
+          _nameCtrl.text = info.name;
+          _addressCtrl.text = info.address ?? '';
+          _cityCtrl.text = info.city ?? '';
+          _phoneCtrl.text = info.phone ?? '';
+          _gstnCtrl.text = info.gstn ?? '';
+          _regnCtrl.text = info.regn ?? '';
+          _editing = false;
+        } else {
+          // First time — open in edit mode immediately
+          _editing = true;
+        }
+      });
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  void _startEdit() {
+    if (_info != null) {
+      _nameCtrl.text = _info!.name;
+      _addressCtrl.text = _info!.address ?? '';
+      _cityCtrl.text = _info!.city ?? '';
+      _phoneCtrl.text = _info!.phone ?? '';
+      _gstnCtrl.text = _info!.gstn ?? '';
+      _regnCtrl.text = _info!.regn ?? '';
+    }
+    setState(() => _editing = true);
+  }
+
+  Future<void> _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() => _saving = true);
+    try {
+      final db = DatabaseProvider.instance.db;
+      await db.upsertPharmacyInfo(PharmacyInfoCompanion.insert(
+        name: _nameCtrl.text.trim(),
+        address: Value(_addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim()),
+        city: Value(_cityCtrl.text.trim().isEmpty ? null : _cityCtrl.text.trim()),
+        phone: Value(_phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim()),
+        gstn: Value(_gstnCtrl.text.trim().isEmpty ? null : _gstnCtrl.text.trim()),
+        regn: Value(_regnCtrl.text.trim().isEmpty ? null : _regnCtrl.text.trim()),
+      ));
+      await _loadInfo();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Save failed: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  void _cancelEdit() {
+    if (_info == null) return; // first-time — can't cancel with no data
+    setState(() => _editing = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Section chip ──
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: _darkGreen,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Pharmacy Info',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              if (_loading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40),
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
+                )
+              else if (_editing)
+                _buildForm()
+              else
+                _buildReadOnly(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Read-only view ──────────────────────────────────────────────────────────
+
+  Widget _buildReadOnly() {
+    final info = _info!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _infoRow('Name', info.name),
+          if ((info.address ?? '').isNotEmpty) _infoRow('Address', info.address!),
+          if ((info.city ?? '').isNotEmpty) _infoRow('City', info.city!),
+          if ((info.phone ?? '').isNotEmpty) _infoRow('Phone', info.phone!),
+          if ((info.gstn ?? '').isNotEmpty) _infoRow('GSTN', info.gstn!),
+          if ((info.regn ?? '').isNotEmpty) _infoRow('Reg. No.', info.regn!),
+          const SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: _startEdit,
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: const Text('Edit', style: TextStyle(fontWeight: FontWeight.w600)),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _darkGreen,
+                side: const BorderSide(color: _darkGreen),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color:  Color(0xFF000000),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                color: _darkGreen,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Edit form ───────────────────────────────────────────────────────────────
+
+  Widget _buildForm() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _formField(
+              controller: _nameCtrl,
+              label: 'Name',
+              required: true,
+              allCaps: true,
+            ),
+            const SizedBox(height: 16),
+            _formField(
+              controller: _addressCtrl,
+              label: 'Address',
+              allCaps: true,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+            _formField(
+              controller: _cityCtrl,
+              label: 'City',
+              allCaps: true,
+            ),
+            const SizedBox(height: 16),
+            _formField(
+              controller: _phoneCtrl,
+              label: 'Phone',
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 16),
+            _formField(
+              controller: _gstnCtrl,
+              label: 'GSTN',
+            ),
+            const SizedBox(height: 16),
+            _formField(
+              controller: _regnCtrl,
+              label: 'Reg. No. (REGN)',
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (_info != null) ...[
+                  OutlinedButton(
+                    onPressed: _saving ? null : _cancelEdit,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade400),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                FilledButton.icon(
+                  onPressed: _saving ? null : _save,
+                  icon: _saving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.save_outlined, size: 18),
+                  label: Text(
+                    _saving ? 'Saving...' : 'Save',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: _darkGreen,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _formField({
+    required TextEditingController controller,
+    required String label,
+    bool required = false,
+    bool allCaps = false,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      textCapitalization:
+          allCaps ? TextCapitalization.characters : TextCapitalization.none,
+      inputFormatters: allCaps
+          ? [
+              TextInputFormatter.withFunction(
+                (oldValue, newValue) => newValue.copyWith(
+                  text: newValue.text.toUpperCase(),
+                ),
+              ),
+            ]
+          : null,
+      style: const TextStyle(
+        color: _darkGreen,
+        fontWeight: FontWeight.w600,
+        fontSize: 14,
+      ),
+      decoration: InputDecoration(
+        labelText: label + (required ? ' *' : ''),
+        labelStyle: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: _darkGreen, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      ),
+      validator: required
+          ? (v) => (v == null || v.trim().isEmpty) ? '$label is required' : null
+          : null,
     );
   }
 }

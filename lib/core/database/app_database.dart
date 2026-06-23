@@ -52,6 +52,17 @@ class VisitQueue extends Table {
   DateTimeColumn get addedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// Stores pharmacy registration and contact details (single row, id = 1).
+class PharmacyInfo extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 255)();
+  TextColumn get address => text().nullable()();
+  TextColumn get city => text().nullable()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get gstn => text().nullable()();
+  TextColumn get regn => text().nullable()();
+}
+
 class Bills extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get billNumber => text()();
@@ -84,12 +95,12 @@ class BillItems extends Table {
 
 // ─── DATABASE ─────────────────────────────────────────────────────────────────
 
-@DriftDatabase(tables: [Medicines, Customers, PatientMaster, VisitQueue, Bills, BillItems])
+@DriftDatabase(tables: [Medicines, Customers, PatientMaster, VisitQueue, PharmacyInfo, Bills, BillItems])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -111,6 +122,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 6) {
         await m.createTable(visitQueue);
+      }
+      if (from < 7) {
+        await m.createTable(pharmacyInfo);
       }
     },
   );
@@ -272,6 +286,19 @@ class AppDatabase extends _$AppDatabase {
   /// Remove by pid — called after billing is completed.
   Future<void> removeFromVisitQueueByPid(String pid) =>
       (delete(visitQueue)..where((v) => v.pid.equals(pid))).go();
+
+  // ─── Pharmacy Info Queries ─────────────────────────────────────────────────
+
+  /// Returns the single pharmacy info row, or null if not yet set up.
+  Future<PharmacyInfoData?> getPharmacyInfo() =>
+      (select(pharmacyInfo)..where((p) => p.id.equals(1))).getSingleOrNull();
+
+  /// Insert or replace the pharmacy info row (always uses id = 1).
+  Future<void> upsertPharmacyInfo(PharmacyInfoCompanion info) async {
+    await into(pharmacyInfo).insertOnConflictUpdate(
+      info.copyWith(id: const Value(1)),
+    );
+  }
 
   // ─── Bill Queries ──────────────────────────────────────────────────────────
 

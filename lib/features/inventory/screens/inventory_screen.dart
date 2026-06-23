@@ -269,7 +269,7 @@ class _MedicineTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha:0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -314,7 +314,7 @@ class _MedicineTile extends StatelessWidget {
 
   Widget _badge(String text, Color color) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-    decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.4))),
+    decoration: BoxDecoration(color: color.withValues(alpha:0.12), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withValues(alpha:0.4))),
     child: Text(text, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600)),
   );
 }

@@ -11,12 +11,42 @@ import 'package:open_filex/open_filex.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/database/database_provider.dart';
 
-class BillPreviewScreen extends StatelessWidget {
+class BillPreviewScreen extends StatefulWidget {
   final Bill bill;
   final List<BillItem> items;
 
   const BillPreviewScreen({super.key, required this.bill, required this.items});
+
+  @override
+  State<BillPreviewScreen> createState() => _BillPreviewScreenState();
+}
+
+class _BillPreviewScreenState extends State<BillPreviewScreen> {
+  Bill get bill => widget.bill;
+  List<BillItem> get items => widget.items;
+
+  String _pharmacyName = 'PHARMACY';
+  String _pharmacyCity = 'INVOICE';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPharmacyInfo();
+  }
+
+  Future<void> _loadPharmacyInfo() async {
+    try {
+      final info = await DatabaseProvider.instance.db.getPharmacyInfo();
+      if (info != null && mounted) {
+        setState(() {
+          if (info.name.isNotEmpty) _pharmacyName = info.name;
+          if ((info.city ?? '').isNotEmpty) _pharmacyCity = info.city!;
+        });
+      }
+    } catch (_) {}
+  }
 
   // ── PDF generation ────────────────────────────────────────────────────────
 
@@ -32,10 +62,10 @@ class BillPreviewScreen extends StatelessWidget {
         children: [
           pw.Center(
             child: pw.Column(children: [
-              pw.Text('PHARMACY',
+              pw.Text(_pharmacyName,
                   style: pw.TextStyle(
                       fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.Text('INVOICE',
+              pw.Text(_pharmacyCity,
                   style: const pw.TextStyle(fontSize: 10)),
               pw.SizedBox(height: 4),
               pw.Text('Bill No: ${bill.billNumber}',
@@ -119,22 +149,13 @@ class BillPreviewScreen extends StatelessWidget {
                         style: pw.TextStyle(
                             fontSize: 14,
                             fontWeight: pw.FontWeight.bold)),
-                    /*if (bill.paymentMode == 'partial') ...[
-                      pw.Text('Cash: ${bill.cashAmount.toStringAsFixed(2)}',
-                          style: const pw.TextStyle(fontSize: 9)),
-                      pw.Text('GPay/Online: ${bill.onlineAmount.toStringAsFixed(2)}',
-                          style: const pw.TextStyle(fontSize: 9)),
-                    ] else
-                      pw.Text(
-                        bill.paymentMode == 'online' ? 'Paid via GPay/Online' : 'Paid via Cash',
-                        style: const pw.TextStyle(fontSize: 9),
-                      ),*/
                   ]),
             ],
           ),
           pw.Divider(),
           pw.Center(
-              child: pw.Text('Medicines once sold are non-returnable. \n Thank you for your understanding.',
+              child: pw.Text(
+                  'Medicines once sold are non-returnable. \n Thank you for your understanding.',
                   style: const pw.TextStyle(fontSize: 10))),
         ],
       ),
@@ -171,8 +192,6 @@ class BillPreviewScreen extends StatelessWidget {
   }
 
   // ── Print / Save PDF ──────────────────────────────────────────────────────
-  // Desktop : save to Downloads → open in system PDF viewer → delete after 30s
-  // Mobile  : standard print dialog (no file written to disk)
 
   Future<void> _printPdf(BuildContext context) async {
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
@@ -190,7 +209,7 @@ class BillPreviewScreen extends StatelessWidget {
     }
   }
 
-  // ── WhatsApp share (text only, all platforms) ─────────────────────────────
+  // ── WhatsApp share ────────────────────────────────────────────────────────
 
   String _buildWhatsAppMessage() {
     final lines = items
@@ -198,7 +217,7 @@ class BillPreviewScreen extends StatelessWidget {
             '  ${i.medicineName} x${i.quantity} = ${i.totalPrice.toStringAsFixed(2)}')
         .join('\n');
 
-    return ' *PHARMACY INVOICE*\n'
+    return ' *$_pharmacyName - $_pharmacyCity*\n'
         '━━━━━━━━━━━━━━━━━━\n'
         'Bill No: ${bill.billNumber}\n'
         'Date: ${DateFormat('dd MMM yyyy, hh:mm a').format(bill.billedAt)}\n'
@@ -219,7 +238,6 @@ class BillPreviewScreen extends StatelessWidget {
   Future<void> _shareWhatsApp(BuildContext context) async {
     String phone = bill.customerPhone?.trim() ?? '';
 
-    // Prompt for phone number if not available
     if (phone.isEmpty) {
       final phoneCtrl = TextEditingController();
       final confirmed = await showDialog<bool>(
@@ -285,7 +303,6 @@ class BillPreviewScreen extends StatelessWidget {
       }
     }
 
-    // Desktop + mobile fallback: open wa.me in browser (WhatsApp Web)
     if (await canLaunchUrl(webUrl)) {
       await launchUrl(webUrl, mode: LaunchMode.externalApplication);
     } else if (context.mounted) {
@@ -339,7 +356,7 @@ class BillPreviewScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -352,11 +369,11 @@ class BillPreviewScreen extends StatelessWidget {
                     children: [
                       Center(
                           child: Column(children: [
-                        Text('PHARMACY',
+                        Text(_pharmacyName,
                             style: textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: cs.onSurface)),
-                        Text('INVOICE',
+                        Text(_pharmacyCity,
                             style: textTheme.bodySmall
                                 ?.copyWith(color: cs.onSurface)),
                         const SizedBox(height: 6),
@@ -374,7 +391,7 @@ class BillPreviewScreen extends StatelessWidget {
                       ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Divider(color: cs.outlineVariant.withValues(alpha:0.6), height: 1),
+                        child: Divider(color: cs.outlineVariant.withValues(alpha: 0.6), height: 1),
                       ),
                       if (bill.customerName != null) ...[
                         Text('Name: ${bill.customerName}',
@@ -386,7 +403,7 @@ class BillPreviewScreen extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text('Phone: ${bill.customerPhone}',
                               style: textTheme.bodySmall
-                                  ?.copyWith(color: cs.onSurface.withValues(alpha:0.7))),
+                                  ?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
                         ],
                         const SizedBox(height: 16),
                       ],
@@ -494,49 +511,49 @@ class BillPreviewScreen extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                         color: cs.onSurface)),
                                 const SizedBox(height: 8),
-                                // Fee payment line (only if fee > 0)
                                 if (bill.consultationFee > 0) ...[
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Text('Fee: ',
-                                          style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12)),
+                                          style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7), fontSize: 12)),
                                       Text(
                                         bill.feePaymentMode == 'partial'
                                             ? 'Cash ₹${bill.feeCashAmount.toStringAsFixed(2)} / GPay ₹${bill.feeOnlineAmount.toStringAsFixed(2)}'
                                             : bill.feePaymentMode == 'online'
                                                 ? 'GPay/Online'
                                                 : 'Cash',
-                                        style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12),
+                                        style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7), fontSize: 12),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 2),
                                 ],
-                                // Pharmacy payment line (only if pharmacy net > 0)
                                 if ((bill.subtotal - bill.discount) > 0)
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Text('Pharmacy: ',
-                                          style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12)),
+                                          style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7), fontSize: 12)),
                                       Text(
                                         bill.paymentMode == 'partial'
                                             ? 'Cash ₹${bill.cashAmount.toStringAsFixed(2)} / GPay ₹${bill.onlineAmount.toStringAsFixed(2)}'
                                             : bill.paymentMode == 'online'
                                                 ? 'GPay/Online'
                                                 : 'Cash',
-                                        style: TextStyle(color: cs.onSurface.withValues(alpha:0.7), fontSize: 12),
+                                        style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7), fontSize: 12),
                                       ),
                                     ],
                                   ),
                               ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Divider(color: cs.outlineVariant.withValues(alpha:0.6), height: 1),
+                        child: Divider(color: cs.outlineVariant.withValues(alpha: 0.6), height: 1),
                       ),
                       Center(
-                          child: Text('Medicines once sold are non-returnable.\n Thank you for your understanding.',
+                          child: Text(
+                              'Medicines once sold are non-returnable.\n Thank you for your understanding.',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: cs.onSurface,
                                   fontWeight: FontWeight.w500,

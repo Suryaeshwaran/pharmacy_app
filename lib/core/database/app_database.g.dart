@@ -1660,6 +1660,376 @@ class VisitQueueCompanion extends UpdateCompanion<VisitQueueData> {
   }
 }
 
+class $PharmacyInfoTable extends PharmacyInfo
+    with TableInfo<$PharmacyInfoTable, PharmacyInfoData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PharmacyInfoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _addressMeta =
+      const VerificationMeta('address');
+  @override
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+      'address', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _cityMeta = const VerificationMeta('city');
+  @override
+  late final GeneratedColumn<String> city = GeneratedColumn<String>(
+      'city', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+      'phone', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gstnMeta = const VerificationMeta('gstn');
+  @override
+  late final GeneratedColumn<String> gstn = GeneratedColumn<String>(
+      'gstn', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _regnMeta = const VerificationMeta('regn');
+  @override
+  late final GeneratedColumn<String> regn = GeneratedColumn<String>(
+      'regn', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, address, city, phone, gstn, regn];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pharmacy_info';
+  @override
+  VerificationContext validateIntegrity(Insertable<PharmacyInfoData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('address')) {
+      context.handle(_addressMeta,
+          address.isAcceptableOrUnknown(data['address']!, _addressMeta));
+    }
+    if (data.containsKey('city')) {
+      context.handle(
+          _cityMeta, city.isAcceptableOrUnknown(data['city']!, _cityMeta));
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+          _phoneMeta, phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta));
+    }
+    if (data.containsKey('gstn')) {
+      context.handle(
+          _gstnMeta, gstn.isAcceptableOrUnknown(data['gstn']!, _gstnMeta));
+    }
+    if (data.containsKey('regn')) {
+      context.handle(
+          _regnMeta, regn.isAcceptableOrUnknown(data['regn']!, _regnMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PharmacyInfoData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PharmacyInfoData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      address: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}address']),
+      city: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}city']),
+      phone: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}phone']),
+      gstn: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gstn']),
+      regn: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}regn']),
+    );
+  }
+
+  @override
+  $PharmacyInfoTable createAlias(String alias) {
+    return $PharmacyInfoTable(attachedDatabase, alias);
+  }
+}
+
+class PharmacyInfoData extends DataClass
+    implements Insertable<PharmacyInfoData> {
+  final int id;
+  final String name;
+  final String? address;
+  final String? city;
+  final String? phone;
+  final String? gstn;
+  final String? regn;
+  const PharmacyInfoData(
+      {required this.id,
+      required this.name,
+      this.address,
+      this.city,
+      this.phone,
+      this.gstn,
+      this.regn});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || address != null) {
+      map['address'] = Variable<String>(address);
+    }
+    if (!nullToAbsent || city != null) {
+      map['city'] = Variable<String>(city);
+    }
+    if (!nullToAbsent || phone != null) {
+      map['phone'] = Variable<String>(phone);
+    }
+    if (!nullToAbsent || gstn != null) {
+      map['gstn'] = Variable<String>(gstn);
+    }
+    if (!nullToAbsent || regn != null) {
+      map['regn'] = Variable<String>(regn);
+    }
+    return map;
+  }
+
+  PharmacyInfoCompanion toCompanion(bool nullToAbsent) {
+    return PharmacyInfoCompanion(
+      id: Value(id),
+      name: Value(name),
+      address: address == null && nullToAbsent
+          ? const Value.absent()
+          : Value(address),
+      city: city == null && nullToAbsent ? const Value.absent() : Value(city),
+      phone:
+          phone == null && nullToAbsent ? const Value.absent() : Value(phone),
+      gstn: gstn == null && nullToAbsent ? const Value.absent() : Value(gstn),
+      regn: regn == null && nullToAbsent ? const Value.absent() : Value(regn),
+    );
+  }
+
+  factory PharmacyInfoData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PharmacyInfoData(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      address: serializer.fromJson<String?>(json['address']),
+      city: serializer.fromJson<String?>(json['city']),
+      phone: serializer.fromJson<String?>(json['phone']),
+      gstn: serializer.fromJson<String?>(json['gstn']),
+      regn: serializer.fromJson<String?>(json['regn']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'address': serializer.toJson<String?>(address),
+      'city': serializer.toJson<String?>(city),
+      'phone': serializer.toJson<String?>(phone),
+      'gstn': serializer.toJson<String?>(gstn),
+      'regn': serializer.toJson<String?>(regn),
+    };
+  }
+
+  PharmacyInfoData copyWith(
+          {int? id,
+          String? name,
+          Value<String?> address = const Value.absent(),
+          Value<String?> city = const Value.absent(),
+          Value<String?> phone = const Value.absent(),
+          Value<String?> gstn = const Value.absent(),
+          Value<String?> regn = const Value.absent()}) =>
+      PharmacyInfoData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        address: address.present ? address.value : this.address,
+        city: city.present ? city.value : this.city,
+        phone: phone.present ? phone.value : this.phone,
+        gstn: gstn.present ? gstn.value : this.gstn,
+        regn: regn.present ? regn.value : this.regn,
+      );
+  PharmacyInfoData copyWithCompanion(PharmacyInfoCompanion data) {
+    return PharmacyInfoData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      address: data.address.present ? data.address.value : this.address,
+      city: data.city.present ? data.city.value : this.city,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      gstn: data.gstn.present ? data.gstn.value : this.gstn,
+      regn: data.regn.present ? data.regn.value : this.regn,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PharmacyInfoData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('address: $address, ')
+          ..write('city: $city, ')
+          ..write('phone: $phone, ')
+          ..write('gstn: $gstn, ')
+          ..write('regn: $regn')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, address, city, phone, gstn, regn);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PharmacyInfoData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.address == this.address &&
+          other.city == this.city &&
+          other.phone == this.phone &&
+          other.gstn == this.gstn &&
+          other.regn == this.regn);
+}
+
+class PharmacyInfoCompanion extends UpdateCompanion<PharmacyInfoData> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> address;
+  final Value<String?> city;
+  final Value<String?> phone;
+  final Value<String?> gstn;
+  final Value<String?> regn;
+  const PharmacyInfoCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.address = const Value.absent(),
+    this.city = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.gstn = const Value.absent(),
+    this.regn = const Value.absent(),
+  });
+  PharmacyInfoCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.address = const Value.absent(),
+    this.city = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.gstn = const Value.absent(),
+    this.regn = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<PharmacyInfoData> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? address,
+    Expression<String>? city,
+    Expression<String>? phone,
+    Expression<String>? gstn,
+    Expression<String>? regn,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (address != null) 'address': address,
+      if (city != null) 'city': city,
+      if (phone != null) 'phone': phone,
+      if (gstn != null) 'gstn': gstn,
+      if (regn != null) 'regn': regn,
+    });
+  }
+
+  PharmacyInfoCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<String?>? address,
+      Value<String?>? city,
+      Value<String?>? phone,
+      Value<String?>? gstn,
+      Value<String?>? regn}) {
+    return PharmacyInfoCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      phone: phone ?? this.phone,
+      gstn: gstn ?? this.gstn,
+      regn: regn ?? this.regn,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
+    }
+    if (city.present) {
+      map['city'] = Variable<String>(city.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (gstn.present) {
+      map['gstn'] = Variable<String>(gstn.value);
+    }
+    if (regn.present) {
+      map['regn'] = Variable<String>(regn.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PharmacyInfoCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('address: $address, ')
+          ..write('city: $city, ')
+          ..write('phone: $phone, ')
+          ..write('gstn: $gstn, ')
+          ..write('regn: $regn')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BillsTable extends Bills with TableInfo<$BillsTable, Bill> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2873,14 +3243,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CustomersTable customers = $CustomersTable(this);
   late final $PatientMasterTable patientMaster = $PatientMasterTable(this);
   late final $VisitQueueTable visitQueue = $VisitQueueTable(this);
+  late final $PharmacyInfoTable pharmacyInfo = $PharmacyInfoTable(this);
   late final $BillsTable bills = $BillsTable(this);
   late final $BillItemsTable billItems = $BillItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [medicines, customers, patientMaster, visitQueue, bills, billItems];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        medicines,
+        customers,
+        patientMaster,
+        visitQueue,
+        pharmacyInfo,
+        bills,
+        billItems
+      ];
 }
 
 typedef $$MedicinesTableCreateCompanionBuilder = MedicinesCompanion Function({
@@ -3876,6 +4254,203 @@ typedef $$VisitQueueTableProcessedTableManager = ProcessedTableManager<
     ),
     VisitQueueData,
     PrefetchHooks Function()>;
+typedef $$PharmacyInfoTableCreateCompanionBuilder = PharmacyInfoCompanion
+    Function({
+  Value<int> id,
+  required String name,
+  Value<String?> address,
+  Value<String?> city,
+  Value<String?> phone,
+  Value<String?> gstn,
+  Value<String?> regn,
+});
+typedef $$PharmacyInfoTableUpdateCompanionBuilder = PharmacyInfoCompanion
+    Function({
+  Value<int> id,
+  Value<String> name,
+  Value<String?> address,
+  Value<String?> city,
+  Value<String?> phone,
+  Value<String?> gstn,
+  Value<String?> regn,
+});
+
+class $$PharmacyInfoTableFilterComposer
+    extends Composer<_$AppDatabase, $PharmacyInfoTable> {
+  $$PharmacyInfoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get address => $composableBuilder(
+      column: $table.address, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get city => $composableBuilder(
+      column: $table.city, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get phone => $composableBuilder(
+      column: $table.phone, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gstn => $composableBuilder(
+      column: $table.gstn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get regn => $composableBuilder(
+      column: $table.regn, builder: (column) => ColumnFilters(column));
+}
+
+class $$PharmacyInfoTableOrderingComposer
+    extends Composer<_$AppDatabase, $PharmacyInfoTable> {
+  $$PharmacyInfoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get address => $composableBuilder(
+      column: $table.address, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get city => $composableBuilder(
+      column: $table.city, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+      column: $table.phone, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gstn => $composableBuilder(
+      column: $table.gstn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get regn => $composableBuilder(
+      column: $table.regn, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PharmacyInfoTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PharmacyInfoTable> {
+  $$PharmacyInfoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
+
+  GeneratedColumn<String> get city =>
+      $composableBuilder(column: $table.city, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get gstn =>
+      $composableBuilder(column: $table.gstn, builder: (column) => column);
+
+  GeneratedColumn<String> get regn =>
+      $composableBuilder(column: $table.regn, builder: (column) => column);
+}
+
+class $$PharmacyInfoTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PharmacyInfoTable,
+    PharmacyInfoData,
+    $$PharmacyInfoTableFilterComposer,
+    $$PharmacyInfoTableOrderingComposer,
+    $$PharmacyInfoTableAnnotationComposer,
+    $$PharmacyInfoTableCreateCompanionBuilder,
+    $$PharmacyInfoTableUpdateCompanionBuilder,
+    (
+      PharmacyInfoData,
+      BaseReferences<_$AppDatabase, $PharmacyInfoTable, PharmacyInfoData>
+    ),
+    PharmacyInfoData,
+    PrefetchHooks Function()> {
+  $$PharmacyInfoTableTableManager(_$AppDatabase db, $PharmacyInfoTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PharmacyInfoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PharmacyInfoTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PharmacyInfoTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> address = const Value.absent(),
+            Value<String?> city = const Value.absent(),
+            Value<String?> phone = const Value.absent(),
+            Value<String?> gstn = const Value.absent(),
+            Value<String?> regn = const Value.absent(),
+          }) =>
+              PharmacyInfoCompanion(
+            id: id,
+            name: name,
+            address: address,
+            city: city,
+            phone: phone,
+            gstn: gstn,
+            regn: regn,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            Value<String?> address = const Value.absent(),
+            Value<String?> city = const Value.absent(),
+            Value<String?> phone = const Value.absent(),
+            Value<String?> gstn = const Value.absent(),
+            Value<String?> regn = const Value.absent(),
+          }) =>
+              PharmacyInfoCompanion.insert(
+            id: id,
+            name: name,
+            address: address,
+            city: city,
+            phone: phone,
+            gstn: gstn,
+            regn: regn,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PharmacyInfoTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PharmacyInfoTable,
+    PharmacyInfoData,
+    $$PharmacyInfoTableFilterComposer,
+    $$PharmacyInfoTableOrderingComposer,
+    $$PharmacyInfoTableAnnotationComposer,
+    $$PharmacyInfoTableCreateCompanionBuilder,
+    $$PharmacyInfoTableUpdateCompanionBuilder,
+    (
+      PharmacyInfoData,
+      BaseReferences<_$AppDatabase, $PharmacyInfoTable, PharmacyInfoData>
+    ),
+    PharmacyInfoData,
+    PrefetchHooks Function()>;
 typedef $$BillsTableCreateCompanionBuilder = BillsCompanion Function({
   Value<int> id,
   required String billNumber,
@@ -4782,6 +5357,8 @@ class $AppDatabaseManager {
       $$PatientMasterTableTableManager(_db, _db.patientMaster);
   $$VisitQueueTableTableManager get visitQueue =>
       $$VisitQueueTableTableManager(_db, _db.visitQueue);
+  $$PharmacyInfoTableTableManager get pharmacyInfo =>
+      $$PharmacyInfoTableTableManager(_db, _db.pharmacyInfo);
   $$BillsTableTableManager get bills =>
       $$BillsTableTableManager(_db, _db.bills);
   $$BillItemsTableTableManager get billItems =>
