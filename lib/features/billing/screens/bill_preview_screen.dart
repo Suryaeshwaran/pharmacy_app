@@ -27,6 +27,15 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
   Bill get bill => widget.bill;
   List<BillItem> get items => widget.items;
 
+  /// Show Collection/Balance only when there is a cash component somewhere.
+  /// Pure GPay (both modes online, or one online + fee is zero) → hide.
+  bool get _showCollectionBalance {
+    if (bill.collectionAmount <= 0) return false;
+    final pharmacyIsOnline = bill.paymentMode == 'online';
+    final feeIsOnline = bill.feePaymentMode == 'online' || bill.consultationFee == 0;
+    return !(pharmacyIsOnline && feeIsOnline);
+  }
+
   String _pharmacyName = 'PHARMACY';
   String _pharmacyCity = 'INVOICE';
 
@@ -79,6 +88,9 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
           if (bill.customerName != null) ...[
             pw.Text('Name: ${bill.customerName}',
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            if (bill.patientId != null)
+              pw.Text('ID: ${bill.patientId}',
+                  style: const pw.TextStyle(fontSize: 10)),
             if (bill.customerPhone != null)
               pw.Text('Phone: ${bill.customerPhone}'),
             pw.SizedBox(height: 8),
@@ -149,6 +161,15 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
                         style: pw.TextStyle(
                             fontSize: 14,
                             fontWeight: pw.FontWeight.bold)),
+                    if (_showCollectionBalance) ...[
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                          'Collection: ${bill.collectionAmount.toStringAsFixed(2)}',
+                          style: const pw.TextStyle(fontSize: 10)),
+                      pw.Text(
+                          'Balance: ${bill.balanceAmount.toStringAsFixed(2)}',
+                          style: const pw.TextStyle(fontSize: 10)),
+                    ],
                   ]),
             ],
           ),
@@ -222,6 +243,7 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
         'Bill No: ${bill.billNumber}\n'
         'Date: ${DateFormat('dd MMM yyyy, hh:mm a').format(bill.billedAt)}\n'
         '${bill.customerName != null ? 'Name: ${bill.customerName}\n' : ''}'
+        '${bill.patientId != null ? 'ID: ${bill.patientId}\n' : ''}'
         '${bill.customerPhone != null ? 'Phone: ${bill.customerPhone}\n' : ''}'
         '━━━━━━━━━━━━━━━━━━\n'
         '*Medicines:*\n$lines\n'
@@ -230,6 +252,7 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
         '${bill.discount > 0 ? '\nDiscount: -${bill.discount.toStringAsFixed(2)}' : ''}'
         '${bill.consultationFee > 0 ? '\nFee: ${bill.consultationFee.toStringAsFixed(2)}' : ''}\n'
         '*Total: ${bill.totalAmount.toStringAsFixed(2)}*\n'
+        '${_showCollectionBalance ? 'Collection: ${bill.collectionAmount.toStringAsFixed(2)}\nBalance: ${bill.balanceAmount.toStringAsFixed(2)}\n' : ''}'
         '━━━━━━━━━━━━━━━━━━\n'
         '*Medicines once sold are non-returnable.*\n'
         '*Thank you for your understanding.*';
@@ -399,6 +422,12 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
                                 fontWeight: FontWeight.w600,
                                 color: cs.onSurface,
                                 fontSize: 14)),
+                        if (bill.patientId != null) ...[
+                          const SizedBox(height: 2),
+                          Text('ID: ${bill.patientId}',
+                              style: textTheme.bodySmall
+                                  ?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
+                        ],
                         if (bill.customerPhone != null) ...[
                           const SizedBox(height: 2),
                           Text('Phone: ${bill.customerPhone}',
@@ -545,6 +574,28 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
                                       ),
                                     ],
                                   ),
+                                if (_showCollectionBalance) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text('Collection: ',
+                                          style: TextStyle(color: cs.onSurface, fontSize: 12)),
+                                      Text('₹${bill.collectionAmount.toStringAsFixed(2)}',
+                                          style: TextStyle(color: cs.onSurface, fontSize: 12)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text('Balance: ',
+                                          style: TextStyle(color: cs.onSurface, fontSize: 12)),
+                                      Text('₹${bill.balanceAmount.toStringAsFixed(2)}',
+                                          style: TextStyle(color: cs.onSurface, fontSize: 12, fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ],
                               ])),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),

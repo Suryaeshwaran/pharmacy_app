@@ -48,6 +48,12 @@ class _PatientScreenState extends State<PatientScreen> {
   bool _saving = false;
 
   @override
+  void initState() {
+    super.initState();
+    _db.purgeStaleQueueEntries();
+  }
+
+  @override
   void dispose() {
     _pidSearchCtrl.dispose();
     _nameSearchCtrl.dispose();

@@ -42,6 +42,9 @@ class _BillingScreenState extends State<BillingScreen>
   String _feePaymentMode = 'cash'; // cash | online | partial
   final _feePartialCashCtrl = TextEditingController();
 
+  // Collection
+  final _collectionCtrl = TextEditingController();
+
   final _medicineSearch = TextEditingController();
   final _searchFocus = FocusNode();
 
@@ -90,6 +93,12 @@ class _BillingScreenState extends State<BillingScreen>
     _discountCtrl.text = bill.discount.toStringAsFixed(2);
     _consultationFeeCtrl.text = bill.consultationFee.toStringAsFixed(2);
 
+    // Patient ID
+    if (bill.patientId != null) {
+      _selectedPid = bill.patientId;
+      _pidCtrl.text = bill.patientId!;
+    }
+
     // Pharmacy payment
     _paymentMode = bill.paymentMode;
     if (bill.paymentMode == 'partial') {
@@ -100,6 +109,11 @@ class _BillingScreenState extends State<BillingScreen>
     _feePaymentMode = bill.feePaymentMode;
     if (bill.feePaymentMode == 'partial') {
       _feePartialCashCtrl.text = bill.feeCashAmount.toStringAsFixed(2);
+    }
+
+    // Collection
+    if (bill.collectionAmount > 0) {
+      _collectionCtrl.text = bill.collectionAmount.toStringAsFixed(2);
     }
 
     // Load each medicine from DB to build cart items
@@ -137,6 +151,7 @@ class _BillingScreenState extends State<BillingScreen>
     _consultationFeeCtrl.dispose();
     _partialCashCtrl.dispose();
     _feePartialCashCtrl.dispose();
+    _collectionCtrl.dispose();
     _medicineSearch.dispose();
     _searchFocus.dispose();
     _pidCtrl.dispose();
@@ -157,35 +172,47 @@ class _BillingScreenState extends State<BillingScreen>
     final size = box.size;
 
     _pidOverlay = OverlayEntry(
-      builder: (_) => Positioned(
-        left: offset.dx,
-        top: offset.dy + size.height + 4,
-        width: size.width,
-        child: Material(
-          elevation: 6,
-          borderRadius: BorderRadius.circular(8),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 220),
-            child: ListView.separated(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              itemCount: _visitQueue.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final entry = _visitQueue[i];
-                return ListTile(
-                  dense: true,
-                  leading: const Icon(Icons.how_to_reg_outlined, size: 18),
-                  title: Text(entry.patientName,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                  subtitle: Text('ID: ${entry.pid}',
-                      style: const TextStyle(fontSize: 11)),
-                  onTap: () => _onPickFromQueue(entry),
-                );
-              },
+      builder: (_) => Stack(
+        children: [
+          // Full-screen transparent barrier — tapping anywhere outside the list closes it
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _removePidOverlay,
             ),
           ),
-        ),
+          // The actual dropdown list
+          Positioned(
+            left: offset.dx,
+            top: offset.dy + size.height + 4,
+            width: size.width,
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(8),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 220),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  itemCount: _visitQueue.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (_, i) {
+                    final entry = _visitQueue[i];
+                    return ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.how_to_reg_outlined, size: 18),
+                      title: Text(entry.patientName,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                      subtitle: Text('ID: ${entry.pid}',
+                          style: const TextStyle(fontSize: 11)),
+                      onTap: () => _onPickFromQueue(entry),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
     Overlay.of(context).insert(_pidOverlay!);
@@ -296,6 +323,19 @@ class _BillingScreenState extends State<BillingScreen>
 
   bool get _canBill => _cart.isNotEmpty || _consultationFee > 0;
 
+  bool get _showCollectionRow =>
+      _paymentMode == 'cash' || _paymentMode == 'partial' ||
+      _feePaymentMode == 'cash' || _feePaymentMode == 'partial';
+
+  double get _collectionAmount => double.tryParse(_collectionCtrl.text) ?? 0;
+
+  double get _totalCashPortion => _cashAmount + _feeCashAmount;
+
+  double get _balance {
+    // Always: collection minus the cash-only portions
+    return _collectionAmount - _totalCashPortion;
+  }
+
   // ─── Save (new bill) ───────────────────────────────────────────────────────
 
   Future<void> _saveBill() async {
@@ -308,6 +348,7 @@ class _BillingScreenState extends State<BillingScreen>
         billNumber: billNumber,
         customerName: Value(_customerName.text.trim().isEmpty ? null : _customerName.text.trim()),
         customerPhone: Value(_customerPhone.text.trim().isEmpty ? null : _customerPhone.text.trim()),
+        patientId: Value(_selectedPid),
         subtotal: _subtotal,
         discount: Value(_discount),
         consultationFee: Value(_consultationFee),
@@ -318,6 +359,8 @@ class _BillingScreenState extends State<BillingScreen>
         feePaymentMode: Value(_feePaymentMode),
         feeCashAmount: Value(_feeCashAmount),
         feeOnlineAmount: Value(_feeOnlineAmount),
+        collectionAmount: Value(_collectionAmount),
+        balanceAmount: Value(_balance),
       ));
 
       await db.insertBillItems(_cart.map((c) => BillItemsCompanion.insert(
@@ -376,6 +419,7 @@ class _BillingScreenState extends State<BillingScreen>
         billedAt: Value(originalBill.billedAt),
         customerName: Value(_customerName.text.trim().isEmpty ? null : _customerName.text.trim()),
         customerPhone: Value(_customerPhone.text.trim().isEmpty ? null : _customerPhone.text.trim()),
+        patientId: Value(_selectedPid),
         subtotal: Value(_subtotal),
         discount: Value(_discount),
         consultationFee: Value(_consultationFee),
@@ -386,6 +430,8 @@ class _BillingScreenState extends State<BillingScreen>
         feePaymentMode: Value(_feePaymentMode),
         feeCashAmount: Value(_feeCashAmount),
         feeOnlineAmount: Value(_feeOnlineAmount),
+        collectionAmount: Value(_collectionAmount),
+        balanceAmount: Value(_balance),
       ));
 
       await db.replaceBillItems(
@@ -441,6 +487,7 @@ class _BillingScreenState extends State<BillingScreen>
     _consultationFeeCtrl.text = '0';
     _partialCashCtrl.clear();
     _feePartialCashCtrl.clear();
+    _collectionCtrl.clear();
     _paymentMode = 'cash';
     _feePaymentMode = 'cash';
     _medicineSearch.clear();
@@ -895,6 +942,54 @@ class _BillingScreenState extends State<BillingScreen>
                     // ── Total ────────────────────────────────────────────
                     _summaryRow('Total', '₹${_total.toStringAsFixed(2)}',
                         bold: true, large: true, color: cs.onSurface),
+
+                    // ── Collection & Balance ──────────────────────────────
+                    if (_showCollectionRow) ...[
+                      const SizedBox(height: 10),
+                      Row(children: [
+                        // Collection inline text field
+                        Expanded(
+                          child: TextField(
+                            controller: _collectionCtrl,
+                            style: TextStyle(
+                                color: cs.onSurface, fontWeight: FontWeight.w500),
+                            textAlign: TextAlign.start,
+                            keyboardType:
+                                const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: (_) => setState(() {}),
+                            decoration: InputDecoration(
+                              labelText: 'Collection',
+                              labelStyle: TextStyle(color: cs.onSurface),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: cs.outlineVariant)),
+                              border: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: cs.outlineVariant)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Balance display
+                        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                          Text('Balance',
+                              style: TextStyle(
+                                  fontSize: 11, color: cs.onSurface)),
+                          Text(
+                            '₹${_balance.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: _balance < 0 ? Colors.red : Colors.green.shade800,
+                            ),
+                          ),
+                        ]),
+                      ]),
+                    ],
+
                     const SizedBox(height: 8),
                   ]),
                 ),

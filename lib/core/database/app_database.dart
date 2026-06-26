@@ -69,6 +69,7 @@ class Bills extends Table {
   IntColumn get customerId => integer().nullable().references(Customers, #id)();
   TextColumn get customerName => text().nullable()();
   TextColumn get customerPhone => text().nullable()();
+  TextColumn get patientId => text().nullable()();
   RealColumn get subtotal => real()();
   RealColumn get discount => real().withDefault(const Constant(0))();
   RealColumn get consultationFee => real().withDefault(const Constant(0))();
@@ -79,6 +80,8 @@ class Bills extends Table {
   TextColumn get feePaymentMode => text().withDefault(const Constant('cash'))();
   RealColumn get feeCashAmount => real().withDefault(const Constant(0))();
   RealColumn get feeOnlineAmount => real().withDefault(const Constant(0))();
+  RealColumn get collectionAmount => real().withDefault(const Constant(0))();
+  RealColumn get balanceAmount => real().withDefault(const Constant(0))();
   TextColumn get notes => text().nullable()();
   DateTimeColumn get billedAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -100,7 +103,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -125,6 +128,13 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 7) {
         await m.createTable(pharmacyInfo);
+      }
+      if (from < 8) {
+        await m.addColumn(bills, bills.collectionAmount as GeneratedColumn<Object>);
+        await m.addColumn(bills, bills.balanceAmount as GeneratedColumn<Object>);
+      }
+      if (from < 9) {
+        await m.addColumn(bills, bills.patientId as GeneratedColumn<Object>);
       }
     },
   );
@@ -286,6 +296,16 @@ class AppDatabase extends _$AppDatabase {
   /// Remove by pid — called after billing is completed.
   Future<void> removeFromVisitQueueByPid(String pid) =>
       (delete(visitQueue)..where((v) => v.pid.equals(pid))).go();
+
+  /// Delete all queue entries added before today (midnight local time).
+  /// Called when the Patient screen loads to clear stale yesterday/old entries.
+  Future<void> purgeStaleQueueEntries() async {
+    final now = DateTime.now();
+    final todayMidnight = DateTime(now.year, now.month, now.day);
+    await (delete(visitQueue)
+          ..where((v) => v.addedAt.isSmallerThanValue(todayMidnight)))
+        .go();
+  }
 
   // ─── Pharmacy Info Queries ─────────────────────────────────────────────────
 
