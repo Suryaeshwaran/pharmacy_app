@@ -96,14 +96,54 @@ class BillItems extends Table {
   RealColumn get totalPrice => real()();
 }
 
+// ─── AGENCY PURCHASE TABLES ───────────────────────────────────────────────────
+
+/// Agencies / suppliers from whom medicines are purchased.
+class AgencyPurchases extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 255)(); // stored uppercase
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Individual purchase bills raised by an agency.
+class AgencyBills extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get agencyId => integer().references(AgencyPurchases, #id)();
+  TextColumn get billNumber => text().nullable()();
+  RealColumn get billAmount => real()();
+  DateTimeColumn get billDate => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Payments made against agency bills.
+class AgencyPayments extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get agencyId => integer().references(AgencyPurchases, #id)();
+  IntColumn get billId => integer().references(AgencyBills, #id)();
+  RealColumn get amountPaid => real()();
+  DateTimeColumn get paymentDate => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ─── DATABASE ─────────────────────────────────────────────────────────────────
 
-@DriftDatabase(tables: [Medicines, Customers, PatientMaster, VisitQueue, PharmacyInfo, Bills, BillItems])
+@DriftDatabase(tables: [
+  Medicines,
+  Customers,
+  PatientMaster,
+  VisitQueue,
+  PharmacyInfo,
+  Bills,
+  BillItems,
+  AgencyPurchases,
+  AgencyBills,
+  AgencyPayments,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openDatabase());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -135,6 +175,11 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 9) {
         await m.addColumn(bills, bills.patientId as GeneratedColumn<Object>);
+      }
+      if (from < 11) {
+        await m.createTable(agencyPurchases);
+        await m.createTable(agencyBills);
+        await m.createTable(agencyPayments);
       }
     },
   );
@@ -459,5 +504,136 @@ class AppDatabase extends _$AppDatabase {
 
     await customStatement('VACUUM');
     return deleted;
+  }
+
+  // ─── Agency Purchase Queries ───────────────────────────────────────────────
+
+  /// Watch all agencies ordered by name — reactive.
+  Stream<List<AgencyPurchase>> watchAllAgencies() =>
+      (select(agencyPurchases)..orderBy([(a) => OrderingTerm.asc(a.name)]))
+          .watch();
+
+  Future<int> insertAgency(AgencyPurchasesCompanion agency) =>
+      into(agencyPurchases).insert(agency);
+
+  Future<void> updateAgency(AgencyPurchasesCompanion agency) async {
+    await (update(agencyPurchases)..where((a) => a.id.equals(agency.id.value)))
+        .write(agency);
+  }
+
+  /// Delete agency only if no outstanding balance exists.
+  Future<void> deleteAgency(int agencyId) async {
+    await transaction(() async {
+      await (delete(agencyPayments)
+            ..where((p) => p.agencyId.equals(agencyId)))
+          .go();
+      await (delete(agencyBills)
+            ..where((b) => b.agencyId.equals(agencyId)))
+          .go();
+      await (delete(agencyPurchases)..where((a) => a.id.equals(agencyId))).go();
+    });
+  }
+
+  /// Watch all bills for a specific agency — reactive.
+  Stream<List<AgencyBill>> watchBillsForAgency(int agencyId) =>
+      (select(agencyBills)
+            ..where((b) => b.agencyId.equals(agencyId))
+            ..orderBy([(b) => OrderingTerm.desc(b.billDate)]))
+          .watch();
+
+  Future<int> insertAgencyBill(AgencyBillsCompanion bill) =>
+      into(agencyBills).insert(bill);
+
+  Future<void> updateAgencyBill(AgencyBillsCompanion bill) async {
+    await (update(agencyBills)..where((b) => b.id.equals(bill.id.value)))
+        .write(bill);
+  }
+
+  Future<void> deleteAgencyBill(int billId) async {
+    await transaction(() async {
+      await (delete(agencyPayments)..where((p) => p.billId.equals(billId))).go();
+      await (delete(agencyBills)..where((b) => b.id.equals(billId))).go();
+    });
+  }
+
+  /// Watch all payments for a specific bill — reactive.
+  Stream<List<AgencyPayment>> watchPaymentsForBill(int billId) =>
+      (select(agencyPayments)
+            ..where((p) => p.billId.equals(billId))
+            ..orderBy([(p) => OrderingTerm.desc(p.paymentDate)]))
+          .watch();
+
+  Future<int> insertAgencyPayment(AgencyPaymentsCompanion payment) =>
+      into(agencyPayments).insert(payment);
+
+  Future<void> deleteAgencyPayment(int paymentId) =>
+      (delete(agencyPayments)..where((p) => p.id.equals(paymentId))).go();
+
+  /// Watch total billed amount for an agency — reactive.
+  Stream<double> watchTotalBilledForAgency(int agencyId) =>
+      (select(agencyBills)..where((b) => b.agencyId.equals(agencyId)))
+          .watch()
+          .map((rows) => rows.fold(0.0, (s, b) => s + b.billAmount));
+
+  /// Watch total paid amount for an agency — reactive.
+  Stream<double> watchTotalPaidForAgency(int agencyId) =>
+      (select(agencyPayments)..where((p) => p.agencyId.equals(agencyId)))
+          .watch()
+          .map((rows) => rows.fold(0.0, (s, p) => s + p.amountPaid));
+
+  /// Watch total paid amount for a single bill — reactive.
+  Stream<double> watchTotalPaidForBill(int billId) =>
+      (select(agencyPayments)..where((p) => p.billId.equals(billId)))
+          .watch()
+          .map((rows) => rows.fold(0.0, (s, p) => s + p.amountPaid));
+
+  /// Reactive report: per-agency summary filtered by date range.
+  /// Re-emits automatically whenever agency_purchases, agency_bills,
+  /// or agency_payments change — no manual refresh needed.
+  Stream<List<Map<String, dynamic>>> watchAgencyReport({
+    required DateTime from,
+    required DateTime to,
+  }) {
+    final fromSec = from.millisecondsSinceEpoch ~/ 1000;
+    final toSec = to.millisecondsSinceEpoch ~/ 1000;
+
+    return customSelect(
+      '''
+      SELECT
+        a.id   AS agency_id,
+        a.name AS agency_name,
+        COALESCE((
+          SELECT SUM(b.bill_amount)
+          FROM agency_bills b
+          WHERE b.agency_id = a.id
+            AND b.bill_date >= ? AND b.bill_date <= ?
+        ), 0) AS billed,
+        COALESCE((
+          SELECT SUM(p.amount_paid)
+          FROM agency_payments p
+          WHERE p.agency_id = a.id
+            AND p.payment_date >= ? AND p.payment_date <= ?
+        ), 0) AS paid
+      FROM agency_purchases a
+      ORDER BY a.name
+      ''',
+      variables: [
+        Variable<int>(fromSec),
+        Variable<int>(toSec),
+        Variable<int>(fromSec),
+        Variable<int>(toSec),
+      ],
+      readsFrom: {agencyPurchases, agencyBills, agencyPayments},
+    ).watch().map((rows) => rows.map((r) {
+          final billed = r.read<double>('billed');
+          final paid = r.read<double>('paid');
+          return {
+            'agencyId': r.read<int>('agency_id'),
+            'name': r.read<String>('agency_name'),
+            'billed': billed,
+            'paid': paid,
+            'balance': billed - paid,
+          };
+        }).toList());
   }
 }

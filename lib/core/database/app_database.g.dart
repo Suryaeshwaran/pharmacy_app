@@ -3360,6 +3360,917 @@ class BillItemsCompanion extends UpdateCompanion<BillItem> {
   }
 }
 
+class $AgencyPurchasesTable extends AgencyPurchases
+    with TableInfo<$AgencyPurchasesTable, AgencyPurchase> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgencyPurchasesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agency_purchases';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgencyPurchase> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgencyPurchase map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgencyPurchase(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $AgencyPurchasesTable createAlias(String alias) {
+    return $AgencyPurchasesTable(attachedDatabase, alias);
+  }
+}
+
+class AgencyPurchase extends DataClass implements Insertable<AgencyPurchase> {
+  final int id;
+  final String name;
+  final DateTime createdAt;
+  const AgencyPurchase(
+      {required this.id, required this.name, required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  AgencyPurchasesCompanion toCompanion(bool nullToAbsent) {
+    return AgencyPurchasesCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory AgencyPurchase.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgencyPurchase(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  AgencyPurchase copyWith({int? id, String? name, DateTime? createdAt}) =>
+      AgencyPurchase(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  AgencyPurchase copyWithCompanion(AgencyPurchasesCompanion data) {
+    return AgencyPurchase(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgencyPurchase(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgencyPurchase &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
+}
+
+class AgencyPurchasesCompanion extends UpdateCompanion<AgencyPurchase> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  const AgencyPurchasesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  AgencyPurchasesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.createdAt = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<AgencyPurchase> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  AgencyPurchasesCompanion copyWith(
+      {Value<int>? id, Value<String>? name, Value<DateTime>? createdAt}) {
+    return AgencyPurchasesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgencyPurchasesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AgencyBillsTable extends AgencyBills
+    with TableInfo<$AgencyBillsTable, AgencyBill> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgencyBillsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _agencyIdMeta =
+      const VerificationMeta('agencyId');
+  @override
+  late final GeneratedColumn<int> agencyId = GeneratedColumn<int>(
+      'agency_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES agency_purchases (id)'));
+  static const VerificationMeta _billNumberMeta =
+      const VerificationMeta('billNumber');
+  @override
+  late final GeneratedColumn<String> billNumber = GeneratedColumn<String>(
+      'bill_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _billAmountMeta =
+      const VerificationMeta('billAmount');
+  @override
+  late final GeneratedColumn<double> billAmount = GeneratedColumn<double>(
+      'bill_amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _billDateMeta =
+      const VerificationMeta('billDate');
+  @override
+  late final GeneratedColumn<DateTime> billDate = GeneratedColumn<DateTime>(
+      'bill_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, agencyId, billNumber, billAmount, billDate, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agency_bills';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgencyBill> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('agency_id')) {
+      context.handle(_agencyIdMeta,
+          agencyId.isAcceptableOrUnknown(data['agency_id']!, _agencyIdMeta));
+    } else if (isInserting) {
+      context.missing(_agencyIdMeta);
+    }
+    if (data.containsKey('bill_number')) {
+      context.handle(
+          _billNumberMeta,
+          billNumber.isAcceptableOrUnknown(
+              data['bill_number']!, _billNumberMeta));
+    }
+    if (data.containsKey('bill_amount')) {
+      context.handle(
+          _billAmountMeta,
+          billAmount.isAcceptableOrUnknown(
+              data['bill_amount']!, _billAmountMeta));
+    } else if (isInserting) {
+      context.missing(_billAmountMeta);
+    }
+    if (data.containsKey('bill_date')) {
+      context.handle(_billDateMeta,
+          billDate.isAcceptableOrUnknown(data['bill_date']!, _billDateMeta));
+    } else if (isInserting) {
+      context.missing(_billDateMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgencyBill map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgencyBill(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      agencyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}agency_id'])!,
+      billNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bill_number']),
+      billAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}bill_amount'])!,
+      billDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}bill_date'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $AgencyBillsTable createAlias(String alias) {
+    return $AgencyBillsTable(attachedDatabase, alias);
+  }
+}
+
+class AgencyBill extends DataClass implements Insertable<AgencyBill> {
+  final int id;
+  final int agencyId;
+  final String? billNumber;
+  final double billAmount;
+  final DateTime billDate;
+  final DateTime createdAt;
+  const AgencyBill(
+      {required this.id,
+      required this.agencyId,
+      this.billNumber,
+      required this.billAmount,
+      required this.billDate,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['agency_id'] = Variable<int>(agencyId);
+    if (!nullToAbsent || billNumber != null) {
+      map['bill_number'] = Variable<String>(billNumber);
+    }
+    map['bill_amount'] = Variable<double>(billAmount);
+    map['bill_date'] = Variable<DateTime>(billDate);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  AgencyBillsCompanion toCompanion(bool nullToAbsent) {
+    return AgencyBillsCompanion(
+      id: Value(id),
+      agencyId: Value(agencyId),
+      billNumber: billNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billNumber),
+      billAmount: Value(billAmount),
+      billDate: Value(billDate),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory AgencyBill.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgencyBill(
+      id: serializer.fromJson<int>(json['id']),
+      agencyId: serializer.fromJson<int>(json['agencyId']),
+      billNumber: serializer.fromJson<String?>(json['billNumber']),
+      billAmount: serializer.fromJson<double>(json['billAmount']),
+      billDate: serializer.fromJson<DateTime>(json['billDate']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'agencyId': serializer.toJson<int>(agencyId),
+      'billNumber': serializer.toJson<String?>(billNumber),
+      'billAmount': serializer.toJson<double>(billAmount),
+      'billDate': serializer.toJson<DateTime>(billDate),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  AgencyBill copyWith(
+          {int? id,
+          int? agencyId,
+          Value<String?> billNumber = const Value.absent(),
+          double? billAmount,
+          DateTime? billDate,
+          DateTime? createdAt}) =>
+      AgencyBill(
+        id: id ?? this.id,
+        agencyId: agencyId ?? this.agencyId,
+        billNumber: billNumber.present ? billNumber.value : this.billNumber,
+        billAmount: billAmount ?? this.billAmount,
+        billDate: billDate ?? this.billDate,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  AgencyBill copyWithCompanion(AgencyBillsCompanion data) {
+    return AgencyBill(
+      id: data.id.present ? data.id.value : this.id,
+      agencyId: data.agencyId.present ? data.agencyId.value : this.agencyId,
+      billNumber:
+          data.billNumber.present ? data.billNumber.value : this.billNumber,
+      billAmount:
+          data.billAmount.present ? data.billAmount.value : this.billAmount,
+      billDate: data.billDate.present ? data.billDate.value : this.billDate,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgencyBill(')
+          ..write('id: $id, ')
+          ..write('agencyId: $agencyId, ')
+          ..write('billNumber: $billNumber, ')
+          ..write('billAmount: $billAmount, ')
+          ..write('billDate: $billDate, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, agencyId, billNumber, billAmount, billDate, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgencyBill &&
+          other.id == this.id &&
+          other.agencyId == this.agencyId &&
+          other.billNumber == this.billNumber &&
+          other.billAmount == this.billAmount &&
+          other.billDate == this.billDate &&
+          other.createdAt == this.createdAt);
+}
+
+class AgencyBillsCompanion extends UpdateCompanion<AgencyBill> {
+  final Value<int> id;
+  final Value<int> agencyId;
+  final Value<String?> billNumber;
+  final Value<double> billAmount;
+  final Value<DateTime> billDate;
+  final Value<DateTime> createdAt;
+  const AgencyBillsCompanion({
+    this.id = const Value.absent(),
+    this.agencyId = const Value.absent(),
+    this.billNumber = const Value.absent(),
+    this.billAmount = const Value.absent(),
+    this.billDate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  AgencyBillsCompanion.insert({
+    this.id = const Value.absent(),
+    required int agencyId,
+    this.billNumber = const Value.absent(),
+    required double billAmount,
+    required DateTime billDate,
+    this.createdAt = const Value.absent(),
+  })  : agencyId = Value(agencyId),
+        billAmount = Value(billAmount),
+        billDate = Value(billDate);
+  static Insertable<AgencyBill> custom({
+    Expression<int>? id,
+    Expression<int>? agencyId,
+    Expression<String>? billNumber,
+    Expression<double>? billAmount,
+    Expression<DateTime>? billDate,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (agencyId != null) 'agency_id': agencyId,
+      if (billNumber != null) 'bill_number': billNumber,
+      if (billAmount != null) 'bill_amount': billAmount,
+      if (billDate != null) 'bill_date': billDate,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  AgencyBillsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? agencyId,
+      Value<String?>? billNumber,
+      Value<double>? billAmount,
+      Value<DateTime>? billDate,
+      Value<DateTime>? createdAt}) {
+    return AgencyBillsCompanion(
+      id: id ?? this.id,
+      agencyId: agencyId ?? this.agencyId,
+      billNumber: billNumber ?? this.billNumber,
+      billAmount: billAmount ?? this.billAmount,
+      billDate: billDate ?? this.billDate,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (agencyId.present) {
+      map['agency_id'] = Variable<int>(agencyId.value);
+    }
+    if (billNumber.present) {
+      map['bill_number'] = Variable<String>(billNumber.value);
+    }
+    if (billAmount.present) {
+      map['bill_amount'] = Variable<double>(billAmount.value);
+    }
+    if (billDate.present) {
+      map['bill_date'] = Variable<DateTime>(billDate.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgencyBillsCompanion(')
+          ..write('id: $id, ')
+          ..write('agencyId: $agencyId, ')
+          ..write('billNumber: $billNumber, ')
+          ..write('billAmount: $billAmount, ')
+          ..write('billDate: $billDate, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AgencyPaymentsTable extends AgencyPayments
+    with TableInfo<$AgencyPaymentsTable, AgencyPayment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AgencyPaymentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _agencyIdMeta =
+      const VerificationMeta('agencyId');
+  @override
+  late final GeneratedColumn<int> agencyId = GeneratedColumn<int>(
+      'agency_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES agency_purchases (id)'));
+  static const VerificationMeta _billIdMeta = const VerificationMeta('billId');
+  @override
+  late final GeneratedColumn<int> billId = GeneratedColumn<int>(
+      'bill_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES agency_bills (id)'));
+  static const VerificationMeta _amountPaidMeta =
+      const VerificationMeta('amountPaid');
+  @override
+  late final GeneratedColumn<double> amountPaid = GeneratedColumn<double>(
+      'amount_paid', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _paymentDateMeta =
+      const VerificationMeta('paymentDate');
+  @override
+  late final GeneratedColumn<DateTime> paymentDate = GeneratedColumn<DateTime>(
+      'payment_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, agencyId, billId, amountPaid, paymentDate, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'agency_payments';
+  @override
+  VerificationContext validateIntegrity(Insertable<AgencyPayment> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('agency_id')) {
+      context.handle(_agencyIdMeta,
+          agencyId.isAcceptableOrUnknown(data['agency_id']!, _agencyIdMeta));
+    } else if (isInserting) {
+      context.missing(_agencyIdMeta);
+    }
+    if (data.containsKey('bill_id')) {
+      context.handle(_billIdMeta,
+          billId.isAcceptableOrUnknown(data['bill_id']!, _billIdMeta));
+    } else if (isInserting) {
+      context.missing(_billIdMeta);
+    }
+    if (data.containsKey('amount_paid')) {
+      context.handle(
+          _amountPaidMeta,
+          amountPaid.isAcceptableOrUnknown(
+              data['amount_paid']!, _amountPaidMeta));
+    } else if (isInserting) {
+      context.missing(_amountPaidMeta);
+    }
+    if (data.containsKey('payment_date')) {
+      context.handle(
+          _paymentDateMeta,
+          paymentDate.isAcceptableOrUnknown(
+              data['payment_date']!, _paymentDateMeta));
+    } else if (isInserting) {
+      context.missing(_paymentDateMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AgencyPayment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AgencyPayment(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      agencyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}agency_id'])!,
+      billId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}bill_id'])!,
+      amountPaid: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount_paid'])!,
+      paymentDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}payment_date'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $AgencyPaymentsTable createAlias(String alias) {
+    return $AgencyPaymentsTable(attachedDatabase, alias);
+  }
+}
+
+class AgencyPayment extends DataClass implements Insertable<AgencyPayment> {
+  final int id;
+  final int agencyId;
+  final int billId;
+  final double amountPaid;
+  final DateTime paymentDate;
+  final DateTime createdAt;
+  const AgencyPayment(
+      {required this.id,
+      required this.agencyId,
+      required this.billId,
+      required this.amountPaid,
+      required this.paymentDate,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['agency_id'] = Variable<int>(agencyId);
+    map['bill_id'] = Variable<int>(billId);
+    map['amount_paid'] = Variable<double>(amountPaid);
+    map['payment_date'] = Variable<DateTime>(paymentDate);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  AgencyPaymentsCompanion toCompanion(bool nullToAbsent) {
+    return AgencyPaymentsCompanion(
+      id: Value(id),
+      agencyId: Value(agencyId),
+      billId: Value(billId),
+      amountPaid: Value(amountPaid),
+      paymentDate: Value(paymentDate),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory AgencyPayment.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AgencyPayment(
+      id: serializer.fromJson<int>(json['id']),
+      agencyId: serializer.fromJson<int>(json['agencyId']),
+      billId: serializer.fromJson<int>(json['billId']),
+      amountPaid: serializer.fromJson<double>(json['amountPaid']),
+      paymentDate: serializer.fromJson<DateTime>(json['paymentDate']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'agencyId': serializer.toJson<int>(agencyId),
+      'billId': serializer.toJson<int>(billId),
+      'amountPaid': serializer.toJson<double>(amountPaid),
+      'paymentDate': serializer.toJson<DateTime>(paymentDate),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  AgencyPayment copyWith(
+          {int? id,
+          int? agencyId,
+          int? billId,
+          double? amountPaid,
+          DateTime? paymentDate,
+          DateTime? createdAt}) =>
+      AgencyPayment(
+        id: id ?? this.id,
+        agencyId: agencyId ?? this.agencyId,
+        billId: billId ?? this.billId,
+        amountPaid: amountPaid ?? this.amountPaid,
+        paymentDate: paymentDate ?? this.paymentDate,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  AgencyPayment copyWithCompanion(AgencyPaymentsCompanion data) {
+    return AgencyPayment(
+      id: data.id.present ? data.id.value : this.id,
+      agencyId: data.agencyId.present ? data.agencyId.value : this.agencyId,
+      billId: data.billId.present ? data.billId.value : this.billId,
+      amountPaid:
+          data.amountPaid.present ? data.amountPaid.value : this.amountPaid,
+      paymentDate:
+          data.paymentDate.present ? data.paymentDate.value : this.paymentDate,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgencyPayment(')
+          ..write('id: $id, ')
+          ..write('agencyId: $agencyId, ')
+          ..write('billId: $billId, ')
+          ..write('amountPaid: $amountPaid, ')
+          ..write('paymentDate: $paymentDate, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, agencyId, billId, amountPaid, paymentDate, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AgencyPayment &&
+          other.id == this.id &&
+          other.agencyId == this.agencyId &&
+          other.billId == this.billId &&
+          other.amountPaid == this.amountPaid &&
+          other.paymentDate == this.paymentDate &&
+          other.createdAt == this.createdAt);
+}
+
+class AgencyPaymentsCompanion extends UpdateCompanion<AgencyPayment> {
+  final Value<int> id;
+  final Value<int> agencyId;
+  final Value<int> billId;
+  final Value<double> amountPaid;
+  final Value<DateTime> paymentDate;
+  final Value<DateTime> createdAt;
+  const AgencyPaymentsCompanion({
+    this.id = const Value.absent(),
+    this.agencyId = const Value.absent(),
+    this.billId = const Value.absent(),
+    this.amountPaid = const Value.absent(),
+    this.paymentDate = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  AgencyPaymentsCompanion.insert({
+    this.id = const Value.absent(),
+    required int agencyId,
+    required int billId,
+    required double amountPaid,
+    required DateTime paymentDate,
+    this.createdAt = const Value.absent(),
+  })  : agencyId = Value(agencyId),
+        billId = Value(billId),
+        amountPaid = Value(amountPaid),
+        paymentDate = Value(paymentDate);
+  static Insertable<AgencyPayment> custom({
+    Expression<int>? id,
+    Expression<int>? agencyId,
+    Expression<int>? billId,
+    Expression<double>? amountPaid,
+    Expression<DateTime>? paymentDate,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (agencyId != null) 'agency_id': agencyId,
+      if (billId != null) 'bill_id': billId,
+      if (amountPaid != null) 'amount_paid': amountPaid,
+      if (paymentDate != null) 'payment_date': paymentDate,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  AgencyPaymentsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? agencyId,
+      Value<int>? billId,
+      Value<double>? amountPaid,
+      Value<DateTime>? paymentDate,
+      Value<DateTime>? createdAt}) {
+    return AgencyPaymentsCompanion(
+      id: id ?? this.id,
+      agencyId: agencyId ?? this.agencyId,
+      billId: billId ?? this.billId,
+      amountPaid: amountPaid ?? this.amountPaid,
+      paymentDate: paymentDate ?? this.paymentDate,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (agencyId.present) {
+      map['agency_id'] = Variable<int>(agencyId.value);
+    }
+    if (billId.present) {
+      map['bill_id'] = Variable<int>(billId.value);
+    }
+    if (amountPaid.present) {
+      map['amount_paid'] = Variable<double>(amountPaid.value);
+    }
+    if (paymentDate.present) {
+      map['payment_date'] = Variable<DateTime>(paymentDate.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AgencyPaymentsCompanion(')
+          ..write('id: $id, ')
+          ..write('agencyId: $agencyId, ')
+          ..write('billId: $billId, ')
+          ..write('amountPaid: $amountPaid, ')
+          ..write('paymentDate: $paymentDate, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3370,6 +4281,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PharmacyInfoTable pharmacyInfo = $PharmacyInfoTable(this);
   late final $BillsTable bills = $BillsTable(this);
   late final $BillItemsTable billItems = $BillItemsTable(this);
+  late final $AgencyPurchasesTable agencyPurchases =
+      $AgencyPurchasesTable(this);
+  late final $AgencyBillsTable agencyBills = $AgencyBillsTable(this);
+  late final $AgencyPaymentsTable agencyPayments = $AgencyPaymentsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3381,7 +4296,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         visitQueue,
         pharmacyInfo,
         bills,
-        billItems
+        billItems,
+        agencyPurchases,
+        agencyBills,
+        agencyPayments
       ];
 }
 
@@ -5517,6 +6435,1023 @@ typedef $$BillItemsTableProcessedTableManager = ProcessedTableManager<
     (BillItem, $$BillItemsTableReferences),
     BillItem,
     PrefetchHooks Function({bool billId, bool medicineId})>;
+typedef $$AgencyPurchasesTableCreateCompanionBuilder = AgencyPurchasesCompanion
+    Function({
+  Value<int> id,
+  required String name,
+  Value<DateTime> createdAt,
+});
+typedef $$AgencyPurchasesTableUpdateCompanionBuilder = AgencyPurchasesCompanion
+    Function({
+  Value<int> id,
+  Value<String> name,
+  Value<DateTime> createdAt,
+});
+
+final class $$AgencyPurchasesTableReferences extends BaseReferences<
+    _$AppDatabase, $AgencyPurchasesTable, AgencyPurchase> {
+  $$AgencyPurchasesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$AgencyBillsTable, List<AgencyBill>>
+      _agencyBillsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.agencyBills,
+              aliasName: $_aliasNameGenerator(
+                  db.agencyPurchases.id, db.agencyBills.agencyId));
+
+  $$AgencyBillsTableProcessedTableManager get agencyBillsRefs {
+    final manager = $$AgencyBillsTableTableManager($_db, $_db.agencyBills)
+        .filter((f) => f.agencyId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_agencyBillsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$AgencyPaymentsTable, List<AgencyPayment>>
+      _agencyPaymentsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.agencyPayments,
+              aliasName: $_aliasNameGenerator(
+                  db.agencyPurchases.id, db.agencyPayments.agencyId));
+
+  $$AgencyPaymentsTableProcessedTableManager get agencyPaymentsRefs {
+    final manager = $$AgencyPaymentsTableTableManager($_db, $_db.agencyPayments)
+        .filter((f) => f.agencyId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_agencyPaymentsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$AgencyPurchasesTableFilterComposer
+    extends Composer<_$AppDatabase, $AgencyPurchasesTable> {
+  $$AgencyPurchasesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> agencyBillsRefs(
+      Expression<bool> Function($$AgencyBillsTableFilterComposer f) f) {
+    final $$AgencyBillsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.agencyBills,
+        getReferencedColumn: (t) => t.agencyId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyBillsTableFilterComposer(
+              $db: $db,
+              $table: $db.agencyBills,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> agencyPaymentsRefs(
+      Expression<bool> Function($$AgencyPaymentsTableFilterComposer f) f) {
+    final $$AgencyPaymentsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.agencyPayments,
+        getReferencedColumn: (t) => t.agencyId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPaymentsTableFilterComposer(
+              $db: $db,
+              $table: $db.agencyPayments,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AgencyPurchasesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AgencyPurchasesTable> {
+  $$AgencyPurchasesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AgencyPurchasesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AgencyPurchasesTable> {
+  $$AgencyPurchasesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> agencyBillsRefs<T extends Object>(
+      Expression<T> Function($$AgencyBillsTableAnnotationComposer a) f) {
+    final $$AgencyBillsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.agencyBills,
+        getReferencedColumn: (t) => t.agencyId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyBillsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.agencyBills,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> agencyPaymentsRefs<T extends Object>(
+      Expression<T> Function($$AgencyPaymentsTableAnnotationComposer a) f) {
+    final $$AgencyPaymentsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.agencyPayments,
+        getReferencedColumn: (t) => t.agencyId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPaymentsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.agencyPayments,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AgencyPurchasesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $AgencyPurchasesTable,
+    AgencyPurchase,
+    $$AgencyPurchasesTableFilterComposer,
+    $$AgencyPurchasesTableOrderingComposer,
+    $$AgencyPurchasesTableAnnotationComposer,
+    $$AgencyPurchasesTableCreateCompanionBuilder,
+    $$AgencyPurchasesTableUpdateCompanionBuilder,
+    (AgencyPurchase, $$AgencyPurchasesTableReferences),
+    AgencyPurchase,
+    PrefetchHooks Function({bool agencyBillsRefs, bool agencyPaymentsRefs})> {
+  $$AgencyPurchasesTableTableManager(
+      _$AppDatabase db, $AgencyPurchasesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgencyPurchasesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgencyPurchasesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgencyPurchasesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgencyPurchasesCompanion(
+            id: id,
+            name: name,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgencyPurchasesCompanion.insert(
+            id: id,
+            name: name,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AgencyPurchasesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {agencyBillsRefs = false, agencyPaymentsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (agencyBillsRefs) db.agencyBills,
+                if (agencyPaymentsRefs) db.agencyPayments
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (agencyBillsRefs)
+                    await $_getPrefetchedData<AgencyPurchase, $AgencyPurchasesTable,
+                            AgencyBill>(
+                        currentTable: table,
+                        referencedTable: $$AgencyPurchasesTableReferences
+                            ._agencyBillsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AgencyPurchasesTableReferences(db, table, p0)
+                                .agencyBillsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.agencyId == item.id),
+                        typedResults: items),
+                  if (agencyPaymentsRefs)
+                    await $_getPrefetchedData<AgencyPurchase,
+                            $AgencyPurchasesTable, AgencyPayment>(
+                        currentTable: table,
+                        referencedTable: $$AgencyPurchasesTableReferences
+                            ._agencyPaymentsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AgencyPurchasesTableReferences(db, table, p0)
+                                .agencyPaymentsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.agencyId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AgencyPurchasesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $AgencyPurchasesTable,
+    AgencyPurchase,
+    $$AgencyPurchasesTableFilterComposer,
+    $$AgencyPurchasesTableOrderingComposer,
+    $$AgencyPurchasesTableAnnotationComposer,
+    $$AgencyPurchasesTableCreateCompanionBuilder,
+    $$AgencyPurchasesTableUpdateCompanionBuilder,
+    (AgencyPurchase, $$AgencyPurchasesTableReferences),
+    AgencyPurchase,
+    PrefetchHooks Function({bool agencyBillsRefs, bool agencyPaymentsRefs})>;
+typedef $$AgencyBillsTableCreateCompanionBuilder = AgencyBillsCompanion
+    Function({
+  Value<int> id,
+  required int agencyId,
+  Value<String?> billNumber,
+  required double billAmount,
+  required DateTime billDate,
+  Value<DateTime> createdAt,
+});
+typedef $$AgencyBillsTableUpdateCompanionBuilder = AgencyBillsCompanion
+    Function({
+  Value<int> id,
+  Value<int> agencyId,
+  Value<String?> billNumber,
+  Value<double> billAmount,
+  Value<DateTime> billDate,
+  Value<DateTime> createdAt,
+});
+
+final class $$AgencyBillsTableReferences
+    extends BaseReferences<_$AppDatabase, $AgencyBillsTable, AgencyBill> {
+  $$AgencyBillsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $AgencyPurchasesTable _agencyIdTable(_$AppDatabase db) =>
+      db.agencyPurchases.createAlias(
+          $_aliasNameGenerator(db.agencyBills.agencyId, db.agencyPurchases.id));
+
+  $$AgencyPurchasesTableProcessedTableManager get agencyId {
+    final $_column = $_itemColumn<int>('agency_id')!;
+
+    final manager =
+        $$AgencyPurchasesTableTableManager($_db, $_db.agencyPurchases)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_agencyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$AgencyPaymentsTable, List<AgencyPayment>>
+      _agencyPaymentsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.agencyPayments,
+              aliasName: $_aliasNameGenerator(
+                  db.agencyBills.id, db.agencyPayments.billId));
+
+  $$AgencyPaymentsTableProcessedTableManager get agencyPaymentsRefs {
+    final manager = $$AgencyPaymentsTableTableManager($_db, $_db.agencyPayments)
+        .filter((f) => f.billId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_agencyPaymentsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$AgencyBillsTableFilterComposer
+    extends Composer<_$AppDatabase, $AgencyBillsTable> {
+  $$AgencyBillsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get billNumber => $composableBuilder(
+      column: $table.billNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get billAmount => $composableBuilder(
+      column: $table.billAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get billDate => $composableBuilder(
+      column: $table.billDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$AgencyPurchasesTableFilterComposer get agencyId {
+    final $$AgencyPurchasesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.agencyId,
+        referencedTable: $db.agencyPurchases,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPurchasesTableFilterComposer(
+              $db: $db,
+              $table: $db.agencyPurchases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<bool> agencyPaymentsRefs(
+      Expression<bool> Function($$AgencyPaymentsTableFilterComposer f) f) {
+    final $$AgencyPaymentsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.agencyPayments,
+        getReferencedColumn: (t) => t.billId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPaymentsTableFilterComposer(
+              $db: $db,
+              $table: $db.agencyPayments,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AgencyBillsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AgencyBillsTable> {
+  $$AgencyBillsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get billNumber => $composableBuilder(
+      column: $table.billNumber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get billAmount => $composableBuilder(
+      column: $table.billAmount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get billDate => $composableBuilder(
+      column: $table.billDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$AgencyPurchasesTableOrderingComposer get agencyId {
+    final $$AgencyPurchasesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.agencyId,
+        referencedTable: $db.agencyPurchases,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPurchasesTableOrderingComposer(
+              $db: $db,
+              $table: $db.agencyPurchases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AgencyBillsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AgencyBillsTable> {
+  $$AgencyBillsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get billNumber => $composableBuilder(
+      column: $table.billNumber, builder: (column) => column);
+
+  GeneratedColumn<double> get billAmount => $composableBuilder(
+      column: $table.billAmount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get billDate =>
+      $composableBuilder(column: $table.billDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$AgencyPurchasesTableAnnotationComposer get agencyId {
+    final $$AgencyPurchasesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.agencyId,
+        referencedTable: $db.agencyPurchases,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPurchasesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.agencyPurchases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  Expression<T> agencyPaymentsRefs<T extends Object>(
+      Expression<T> Function($$AgencyPaymentsTableAnnotationComposer a) f) {
+    final $$AgencyPaymentsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.agencyPayments,
+        getReferencedColumn: (t) => t.billId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPaymentsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.agencyPayments,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AgencyBillsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $AgencyBillsTable,
+    AgencyBill,
+    $$AgencyBillsTableFilterComposer,
+    $$AgencyBillsTableOrderingComposer,
+    $$AgencyBillsTableAnnotationComposer,
+    $$AgencyBillsTableCreateCompanionBuilder,
+    $$AgencyBillsTableUpdateCompanionBuilder,
+    (AgencyBill, $$AgencyBillsTableReferences),
+    AgencyBill,
+    PrefetchHooks Function({bool agencyId, bool agencyPaymentsRefs})> {
+  $$AgencyBillsTableTableManager(_$AppDatabase db, $AgencyBillsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgencyBillsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgencyBillsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgencyBillsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> agencyId = const Value.absent(),
+            Value<String?> billNumber = const Value.absent(),
+            Value<double> billAmount = const Value.absent(),
+            Value<DateTime> billDate = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgencyBillsCompanion(
+            id: id,
+            agencyId: agencyId,
+            billNumber: billNumber,
+            billAmount: billAmount,
+            billDate: billDate,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int agencyId,
+            Value<String?> billNumber = const Value.absent(),
+            required double billAmount,
+            required DateTime billDate,
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgencyBillsCompanion.insert(
+            id: id,
+            agencyId: agencyId,
+            billNumber: billNumber,
+            billAmount: billAmount,
+            billDate: billDate,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AgencyBillsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {agencyId = false, agencyPaymentsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (agencyPaymentsRefs) db.agencyPayments
+              ],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (agencyId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.agencyId,
+                    referencedTable:
+                        $$AgencyBillsTableReferences._agencyIdTable(db),
+                    referencedColumn:
+                        $$AgencyBillsTableReferences._agencyIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (agencyPaymentsRefs)
+                    await $_getPrefetchedData<AgencyBill, $AgencyBillsTable,
+                            AgencyPayment>(
+                        currentTable: table,
+                        referencedTable: $$AgencyBillsTableReferences
+                            ._agencyPaymentsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AgencyBillsTableReferences(db, table, p0)
+                                .agencyPaymentsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.billId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AgencyBillsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $AgencyBillsTable,
+    AgencyBill,
+    $$AgencyBillsTableFilterComposer,
+    $$AgencyBillsTableOrderingComposer,
+    $$AgencyBillsTableAnnotationComposer,
+    $$AgencyBillsTableCreateCompanionBuilder,
+    $$AgencyBillsTableUpdateCompanionBuilder,
+    (AgencyBill, $$AgencyBillsTableReferences),
+    AgencyBill,
+    PrefetchHooks Function({bool agencyId, bool agencyPaymentsRefs})>;
+typedef $$AgencyPaymentsTableCreateCompanionBuilder = AgencyPaymentsCompanion
+    Function({
+  Value<int> id,
+  required int agencyId,
+  required int billId,
+  required double amountPaid,
+  required DateTime paymentDate,
+  Value<DateTime> createdAt,
+});
+typedef $$AgencyPaymentsTableUpdateCompanionBuilder = AgencyPaymentsCompanion
+    Function({
+  Value<int> id,
+  Value<int> agencyId,
+  Value<int> billId,
+  Value<double> amountPaid,
+  Value<DateTime> paymentDate,
+  Value<DateTime> createdAt,
+});
+
+final class $$AgencyPaymentsTableReferences
+    extends BaseReferences<_$AppDatabase, $AgencyPaymentsTable, AgencyPayment> {
+  $$AgencyPaymentsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $AgencyPurchasesTable _agencyIdTable(_$AppDatabase db) =>
+      db.agencyPurchases.createAlias($_aliasNameGenerator(
+          db.agencyPayments.agencyId, db.agencyPurchases.id));
+
+  $$AgencyPurchasesTableProcessedTableManager get agencyId {
+    final $_column = $_itemColumn<int>('agency_id')!;
+
+    final manager =
+        $$AgencyPurchasesTableTableManager($_db, $_db.agencyPurchases)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_agencyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $AgencyBillsTable _billIdTable(_$AppDatabase db) =>
+      db.agencyBills.createAlias(
+          $_aliasNameGenerator(db.agencyPayments.billId, db.agencyBills.id));
+
+  $$AgencyBillsTableProcessedTableManager get billId {
+    final $_column = $_itemColumn<int>('bill_id')!;
+
+    final manager = $$AgencyBillsTableTableManager($_db, $_db.agencyBills)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_billIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$AgencyPaymentsTableFilterComposer
+    extends Composer<_$AppDatabase, $AgencyPaymentsTable> {
+  $$AgencyPaymentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amountPaid => $composableBuilder(
+      column: $table.amountPaid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$AgencyPurchasesTableFilterComposer get agencyId {
+    final $$AgencyPurchasesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.agencyId,
+        referencedTable: $db.agencyPurchases,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPurchasesTableFilterComposer(
+              $db: $db,
+              $table: $db.agencyPurchases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AgencyBillsTableFilterComposer get billId {
+    final $$AgencyBillsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.billId,
+        referencedTable: $db.agencyBills,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyBillsTableFilterComposer(
+              $db: $db,
+              $table: $db.agencyBills,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AgencyPaymentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AgencyPaymentsTable> {
+  $$AgencyPaymentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amountPaid => $composableBuilder(
+      column: $table.amountPaid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$AgencyPurchasesTableOrderingComposer get agencyId {
+    final $$AgencyPurchasesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.agencyId,
+        referencedTable: $db.agencyPurchases,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPurchasesTableOrderingComposer(
+              $db: $db,
+              $table: $db.agencyPurchases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AgencyBillsTableOrderingComposer get billId {
+    final $$AgencyBillsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.billId,
+        referencedTable: $db.agencyBills,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyBillsTableOrderingComposer(
+              $db: $db,
+              $table: $db.agencyBills,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AgencyPaymentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AgencyPaymentsTable> {
+  $$AgencyPaymentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get amountPaid => $composableBuilder(
+      column: $table.amountPaid, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get paymentDate => $composableBuilder(
+      column: $table.paymentDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$AgencyPurchasesTableAnnotationComposer get agencyId {
+    final $$AgencyPurchasesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.agencyId,
+        referencedTable: $db.agencyPurchases,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyPurchasesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.agencyPurchases,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AgencyBillsTableAnnotationComposer get billId {
+    final $$AgencyBillsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.billId,
+        referencedTable: $db.agencyBills,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AgencyBillsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.agencyBills,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AgencyPaymentsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $AgencyPaymentsTable,
+    AgencyPayment,
+    $$AgencyPaymentsTableFilterComposer,
+    $$AgencyPaymentsTableOrderingComposer,
+    $$AgencyPaymentsTableAnnotationComposer,
+    $$AgencyPaymentsTableCreateCompanionBuilder,
+    $$AgencyPaymentsTableUpdateCompanionBuilder,
+    (AgencyPayment, $$AgencyPaymentsTableReferences),
+    AgencyPayment,
+    PrefetchHooks Function({bool agencyId, bool billId})> {
+  $$AgencyPaymentsTableTableManager(
+      _$AppDatabase db, $AgencyPaymentsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AgencyPaymentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AgencyPaymentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AgencyPaymentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> agencyId = const Value.absent(),
+            Value<int> billId = const Value.absent(),
+            Value<double> amountPaid = const Value.absent(),
+            Value<DateTime> paymentDate = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgencyPaymentsCompanion(
+            id: id,
+            agencyId: agencyId,
+            billId: billId,
+            amountPaid: amountPaid,
+            paymentDate: paymentDate,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int agencyId,
+            required int billId,
+            required double amountPaid,
+            required DateTime paymentDate,
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              AgencyPaymentsCompanion.insert(
+            id: id,
+            agencyId: agencyId,
+            billId: billId,
+            amountPaid: amountPaid,
+            paymentDate: paymentDate,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AgencyPaymentsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({agencyId = false, billId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (agencyId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.agencyId,
+                    referencedTable:
+                        $$AgencyPaymentsTableReferences._agencyIdTable(db),
+                    referencedColumn:
+                        $$AgencyPaymentsTableReferences._agencyIdTable(db).id,
+                  ) as T;
+                }
+                if (billId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.billId,
+                    referencedTable:
+                        $$AgencyPaymentsTableReferences._billIdTable(db),
+                    referencedColumn:
+                        $$AgencyPaymentsTableReferences._billIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AgencyPaymentsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $AgencyPaymentsTable,
+    AgencyPayment,
+    $$AgencyPaymentsTableFilterComposer,
+    $$AgencyPaymentsTableOrderingComposer,
+    $$AgencyPaymentsTableAnnotationComposer,
+    $$AgencyPaymentsTableCreateCompanionBuilder,
+    $$AgencyPaymentsTableUpdateCompanionBuilder,
+    (AgencyPayment, $$AgencyPaymentsTableReferences),
+    AgencyPayment,
+    PrefetchHooks Function({bool agencyId, bool billId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5535,4 +7470,10 @@ class $AppDatabaseManager {
       $$BillsTableTableManager(_db, _db.bills);
   $$BillItemsTableTableManager get billItems =>
       $$BillItemsTableTableManager(_db, _db.billItems);
+  $$AgencyPurchasesTableTableManager get agencyPurchases =>
+      $$AgencyPurchasesTableTableManager(_db, _db.agencyPurchases);
+  $$AgencyBillsTableTableManager get agencyBills =>
+      $$AgencyBillsTableTableManager(_db, _db.agencyBills);
+  $$AgencyPaymentsTableTableManager get agencyPayments =>
+      $$AgencyPaymentsTableTableManager(_db, _db.agencyPayments);
 }

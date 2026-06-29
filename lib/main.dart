@@ -9,6 +9,8 @@ import 'features/inventory/screens/inventory_screen.dart';
 import 'features/reports/screens/reports_screen.dart';
 import 'features/maintenance/maintenance_screen.dart';
 import 'features/patients/screens/patient_screen.dart';
+import 'features/agency_purchase/screens/agency_purchase_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +48,7 @@ class _AppShellState extends State<AppShell> {
     PatientScreen(),
     BillingScreen(),
     InventoryScreen(),
+    AgencyPurchaseScreen(),
     ReportsScreen(),
     MaintenanceScreen(),
   ];
@@ -129,6 +132,11 @@ class _AppShellState extends State<AppShell> {
               ),
               label: const Text('Inventory'),
             ),
+            const NavigationRailDestination(
+                icon: Icon(Icons.local_shipping_outlined),
+                selectedIcon: Icon(Icons.local_shipping),
+                label: Text('Agency'),
+              ),
             const NavigationRailDestination(
               icon: Icon(Icons.bar_chart_outlined),
               selectedIcon: Icon(Icons.bar_chart),
