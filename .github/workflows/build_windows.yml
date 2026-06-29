@@ -44,7 +44,7 @@ jobs:
           set CMAKE_GENERATOR_PLATFORM=
           flutter build windows --release
 
-      - name: Package as ZIP
+      - name: Prepare artifact
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path PharmacyApp -Force
@@ -54,20 +54,9 @@ jobs:
             -Destination "PharmacyApp" `
             -Recurse
 
-          Compress-Archive `
-            -Path "PharmacyApp" `
-            -DestinationPath "pharmacy_app_windows.zip" `
-            -Force
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: pharmacy-app-windows
-          path: build\windows\x64\runner\Release\
+          path: PharmacyApp\
           retention-days: 30
-
-      - name: Attach to GitHub Release
-        if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: pharmacy_app_windows.zip
