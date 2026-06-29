@@ -45,10 +45,19 @@ jobs:
           flutter build windows --release
 
       - name: Package as ZIP
+        shell: pwsh
         run: |
+          New-Item -ItemType Directory -Path PharmacyApp -Force
+
+          Copy-Item `
+            -Path "build\windows\x64\runner\Release\*" `
+            -Destination "PharmacyApp" `
+            -Recurse
+
           Compress-Archive `
-            -Path build\windows\x64\runner\Release\* `
-            -DestinationPath pharmacy_app_windows.zip
+            -Path "PharmacyApp" `
+            -DestinationPath "pharmacy_app_windows.zip" `
+            -Force
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
