@@ -223,6 +223,7 @@ class _InventoryScreenState extends State<InventoryScreen> with SingleTickerProv
         _buildMedicineList(db.watchExpiringMedicines()),
       ]),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'inventory_fab',
         onPressed: _openAdd,
         icon: const Icon(Icons.add),
         label: const Text('Add Medicine'),

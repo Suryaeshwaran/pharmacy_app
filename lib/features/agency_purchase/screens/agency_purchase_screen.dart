@@ -65,6 +65,7 @@ class _AgencyPurchaseScreenState extends State<AgencyPurchaseScreen>
         listenable: _tabs,
         builder: (_, __) => _tabs.index == 0
             ? FloatingActionButton.extended(
+                heroTag: 'agency_purchase_fab',
                 onPressed: _showAddAgencyDialog,
                 icon: const Icon(Icons.add),
                 label: const Text('Add Agency'),

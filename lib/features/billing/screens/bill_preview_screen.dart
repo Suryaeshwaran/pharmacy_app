@@ -36,8 +36,12 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
     return !(pharmacyIsOnline && feeIsOnline);
   }
 
-  String _pharmacyName = 'PHARMACY';
-  String _pharmacyCity = 'INVOICE';
+  String _pharmacyName = 'Pharmacy';
+  String? _pharmacyAddress;
+  String? _pharmacyCity;
+  String? _pharmacyGstn;
+  String? _pharmacyRegn;
+  String? _pharmacyPhone;
 
   @override
   void initState() {
@@ -51,10 +55,41 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
       if (info != null && mounted) {
         setState(() {
           if (info.name.isNotEmpty) _pharmacyName = info.name;
-          if ((info.city ?? '').isNotEmpty) _pharmacyCity = info.city!;
+          _pharmacyAddress = info.address;
+          _pharmacyCity = info.city;
+          _pharmacyGstn = info.gstn;
+          _pharmacyRegn = info.regn;
+          _pharmacyPhone = info.phone;
         });
       }
     } catch (_) {}
+  }
+
+  /// Header lines derived from PharmacyInfo — a field with no data is
+  /// skipped entirely (label and all), not just left blank.
+  List<String> _pharmacyHeaderLines() {
+    final lines = <String>[_pharmacyName];
+
+    final address = (_pharmacyAddress ?? '').trim();
+    final city = (_pharmacyCity ?? '').trim();
+    if (address.isNotEmpty && city.isNotEmpty) {
+      lines.add('$address, $city');
+    } else if (address.isNotEmpty) {
+      lines.add(address);
+    } else if (city.isNotEmpty) {
+      lines.add(city);
+    }
+
+    final gstn = (_pharmacyGstn ?? '').trim();
+    if (gstn.isNotEmpty) lines.add('GSTN: $gstn');
+
+    final regn = (_pharmacyRegn ?? '').trim();
+    if (regn.isNotEmpty) lines.add('REGN: $regn');
+
+    final phone = (_pharmacyPhone ?? '').trim();
+    if (phone.isNotEmpty) lines.add('Phone: $phone');
+
+    return lines;
   }
 
   // ── PDF generation ────────────────────────────────────────────────────────
@@ -71,11 +106,11 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
         children: [
           pw.Center(
             child: pw.Column(children: [
-              pw.Text(_pharmacyName,
+              pw.Text(_pharmacyHeaderLines().first,
                   style: pw.TextStyle(
                       fontSize: 20, fontWeight: pw.FontWeight.bold)),
-              pw.Text(_pharmacyCity,
-                  style: const pw.TextStyle(fontSize: 10)),
+              ..._pharmacyHeaderLines().skip(1).map((line) => pw.Text(line,
+                  style: const pw.TextStyle(fontSize: 10))),
               pw.SizedBox(height: 4),
               pw.Text('Bill No: ${bill.billNumber}',
                   style: pw.TextStyle(
@@ -238,7 +273,12 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
             '  ${i.medicineName} x${i.quantity} = ${i.totalPrice.toStringAsFixed(2)}')
         .join('\n');
 
-    return ' *$_pharmacyName - $_pharmacyCity*\n'
+    final headerLines = _pharmacyHeaderLines();
+    final header = ' *${headerLines.first}*\n'
+        '${headerLines.skip(1).map((l) => ' $l').join('\n')}'
+        '${headerLines.length > 1 ? '\n' : ''}';
+
+    return '$header'
         '━━━━━━━━━━━━━━━━━━\n'
         'Bill No: ${bill.billNumber}\n'
         'Date: ${DateFormat('dd MMM yyyy, hh:mm a').format(bill.billedAt)}\n'
@@ -392,13 +432,14 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
                     children: [
                       Center(
                           child: Column(children: [
-                        Text(_pharmacyName,
+                        Text(_pharmacyHeaderLines().first,
                             style: textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: cs.onSurface)),
-                        Text(_pharmacyCity,
+                        ..._pharmacyHeaderLines().skip(1).map((line) => Text(
+                            line,
                             style: textTheme.bodySmall
-                                ?.copyWith(color: cs.onSurface)),
+                                ?.copyWith(color: cs.onSurface))),
                         const SizedBox(height: 6),
                         Text('Bill No: ${bill.billNumber}',
                             style: TextStyle(
