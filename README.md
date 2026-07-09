@@ -1,17 +1,60 @@
-# pharmacy_app
+# PharmacyApp
+*A simple, offline-first pharmacy management system built with Flutter and SQLite.*
 
-A new Flutter project.
+The goal of this project is to provide a simple, fast, and offline-first solution for managing day-to-day pharmacy operations for small and medium-sized pharmacies.
 
-## Getting Started
+## Project Status
 
-This project is a starting point for a Flutter application.
+🚧 Under active development.
 
-A few resources to get you started if this is your first Flutter project:
+The application is feature complete and is currently being prepared for its first public open-source release.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+**Features**  
+💊 Medicine Inventory Management  
+🧾 Billing  
+👥 Patient Management  
+🚚 Agency Management  
+📋 Reports 
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+📊 Dashboard  
+⚙️ Maintenance  
+🖥️ Windows Desktop Support  
+🍎 macOS Development Support  
+💾 SQLite Database (Offline First)  
+
+**Technology Stack**
+- Flutter
+- Dart
+- SQLite (sqflite)
+
+**Getting Started**
+
+``` shell
+git clone https://github.com/Suryaeshwaran/pharmacy_app.git
+
+cd pharmacy_app
+
+flutter pub get
+
+flutter run 
+```
+
+**Contributing**
+
+Contributions, suggestions, and bug reports are welcome.
+
+If you'd like to contribute, please open an issue to discuss your idea before submitting a pull request.
+
+**License**
+
+This project is planned to be released as open source. 
+The license will be added before the first public release.
+
+## Screenshots
+
+![Dashboard](assets/image.png)
+![Inventory](assets/image-5.png)
+![Patient](assets/image-1.png)
+![Billing](assets/image-2.png)
+![Reports](assets/image-4.png)
+![Maintenance](assets/image-3.png)
