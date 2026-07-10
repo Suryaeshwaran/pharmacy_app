@@ -1,11 +1,9 @@
 # PharmacyApp
 *A simple, offline-first pharmacy management system built with Flutter and SQLite.*
 
-The goal of this project is to provide a simple, fast, and offline-first solution for managing day-to-day pharmacy operations for small and medium-sized pharmacies.
+> The goal of this project is to provide a simple, fast, and offline-first solution for managing day-to-day pharmacy operations for small and medium-sized pharmacies.
 
-## Project Status
-
-🚧 Under active development.
+**Project Status:** 🚧 Under active development.
 
 The application is feature complete and is currently being prepared for its first public open-source release.
 
@@ -14,8 +12,7 @@ The application is feature complete and is currently being prepared for its firs
 🧾 Billing  
 👥 Patient Management  
 🚚 Agency Management  
-📋 Reports 
-
+📋 Reports  
 📊 Dashboard  
 ⚙️ Maintenance  
 🖥️ Windows Desktop Support  
