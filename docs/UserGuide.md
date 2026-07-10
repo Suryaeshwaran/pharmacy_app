@@ -54,7 +54,39 @@ This package installs all VC++ runtime versions (2005 through 2022) in sequence,
 
 > **Note:** This step only needs to be done once per computer, before installing PharmacyApp for the first time.
 
-3. Installation
+## 3. Installation
+
+### Step 1: Locate the Installer File
+
+You will receive a compressed file such as:
+
+> PharmacyApp-v0.9.0.zip
+
+*(The version number may vary depending on release.)*
+
+### Step 2: Extract the Files
+
+1. Open the downloaded `.zip` file — this usually opens automatically with **WinZip** or your default extraction tool.
+2. Create a new folder on your computer to hold the application files — for example, **PharmacyApp** or **PharmaApp**.
+3. Click **Extract To**, then select the folder you just created.
+4. Wait for all files to be extracted into that folder.
+
+### Step 3: Run PharmacyApp
+
+1. Open the folder where you extracted the files.
+2. Double-click **`pharmacy_app.exe`**.
+3. The application will launch and you're ready to start using PharmacyApp.
+
+### Step 4: (Optional) Create a Desktop Shortcut
+
+For quicker access:
+
+1. Right-click on **`pharmacy_app.exe`**.
+2. Select **Send to → Desktop (create shortcut)**.
+3. Use this shortcut going forward to open PharmacyApp directly from your desktop.
+
+> **Tip:** Keep the extracted folder intact — do not move or rename individual files inside it, as PharmacyApp relies on files staying together in the same location.
+
 4. Getting Started
 5. Store Settings
 6. Inventory Management
