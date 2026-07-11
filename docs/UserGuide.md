@@ -5,7 +5,7 @@
 3. [Installation](#3-installation)
 4. [Getting Started](#4-getting-started)  
    4.1 [Store Settings](#41-store-settings)  
-   4.2 Inventory Management  
+   4.2 [Inventory Management](#42-inventory-management)  
    4.3 Billing  
    4.4 Patient Management  
    4.5 Agency Management
@@ -35,7 +35,7 @@ This guide is written for pharmacy staff and owners who will use PharmacyApp dai
 
 ### How This Guide Is Organized
 
-Each chapter builds on the previous one. If you're setting up PharmacyApp for the first time, we recommend reading Chapters 2–5 in order before jumping to specific feature chapters. Experienced users can jump directly to the relevant chapter or use the Quick Reference (Chapter 13) for a fast lookup.
+Each chapter builds on the previous one. If you're setting up PharmacyApp for the first time, we recommend reading Chapters 2–5 in order before jumping to specific feature chapters. Experienced users can jump directly to the relevant chapter or use the Quick Reference for a fast lookup.
 
 ## 2. System Requirements
 
@@ -108,8 +108,8 @@ Before creating your first bill, set up your pharmacy's details. These details a
 
 **Steps:**
 
-1. Open PharmacyApp and go to the **Maintenance** tab.
-2. Select **Settings**.
+1. Open PharmacyApp and go to the **Maintenance**.
+2. Select **Settings** tab.
 
    
    ![Settings tab](images/settings-tab.png)
@@ -130,3 +130,39 @@ Before creating your first bill, set up your pharmacy's details. These details a
 > **Note:** Any field left blank will simply not appear on your bills — you don't need to fill in every field for the app to work correctly.
 
 Once saved, these details will automatically appear on the header of every bill you generate — whether printed, saved as PDF, or shared via WhatsApp.
+
+### 4.2 Inventory Management
+
+The Inventory module is where you manage all medicines in stock — adding new medicines, adjusting quantities, and editing details.
+
+#### Adding a Medicine
+
+1. Go to the **Inventory** tab.
+2. Click **+ Add Medicine** at the bottom right.
+3. Fill in the required details:
+
+   - Medicine Name
+   - Stock Quantity
+   - Low Stock Alert
+   - Price/unit
+   - Batch Number
+   - Expiry Date
+
+
+4. Click **Add Medicine** to save.
+
+   ![Add Medicine](images/add-medicine.png)
+
+#### Managing Existing Medicines
+
+Once added, medicines appear under the **All** tab. From here you can:
+
+- **Adjust stock** — Click the **+** icon to add stock quantity.
+- **Edit details** — Click the edit icon to update medicine information.
+
+![Added Medicine](images/added-medicine.png)
+
+#### Deleting a Medicine
+
+The delete option is only enabled once a medicine's stock reaches **0**. Medicines with remaining stock cannot be deleted — this prevents accidental loss of stock and billing records that are still tied to that medicine.
+
