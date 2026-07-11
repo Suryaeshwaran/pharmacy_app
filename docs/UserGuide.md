@@ -1,18 +1,18 @@
 # PharmacyApp User Guide
 
-1. Introduction
-2. System Requirements
-3. Installation
-4. Getting Started  
-   4.1 Store Settings
-5. Inventory Management
-6. Billing
-7. Patient Management
-8. Agency Management
-9. Reports
-10. Maintenance
-11. Frequently Asked Questions
-12. Quick Reference
+1. [Introduction](#1-introduction)
+2. [System Requirements](#2-system-requirements)
+3. [Installation](#3-installation)
+4. [Getting Started](#4-getting-started)  
+   4.1 [Store Settings](#41-store-settings)  
+   4.2 Inventory Management  
+   4.3 Billing  
+   4.4 Patient Management  
+   4.5 Agency Management
+5. Reports
+6. Maintenance
+7. Frequently Asked Questions
+8. Quick Reference
 
 ## 1. Introduction
 
@@ -130,12 +130,3 @@ Before creating your first bill, set up your pharmacy's details. These details a
 > **Note:** Any field left blank will simply not appear on your bills — you don't need to fill in every field for the app to work correctly.
 
 Once saved, these details will automatically appear on the header of every bill you generate — whether printed, saved as PDF, or shared via WhatsApp.
-
-4.2 Inventory Management
-4.3 Billing
-4.4 Patient Management
-4.5 Agency Management
-5. Reports
-6. Maintenance
-7. Frequently Asked Questions
-8. Quick Reference
