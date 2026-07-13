@@ -1,5 +1,6 @@
 # PharmacyApp User Guide
 
+## TOC
 1. [Introduction](#1-introduction)
 2. [System Requirements](#2-system-requirements)
 3. [Installation](#3-installation)
@@ -11,8 +12,8 @@
    4.5 [Agency](#45-agency)  
 5. [Reports](#5-reports)
 6. [Maintenance](#6-maintenance)
-7. Frequently Asked Questions
-8. Quick References
+7. [Frequently Asked Questions](#7-frequentrly-asked-questions)
+8. [Quick References](#8-quick-references)
 
 ## 1. Introduction
 
@@ -293,7 +294,7 @@ The Agency screen lets you manage your medicine supplier agencies — adding age
 
 ![Agency Reports](images/agency-reports.png)
 
-### 5. Reports
+## 5. Reports
 
 The Reports screen gives you a consolidated view of your sales activity, broken down by Daily, Monthly, and Yearly tabs. It's also where you can edit or delete previously generated bills.
 
@@ -334,7 +335,7 @@ The Reports screen gives you a consolidated view of your sales activity, broken 
 
 ![Reports Yearly](images/reports-yearly.png )
 
-### 6. Maintenance
+## 6. Maintenance
 
 The Maintenance screen provides tools to back up and restore your data, clean up old bill records, and access store settings — all in one place, organized under three tabs.
 
@@ -374,3 +375,70 @@ The Maintenance screen provides tools to back up and restore your data, clean up
 **Settings Tab**
 
 This tab is the same as the **Store Settings** covered in [Getting Started # 4.1](#41-store-settings). Refer to that section for details.
+
+## 7. Frequently Asked Questions
+
+**Q: Does PharmacyApp need an internet connection to work?**  
+No. All data is stored locally on your computer, and the app works fully offline for day-to-day billing, inventory, and patient management. An internet connection is only needed if you choose to share a bill via WhatsApp.
+
+**Q: Can multiple staff members use PharmacyApp at the same time on different computers?**  
+No. PharmacyApp stores data locally on a single computer, so it is designed for use on one machine at a time. It is not built for multiple users accessing the same data simultaneously across different computers.
+
+**Q: Why can't I delete a medicine from Inventory?**  
+The delete option is only enabled once a medicine's stock quantity reaches **0**. This prevents accidental loss of stock and billing records still tied to that medicine.
+
+**Q: What happens to stock when I delete a bill?**  
+When a bill is deleted from the Reports screen, the corresponding stock quantities are automatically restored back to Inventory.
+
+**Q: I didn't fill in all the Store Settings fields — will my bills still work?**  
+Yes. Any field left blank in Store Settings simply won't appear on your bills. You don't need to fill every field for the app to work correctly.
+
+**Q: How do I share a bill with a patient who doesn't have a phone number?**  
+If no phone number is entered, the bill is saved as a **Walk-in** sale. You can still save and open the bill as a PDF then print and share it, but WhatsApp sharing requires a phone number.
+
+**Q: How do I print a bill?**  
+Go to the **Reports** screen, find the bill, and open its **PDF preview**. From the PDF preview, use **Print (Ctrl+P)** to print the bill.
+
+**Q: How do I edit or delete a bill?**  
+Bills can only be edited or deleted from the **Reports** screen. Locate the bill under the Daily, Monthly, or Yearly tab, then select **Edit** or **Delete**.
+
+**Q: Where is my data stored, and is it safe if my computer crashes?**  
+All data is stored locally in a database file on your computer. To protect against data loss, take regular backups from **Maintenance → Backup & Restore**. See [Maintenance](#6-maintenance) for details.
+
+**Q: PharmacyApp won't launch, or shows a missing DLL error. What do I do?**  
+This usually means the Microsoft Visual C++ Redistributable Runtime is missing or corrupted. See [System Requirements](#2-system-requirements) for the fix using the TechPowerUp All-in-One Redistributable package.
+
+**Q: I deleted the wrong bill or record — can I recover it?**  
+Only if you have a recent backup. Use **Maintenance → Backup & Restore** to restore your data from a previously saved backup file. There is no undo for deletions otherwise.
+
+**Q: How often should I back up my data?**  
+It's recommended to take a backup regularly — for example, at the end of each day or week — and always before performing **Data Cleanup** or updating the app.
+
+## 8. Quick References
+
+A fast lookup for common tasks. For detailed steps, refer to the relevant chapter.
+
+| Task | Where to Go |
+|---|---|
+| Set up pharmacy details | Maintenance → Settings |
+| Add a new medicine | Inventory → + Add Medicine |
+| Add stock to existing medicine | Inventory → **+** icon on medicine |
+| Edit medicine details | Inventory → Edit icon |
+| Delete a medicine | Inventory → Delete (only when stock = 0) |
+| Add a new patient | Patients → Add Patient |
+| Search for a patient | Patients → Search bar |
+| Add patient to Visiting Today | Patients → Search → Add to Visiting Today |
+| Edit/delete a patient record | Patients → Search → Edit/Delete |
+| Create a bill | Billing → Search Medicine → Generate Bill |
+| Save bill as PDF | Billing → Generate Bill → Save PDF |
+| Share bill via WhatsApp | Billing → Generate Bill → Share via WhatsApp |
+| Print a bill | Reports → open bill PDF preview → Ctrl+P |
+| Edit or delete a bill | Reports → select bill → Edit/Delete |
+| View daily/monthly/yearly sales | Reports → Daily / Monthly / Yearly tab |
+| Add a new agency | Agency → + Add Agency |
+| Add an agency bill | Agency → select agency → Add Bill |
+| Record agency payment | Agency → expand bill → Pay |
+| View agency reports | Agency → Reports tab |
+| Back up data | Maintenance → Backup & Restore → Export Backup |
+| Restore data | Maintenance → Backup & Restore → follow Restore steps |
+| Delete old bills (3+ months) | Maintenance → Data Cleanup |
