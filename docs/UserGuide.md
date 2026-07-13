@@ -8,8 +8,8 @@
    4.2 [Inventory Management](#42-inventory-management)  
    4.3 [Patient Management](#43-patient-management)  
    4.4 [Billing](#44-billing)  
-   4.5 Agency Management
-5. Reports
+   4.5 [Agency](#45-agency)  
+5. [Reports](#5-reports)
 6. Maintenance
 7. Frequently Asked Questions
 8. Quick Reference
@@ -250,4 +250,90 @@ You can add patient details in one of two ways:
 
 ![Bill Preview](images/bill-preview.png)
 
-> **Note:** To edit or delete a bill after it has been generated, go to the **Reports** screen. See [Reports](#reports) for details.
+> **Note:** To edit or delete a bill after it has been generated, go to the **Reports** screen. See [Reports](#5-reports) for details.
+
+### 4.5 Agency
+
+The Agency screen lets you manage your medicine supplier agencies — adding agencies, recording their bills, and tracking payments made against those bills. It also provides a Reports tab for a monthly/yearly summary of agency bills and payments.
+
+![Agency Screen](images/agency-screen.png)
+
+**Adding an Agency**
+
+1. Open the **Agency** screen from the main menu.
+2. On the **Agencies** tab, click **+ Add Agency** at the bottom right.
+3. Enter the agency name and save.
+
+**Adding a Bill for an Agency**
+
+1. Select the agency from the list.
+2. Click **Add Bill**.
+3. Enter the bill details:
+   - Bill Amount
+   - Bill Date
+   - Bill Number *(optional)*
+4. Save the bill.
+
+
+![Agency Add Bill](images/agency-add-bill.png)
+
+**Recording a Payment**
+
+1. Expand an agency's dropdown to view its list of bills.
+2. Select the bill you want to pay against.
+3. Click **Pay** and enter the payment details.
+4. Save to record the payment.
+
+![Agency Payment](images/agency-payment.png)
+
+**Agency Reports**
+
+1. Switch to the **Reports** tab on the Agency screen.
+2. View a summary of **Monthly** and **Yearly** bills and payments made across agencies.
+
+![Agency Reports](images/agency-reports.png)
+
+### 5 Reports
+
+The Reports screen gives you a consolidated view of your sales activity, broken down by Daily, Monthly, and Yearly tabs. It's also where you can edit or delete previously generated bills.
+
+*[Screenshot: Reports Screen — showing Daily tab with bill list and date picker]*
+
+![Reports Screen Daily](images/reports-daily.png)
+
+**Overview**
+
+- The Reports screen opens by default to the **Daily** tab.
+- Three tabs are available: **Daily**, **Monthly**, and **Yearly**.
+
+**Daily Tab**
+
+1. By default, shows **today's** bills.
+2. Use the **date picker** to view bills for any previous date.
+3. Each bill in the list shows the **Sales** and **Fee** amounts.
+4. A **Total** (sum of Sales + Fee) is shown for the selected day.
+
+**Editing or Deleting a Bill**
+
+1. From the bill list (Daily, Monthly, or Yearly), select the bill you want to update.
+2. Click **Edit** to modify the bill, or **Delete** to remove it.
+3. Confirm the action when prompted.
+
+> **Note:** Deleting a bill automatically restores the corresponding stock quantities back to inventory.
+
+**Monthly Tab**
+
+1. Switch to the **Monthly** tab.
+2. View bills, Sales, Fee, and Total summarized for the selected month.
+
+*[Screenshot: Reports Screen — Monthly tab]*
+![Reports Monthly](images/reports-monthly.png)
+
+**Yearly Tab**
+
+1. Switch to the **Yearly** tab.
+2. View bills, Sales, Fee, and Total summarized for the selected year.
+
+![Reports Yearly](images/reports-yearly.png )
+
+
