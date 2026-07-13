@@ -7,7 +7,7 @@
    4.1 [Store Settings](#41-store-settings)  
    4.2 [Inventory Management](#42-inventory-management)  
    4.3 [Patient Management](#43-patient-management)  
-   4.4 Billing
+   4.4 [Billing](#44-billing)  
    4.5 Agency Management
 5. Reports
 6. Maintenance
@@ -195,7 +195,7 @@ The Patient Management screen lets you maintain a record of patients, search for
 3. Click **Add to Visiting Today**.
 4. The patient will now appear in the Visiting Today list, and will be available for selection directly on the Billing screen.
 
-*[Screenshot: Search results with "Add to Visiting Today" option highlighted]*
+*[On Search results Click "Visiting Today" to add to list]*
 
 ![Search Patient](images/search-patient.png)
 
@@ -207,3 +207,47 @@ The Patient Management screen lets you maintain a record of patients, search for
 4. Confirm the action when prompted.
 
 > **Note:** Patients added to the Visiting Today list will show up automatically on the Billing screen, making it faster to select them during checkout without searching again.
+
+### 4.4 Billing
+
+The Billing screen is where you generate bills for patients, whether they're visiting today or walking in. It allows you to search medicines, record patient details, capture payments, and generate a shareable bill.
+
+
+![Billing Screen](images/billing-screen.png)
+
+**Adding Medicines to the Bill**
+
+1. Use the **Search Medicine** field to find the medicine by name.
+2. Select the medicine from the search results.
+3. Specify the required **quantity**.
+4. Repeat to add multiple medicines to the same bill.
+
+**Adding Patient Details**
+
+You can add patient details in one of two ways:
+
+- **From Visiting Today list:** Select a patient already added to the Visiting Today list (see [Patient Management](#43-patient-management)).
+- **Manual entry:** Enter the patient's **Name** and **Phone Number** directly.
+
+> **Note:** Adding a phone number allows you to share the bill via WhatsApp. If patient details are left blank, the bill will be saved as a **Walk-in** sale.
+
+**Selecting Pharmacy Payment Method**
+
+1. Choose the **Pharmacy Payment Method** for the medicine bill amount (e.g., Cash, UPI).
+
+**Adding Fee Payment (if applicable)**
+
+1. Enter the **Fee Amount**, if a consultation or service fee applies.
+2. Select the **Fee Payment Method**.
+
+**Generating the Bill**
+
+1. Once medicines, patient details, and payment methods are entered, click **Generate Bill**.
+2. This opens a **Bill Preview**.
+3. From the preview, you can:
+   - **Save and open as PDF**
+   - **Share via WhatsApp**
+
+![Bill Preview](images/bill-preview.png)
+
+> **Note:** To edit or delete a bill after it has been generated, go to the **Reports** screen. See [Reports](#reports) for details.
