@@ -10,9 +10,9 @@
    4.4 [Billing](#44-billing)  
    4.5 [Agency](#45-agency)  
 5. [Reports](#5-reports)
-6. Maintenance
+6. [Maintenance](#6-maintenance)
 7. Frequently Asked Questions
-8. Quick Reference
+8. Quick References
 
 ## 1. Introduction
 
@@ -293,11 +293,10 @@ The Agency screen lets you manage your medicine supplier agencies — adding age
 
 ![Agency Reports](images/agency-reports.png)
 
-### 5 Reports
+### 5. Reports
 
 The Reports screen gives you a consolidated view of your sales activity, broken down by Daily, Monthly, and Yearly tabs. It's also where you can edit or delete previously generated bills.
 
-*[Screenshot: Reports Screen — showing Daily tab with bill list and date picker]*
 
 ![Reports Screen Daily](images/reports-daily.png)
 
@@ -326,7 +325,6 @@ The Reports screen gives you a consolidated view of your sales activity, broken 
 1. Switch to the **Monthly** tab.
 2. View bills, Sales, Fee, and Total summarized for the selected month.
 
-*[Screenshot: Reports Screen — Monthly tab]*
 ![Reports Monthly](images/reports-monthly.png)
 
 **Yearly Tab**
@@ -336,4 +334,43 @@ The Reports screen gives you a consolidated view of your sales activity, broken 
 
 ![Reports Yearly](images/reports-yearly.png )
 
+### 6. Maintenance
 
+The Maintenance screen provides tools to back up and restore your data, clean up old bill records, and access store settings — all in one place, organized under three tabs.
+
+![Maintenance Backup](images/maintenance-backup.png)
+
+**Overview**
+
+- The Maintenance screen has three tabs: **Backup & Restore**, **Data Cleanup**, and **Settings**.
+- It opens by default to the **Backup & Restore** tab.
+
+**Backup & Restore Tab**
+
+*Export Backup*
+
+1. Click **Export Backup**.
+2. Choose the location where you want to save the backup file.
+3. The database file (`.sqlite`) will be saved to the selected location.
+
+*Restore*
+
+1. Follow the on-screen steps provided under the **Restore** section to restore a previous backup.
+
+
+> **Note:** It's recommended to take regular backups, especially before performing data cleanup or major updates.
+
+**Data Cleanup Tab**
+
+1. Switch to the **Data Cleanup** tab.
+2. This lists months containing bills **older than 3 months**, which are eligible for deletion.
+3. Select the month(s) you want to clean up and confirm deletion.
+
+
+![Maintenance Cleanup](images/maintenance-cleanup-data.png)
+
+> **Note:** Deleted bills under cleanup are permanent — ensure a backup is taken before proceeding.
+
+**Settings Tab**
+
+This tab is the same as the **Store Settings** covered in [Getting Started # 4.1](#41-store-settings). Refer to that section for details.
