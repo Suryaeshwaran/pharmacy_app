@@ -12,7 +12,7 @@
    4.5 [Agency](#45-agency)  
 5. [Reports](#5-reports)
 6. [Maintenance](#6-maintenance)
-7. [Frequently Asked Questions](#7-frequentrly-asked-questions)
+7. [Frequently Asked Questions](#7-frequently-asked-questions)
 8. [Quick References](#8-quick-references)
 
 ## 1. Introduction
