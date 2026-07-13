@@ -6,8 +6,8 @@
 4. [Getting Started](#4-getting-started)  
    4.1 [Store Settings](#41-store-settings)  
    4.2 [Inventory Management](#42-inventory-management)  
-   4.3 Billing  
-   4.4 Patient Management  
+   4.3 [Patient Management](#43-patient-management)  
+   4.4 Billing
    4.5 Agency Management
 5. Reports
 6. Maintenance
@@ -166,3 +166,44 @@ Once added, medicines appear under the **All** tab. From here you can:
 
 The delete option is only enabled once a medicine's stock reaches **0**. Medicines with remaining stock cannot be deleted — this prevents accidental loss of stock and billing records that are still tied to that medicine.
 
+### 4.3 Patient Management
+
+The Patient Management screen lets you maintain a record of patients, search for existing patients quickly during billing, and add patients to the "Visiting Today" list so they appear directly in the billing screen.
+
+![Patient Screen](images/patient-screen.png)
+
+**Adding a New Patient**
+
+1. Open the **Patients** screen from the main menu.
+2. Click **Add Patient**.
+3. Enter the required details:
+   - Patient ID
+   - Name
+   - Phone Number
+4. Click **Save** to add the patient to your records.
+
+**Searching for a Patient**
+
+1. Use the search bar at the top of the Patients screen.
+2. Search by **Patient ID**, **Name**, or **Phone Number**.
+3. Matching records will appear in the list below.
+
+**Adding to Visiting Today List**
+
+1. Search for the patient as described above.
+2. Select the patient record from the search results.
+3. Click **Add to Visiting Today**.
+4. The patient will now appear in the Visiting Today list, and will be available for selection directly on the Billing screen.
+
+*[Screenshot: Search results with "Add to Visiting Today" option highlighted]*
+
+![Search Patient](images/search-patient.png)
+
+**Editing or Deleting a Patient Record**
+
+1. Search for the patient you want to update.
+2. Select the record from the search results.
+3. Click **Edit** to update details, or **Delete** to remove the patient record.
+4. Confirm the action when prompted.
+
+> **Note:** Patients added to the Visiting Today list will show up automatically on the Billing screen, making it faster to select them during checkout without searching again.
