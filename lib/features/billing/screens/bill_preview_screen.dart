@@ -94,12 +94,13 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
 
   // ── PDF generation ────────────────────────────────────────────────────────
 
-  Future<Uint8List> _generatePdf() async {
+  Future<Uint8List> _generatePdf({PdfPageFormat? format}) async {
     final pdf = pw.Document();
     final dateStr = DateFormat('dd MMM yyyy, hh:mm a').format(bill.billedAt);
+    final pageFormat = format ?? PdfPageFormat.a5;
 
     pdf.addPage(pw.Page(
-      pageFormat: PdfPageFormat.a5,
+      pageFormat: pageFormat,
       margin: const pw.EdgeInsets.all(24),
       build: (ctx) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -265,6 +266,48 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
     }
   }
 
+  // ── Print (native print dialog, correct page format) ──────────────────────
+
+  Future<PdfPageFormat?> _choosePageOrientation(BuildContext context) async {
+    return showDialog<PdfPageFormat>(
+      context: context,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          title: Text('Print Orientation',
+              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold)),
+          content: Text(
+              'Choose Landscape if the bill has too many items for Portrait A5.',
+              style: TextStyle(color: cs.onSurface)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: const Text('Cancel'),
+            ),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(ctx, PdfPageFormat.a5.landscape),
+              child: const Text('Landscape'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, PdfPageFormat.a5),
+              child: const Text('Portrait'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _printBill(BuildContext context) async {
+    final format = await _choosePageOrientation(context);
+    if (format == null) return;
+
+    final data = await _generatePdf(format: format);
+    await Printing.layoutPdf(onLayout: (_) => data, format: format);
+  }
+
   // ── WhatsApp share ────────────────────────────────────────────────────────
 
   String _buildWhatsAppMessage() {
@@ -396,8 +439,13 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.picture_as_pdf, color: cs.onSurface),
-            tooltip: isDesktop ? 'Save & Open PDF' : 'Print / Save PDF',
+            tooltip: isDesktop ? 'Save & Open PDF' : 'Save PDF',
             onPressed: () => _printPdf(context),
+          ),
+          IconButton(
+            icon: Icon(Icons.print, color: cs.onSurface),
+            tooltip: 'Print',
+            onPressed: () => _printBill(context),
           ),
           IconButton(
             icon: Icon(Icons.chat, color: cs.onSurface),
