@@ -267,43 +267,12 @@ class _BillPreviewScreenState extends State<BillPreviewScreen> {
   }
 
   // ── Print (native print dialog, correct page format) ──────────────────────
-
-  Future<PdfPageFormat?> _choosePageOrientation(BuildContext context) async {
-    return showDialog<PdfPageFormat>(
-      context: context,
-      builder: (ctx) {
-        final cs = Theme.of(ctx).colorScheme;
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          title: Text('Print Orientation',
-              style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold)),
-          content: Text(
-              'Choose Landscape if the bill has too many items for Portrait A5.',
-              style: TextStyle(color: cs.onSurface)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: const Text('Cancel'),
-            ),
-            OutlinedButton(
-              onPressed: () => Navigator.pop(ctx, PdfPageFormat.a5.landscape),
-              child: const Text('Landscape'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, PdfPageFormat.a5),
-              child: const Text('Portrait'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Defaults to A5 Portrait. Printing.layoutPdf() passes this PdfPageFormat
+  // to the OS print dialog as the default, but the user can still switch to
+  // Landscape (or any other paper size) from within that native dialog.
 
   Future<void> _printBill(BuildContext context) async {
-    final format = await _choosePageOrientation(context);
-    if (format == null) return;
-
+    final format = PdfPageFormat.a5;
     final data = await _generatePdf(format: format);
     await Printing.layoutPdf(onLayout: (_) => data, format: format);
   }
