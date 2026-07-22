@@ -15,6 +15,8 @@ on:
 jobs:
   build-windows:
     runs-on: windows-2022
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,9 +61,26 @@ jobs:
             -Destination "PharmacyApp" `
             -Recurse
 
-      - name: Upload build artifact
+      - name: Upload build artifact (CI)
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: pharmacy-app-windows
           path: PharmacyApp\
           retention-days: 30
+
+      - name: Zip release build
+        if: github.event_name == 'release'
+        shell: pwsh
+        run: |
+          $tag = "${{ github.event.release.tag_name }}"
+          $zipName = "pharmacy-app-windows-$tag.zip"
+          Compress-Archive -Path "PharmacyApp" -DestinationPath $zipName
+          echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
+
+      - name: Attach zip to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: ${{ env.ZIP_NAME }}
