@@ -140,6 +140,8 @@ The Inventory module is where you manage all medicines in stock — adding new m
 
 1. Go to the **Inventory** tab.
 2. Click **+ Add Medicine** at the bottom right.
+- User can enter number of tables as count while stocking(ex: No. of Tablets/Kits/Bottles)
+- No need to do stripe calculations, just total count will do.
 3. Fill in the required details:
 
    - Medicine Name
