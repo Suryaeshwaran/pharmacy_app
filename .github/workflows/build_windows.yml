@@ -9,6 +9,7 @@ on:
       - 'LICENSE'
       - 'docs/**'
       - '.gitignore'
+      - 'CLAUDE.md'
   release:
     types: [created]
 
