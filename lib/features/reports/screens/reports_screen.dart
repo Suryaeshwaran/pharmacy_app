@@ -740,38 +740,97 @@ class _BillRow extends StatelessWidget {
     }
   }
 
+  /// Builds "Pharmacy Cash: ₹X | Fee GPay: ₹Y" style breakdown, skipping
+  /// any segment that is zero. Returns empty string if nothing to show
+  /// (e.g. legacy bills with no split amounts recorded).
+  String _paymentBreakdown() {
+    final segments = <String>[];
+    if (bill.cashAmount > 0) {
+      segments.add('Pharmacy Cash: ₹${bill.cashAmount.toStringAsFixed(0)}');
+    }
+    if (bill.onlineAmount > 0) {
+      segments.add('Pharmacy GPay: ₹${bill.onlineAmount.toStringAsFixed(0)}');
+    }
+    if (bill.feeCashAmount > 0) {
+      segments.add('Fee Cash: ₹${bill.feeCashAmount.toStringAsFixed(0)}');
+    }
+    if (bill.feeOnlineAmount > 0) {
+      segments.add('Fee GPay: ₹${bill.feeOnlineAmount.toStringAsFixed(0)}');
+    }
+    return segments.join(' | ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return ListTile(
-      dense: true,
-      leading: const Icon(Icons.receipt_outlined),
-      title: Text(bill.billNumber, style: TextStyle(color: cs.onSurface)),
-      subtitle: Text(
-        '${bill.customerName ?? 'Walk-in customer'} • ${DateFormat('hh:mm a').format(bill.billedAt)}',
-        style: TextStyle(color: cs.onSurface.withValues(alpha:0.7)),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '₹${bill.totalAmount.toStringAsFixed(2)}',
-            style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface),
-          ),
-          const SizedBox(width: 4),
-          IconButton(
-            icon: Icon(Icons.edit_outlined, size: 18, color: cs.primary),
-            tooltip: 'Edit bill',
-            onPressed: () => _editBill(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-            tooltip: 'Delete bill',
-            onPressed: () => _deleteBill(context),
-          ),
-        ],
-      ),
+    final breakdown = _paymentBreakdown();
+    // NOTE: Not using ListTile here (deliberately) — ListTile enforces a
+    // fixed row height, and the breakdown text could wrap to 2 lines and
+    // overflow that fixed height (this caused the earlier RenderFlex
+    // overflow). A plain Row/Column sizes itself to its content instead.
+    return InkWell(
       onTap: () => _openBillPreview(context),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.receipt_outlined, color: cs.onSurface.withValues(alpha: 0.7)),
+            const SizedBox(width: 16),
+            // ── Left: bill number + customer/time ─────────────────────
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(bill.billNumber, style: TextStyle(color: cs.onSurface)),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${bill.customerName ?? 'Walk-in customer'} • ${DateFormat('hh:mm a').format(bill.billedAt)}',
+                    style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7), fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            // ── Center: payment breakdown ─────────────────────────────
+            if (breakdown.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  breakdown,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: cs.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(width: 8),
+            // ── Right: total + actions (unchanged from before) ────────
+            Text(
+              '₹${bill.totalAmount.toStringAsFixed(2)}',
+              style: TextStyle(fontWeight: FontWeight.w600, color: cs.onSurface),
+            ),
+            const SizedBox(width: 4),
+            IconButton(
+              icon: Icon(Icons.edit_outlined, size: 18, color: cs.primary),
+              tooltip: 'Edit bill',
+              onPressed: () => _editBill(context),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+              tooltip: 'Delete bill',
+              onPressed: () => _deleteBill(context),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
