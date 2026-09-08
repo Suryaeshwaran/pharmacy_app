@@ -806,7 +806,7 @@ class _BillRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13,
-                    color: cs.onSurface.withValues(alpha: 0.6),
+                    color: cs.onSurface,
                   ),
                 ),
               ),
